@@ -4,113 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>パズドラ 闘技場報酬＆素材検索ツール</title>
-    <style>
-        /* 見た目を整えるCSS */
-        body {
-            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', sans-serif;
-            background-color: #f4f7f6;
-            color: #333;
-            margin: 0;
-            padding: 20px;
-        }
-        h1 {
-            color: #2c3e50;
-            text-align: center;
-            font-size: 24px;
-        }
-        h2 {
-            color: #2c3e50;
-            border-bottom: 2px solid #3498db;
-            padding-bottom: 5px;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        
-        /* 切り替えボタン（タブ）のスタイル */
-        .tab-menu {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .tab-button {
-            flex: 1;
-            padding: 15px;
-            background-color: #ecf0f1;
-            color: #2c3e50;
-            border: 2px solid #bdc3c7;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .tab-button:hover {
-            background-color: #e0e6e8;
-        }
-        /* 選択されているボタンのスタイル */
-        .tab-button.active {
-            background-color: #3498db;
-            color: white;
-            border-color: #3498db;
-        }
-
-        /* 画面を隠すための便利なクラス */
-        .hidden {
-            display: none;
-        }
-
-        /* 入力欄と検索ボタンのスタイル */
-        input[type="text"] {
-            width: calc(100% - 22px);
-            padding: 10px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            margin-bottom: 10px;
-        }
-        .action-button {
-            width: 100%;
-            padding: 10px;
-            background-color: #2ecc71;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .action-button:hover {
-            background-color: #27ae60;
-        }
-        
-        /* 結果表示エリアのスタイル */
-        .result-box {
-            margin-top: 15px;
-            padding: 15px;
-            background: #f9f9f9;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-        }
-        .item {
-            border-bottom: 1px dashed #bdc3c7;
-            padding: 10px 0;
-        }
-        .item:last-child {
-            border-bottom: none;
-        }
-        .item-title {
-            font-weight: bold;
-            color: #e74c3c;
-            font-size: 18px;
-            margin-bottom: 5px;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -124,7 +18,7 @@
 
     <div id="sectionSearch">
         <h2>素材からドロップ場所を検索</h2>
-        <input type="text" id="searchInput" placeholder="例：ホノピィ、創装の宝玉 など">
+        <input type="text" id="searchInput" placeholder="例：希石、宝玉、たまドラ など">
         <button class="action-button" onclick="searchMaterial()">検索する</button>
         <div id="searchResult" class="result-box">
             ここに検索結果が表示されます。
@@ -138,65 +32,6 @@
     </div>
 </div>
 
-<script>
-    /* ==========================================
-       ▼ データ部分（ここを充実させていきます） ▼
-       ========================================== */
-    const materialData = [
-        { name: "ホノピィ", locations: ["極限の闘技場1", "裏・極限の闘技場", "未知の新生"] },
-        { name: "ニジピィ", locations: ["裏・極限の闘技場", "修羅の幻界"] },
-        { name: "創装の宝玉", locations: ["四次元の探訪者", "機構城の絶対者"] },
-        { name: "スーパーノエルドラゴン", locations: ["裏・修羅の幻界", "未知の新生（百式）"] }
-    ];
-
-    const arenaData = [
-        { name: "極限の闘技場【ノーコン】 (双極1)", rewards: ["ピィ(各色)", "ノエルドラゴン"] },
-        { name: "裏・極限の闘技場 (裏双極)", rewards: ["ニジピィ", "潜在たまドラ", "精霊王の希石"] },
-        { name: "修羅の幻界 (魔門の守護者)", rewards: ["枠解放たまドラ", "リッチゴールドドラゴン", "大量の経験値"] }
-    ];
-
-    /* ==========================================
-       ▼ プログラム部分 ▼
-       ========================================== */
-
-    // --- 画面切り替えの処理 ---
-    function switchTab(tabName) {
-        // 全ての画面を一旦隠す
-        document.getElementById('sectionSearch').classList.add('hidden');
-        document.getElementById('sectionArena').classList.add('hidden');
-        
-        // 全てのボタンの色を一旦元に戻す
-        document.getElementById('btnSearch').classList.remove('active');
-        document.getElementById('btnArena').classList.remove('active');
-
-        // 選ばれた方だけを表示して、ボタンの色を変える
-        if (tabName === 'search') {
-            document.getElementById('sectionSearch').classList.remove('hidden');
-            document.getElementById('btnSearch').classList.add('active');
-        } else if (tabName === 'arena') {
-            document.getElementById('sectionArena').classList.remove('hidden');
-            document.getElementById('btnArena').classList.add('active');
-        }
-    }
-
-    // --- 素材検索の処理 ---
-    function searchMaterial() {
-        const query = document.getElementById('searchInput').value.trim();
-        const resultDiv = document.getElementById('searchResult');
-        
-        if (query === "") {
-            resultDiv.innerHTML = "検索キーワードを入力してください。";
-            return;
-        }
-
-        const results = materialData.filter(item => item.name.includes(query));
-
-        if (results.length > 0) {
-            let html = "";
-            results.forEach(item => {
-                html += `<div class="item">
-                            <div class="item-title">${item.name}</div>
-                            <div>📍 ドロップ場所: ${item.locations.join('、 ')}</div>
-                         </div>`;
-            });
-            resultDiv.innerHTML = html
+<script src="script.js"></script>
+</body>
+</html>
