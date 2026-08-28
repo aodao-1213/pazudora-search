@@ -17,13 +17,11 @@ async function loadCSV() {
         const buffer = await response.arrayBuffer();
         
         // まず標準のUTF-8で解釈してみる
-        let decoder = new TextDecoder('utf-8');
-        let text = decoder.decode(buffer);
+        let text = new TextDecoder('utf-8').decode(buffer);
         
-        // Excel保存特有の文字化け（）が含まれていたら、Shift_JISで解釈し直す（文字化け解消！）
+        // もしUTF-8で解釈して文字化け記号「」が含まれていたら、Shift_JISで解釈し直す
         if (text.includes('')) {
-            decoder = new TextDecoder('shift_jis');
-            text = decoder.decode(buffer);
+            text = new TextDecoder('shift_jis').decode(buffer);
         }
         
         dungeonData = parseCSV(text);
@@ -67,4 +65,5 @@ function parseCSV(text) {
         }
     }
     return result;
+}
 }
