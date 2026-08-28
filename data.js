@@ -9,7 +9,7 @@ window.onload = async function() {
 
 async function loadCSV() {
     try {
-        const response = await fetch('dangeon_2.csv');
+        const response = await fetch('dangeon.csv');
         const buffer = await response.arrayBuffer();
         
         let text = new TextDecoder('utf-8').decode(buffer);
