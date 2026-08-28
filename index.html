@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>パズドラ 闘技場報酬＆素材検索ツール</title>
+    <!-- CSSファイルの読み込み -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,12 +12,18 @@
 <div class="container">
     <h1>パズドラ 検索＆報酬ツール</h1>
 
-    <div class="tab-menu">
-        <button id="btnSearch" class="tab-button active" onclick="switchTab('search')">素材検索</button>
-        <button id="btnArena" class="tab-button" onclick="switchTab('arena')">報酬リスト</button>
+    <!-- ★トップ画面 -->
+    <div id="sectionTop">
+        <p style="text-align: center; margin-bottom: 30px;">利用したい機能を選んでください</p>
+        <div class="top-menu">
+            <button class="top-button" onclick="showScreen('search')">🔍 素材検索</button>
+            <button class="top-button" onclick="showScreen('arena')">🎁 報酬リスト</button>
+        </div>
     </div>
 
-    <div id="sectionSearch">
+    <!-- ★素材検索画面（初期は .hidden で隠す） -->
+    <div id="sectionSearch" class="hidden">
+        <button class="back-button" onclick="showScreen('top')">← トップに戻る</button>
         <h2>素材からドロップ場所を検索</h2>
         <input type="text" id="searchInput" placeholder="例：希石、宝玉、たまドラ など">
         <button class="action-button" onclick="searchMaterial()">検索する</button>
@@ -25,10 +32,13 @@
         </div>
     </div>
 
+    <!-- ★報酬リスト画面（初期は .hidden で隠す） -->
     <div id="sectionArena" class="hidden">
+        <button class="back-button" onclick="showScreen('top')">← トップに戻る</button>
         <h2>闘技場シリーズ 全報酬リスト</h2>
         <div id="arenaList" class="result-box">
-            </div>
+            <!-- CSVから読み込んだデータを自動表示 -->
+        </div>
     </div>
 </div>
 
@@ -36,8 +46,5 @@
 <script src="data.js"></script>
 <script src="ui.js"></script>
 <script src="search.js"></script>
-
-</body>
-</html>
 </body>
 </html>

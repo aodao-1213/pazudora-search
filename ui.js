@@ -1,22 +1,23 @@
 // 目的：画面の表示・タブ切り替え
 
-// タブ切り替え処理
-function switchTab(tabName) {
+// --- 画面の切り替え処理 ---
+function showScreen(screenName) {
+    // 1. 全ての画面を一旦隠す
+    document.getElementById('sectionTop').classList.add('hidden');
     document.getElementById('sectionSearch').classList.add('hidden');
     document.getElementById('sectionArena').classList.add('hidden');
-    document.getElementById('btnSearch').classList.remove('active');
-    document.getElementById('btnArena').classList.remove('active');
 
-    if (tabName === 'search') {
+    // 2. 指定された画面の hidden（隠す設定）を外して表示する
+    if (screenName === 'top') {
+        document.getElementById('sectionTop').classList.remove('hidden');
+    } else if (screenName === 'search') {
         document.getElementById('sectionSearch').classList.remove('hidden');
-        document.getElementById('btnSearch').classList.add('active');
-    } else if (tabName === 'arena') {
+    } else if (screenName === 'arena') {
         document.getElementById('sectionArena').classList.remove('hidden');
-        document.getElementById('btnArena').classList.add('active');
     }
 }
 
-// 報酬リスト表示処理（画像化に向けたレイアウト変更）
+// --- 報酬リスト表示処理（画像化に向けたレイアウト） ---
 function displayArenaList() {
     const listDiv = document.getElementById('arenaList');
     if (dungeonData.length === 0) {
@@ -26,7 +27,6 @@ function displayArenaList() {
 
     let html = "";
     dungeonData.forEach(arena => {
-        // 素材を1つずつバッジ枠（将来の画像を入れる場所）に変換
         let materialsHtml = '<div class="materials-container">';
         arena.rewards.forEach(reward => {
             materialsHtml += `<div class="material-badge">${reward}</div>`;
