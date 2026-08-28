@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>パズドラ 闘技場報酬＆素材検索ツール</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>パズドラ 検索＆報酬ツール</h1>
+
+    <div class="tab-menu">
+        <button id="btnSearch" class="tab-button active" onclick="switchTab('search')">素材検索</button>
+        <button id="btnArena" class="tab-button" onclick="switchTab('arena')">報酬リスト</button>
+    </div>
+
+    <div id="sectionSearch">
+        <h2>素材からドロップ場所を検索</h2>
+        <input type="text" id="searchInput" placeholder="例：希石、宝玉、たまドラ など">
+        <button class="action-button" onclick="searchMaterial()">検索する</button>
+        <div id="searchResult" class="result-box">
+            ここに検索結果が表示されます。
+        </div>
+    </div>
+
+    <div id="sectionArena" class="hidden">
+        <h2>闘技場シリーズ 全報酬リスト</h2>
+        <div id="arenaList" class="result-box">
+            </div>
+    </div>
+</div>
+
+<!-- JavaScriptファイルの読み込み（順番が重要） -->
+<script src="data.js"></script>
+<script src="ui.js"></script>
+<script src="search.js"></script>
+
+</body>
+</html>
+</body>
+</html>
