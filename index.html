@@ -22,10 +22,10 @@
     <div id="sectionSearch" class="hidden">
         <button class="back-button" onclick="showScreen('top')">← トップに戻る</button>
         <h2>素材からドロップ場所を検索</h2>
-        <!-- ★ list="searchHistoryList" を追加 -->
-        <input type="text" id="searchInput" placeholder="例：希石、宝玉、たまドラ など" list="searchHistoryList">
-        <!-- ★ 履歴表示用のデータリストを追加 -->
-        <datalist id="searchHistoryList"></datalist>
+        <input type="text" id="searchInput" placeholder="例：希石、宝玉、たまドラ など">
+        
+        <!-- ★ 過去の検索履歴をタグとして複数表示するエリア -->
+        <div id="searchHistoryArea" class="history-area"></div>
         
         <button class="action-button" onclick="searchMaterial()">検索する</button>
         <div id="searchResult" class="result-box">ここに検索結果が表示されます。</div>
