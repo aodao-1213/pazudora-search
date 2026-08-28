@@ -1,34 +1,29 @@
-// 全てのプログラムで共有するデータ
 let dungeonData = [];
 
-// ページ読み込み時の処理
 window.onload = async function() {
     await loadCSV();
     if (typeof displayArenaList === 'function') {
-        displayArenaList(); // ui.js の関数を呼び出す
+        displayArenaList();
     }
 };
 
 async function loadCSV() {
     try {
-        // ★修正点1：新しいファイル名「dangeon_2.csv」を読み込むように変更
         const response = await fetch('dangeon_2.csv');
         const buffer = await response.arrayBuffer();
         
         let text = new TextDecoder('utf-8').decode(buffer);
-        
         if (text.includes('\uFFFD')) {
             text = new TextDecoder('shift_jis').decode(buffer);
         }
         
         dungeonData = parseCSV(text);
     } catch (error) {
-        console.error('CSVの読み込みに失敗しました:', error);
+        console.error('CSVの読み込みに失敗:', error);
         document.getElementById('arenaList').innerHTML = "データの読み込みに失敗しました。";
     }
 }
 
-// CSV文字を配列データに変換する処理
 function parseCSV(text) {
     const lines = text.trim().split(/\r?\n/);
     const result = [];
@@ -53,7 +48,11 @@ function parseCSV(text) {
         }
         row.push(cur.trim());
 
-        // ★修正点2：3列でも4列でも自動で読み込めるように変更
+        // ★追加：CSVの1行目が「見出し（ヘッダー）」だった場合、無視してスキップする
+        if (row[0] === 'シリーズ' || row[0] === 'シリーズ名' || row[1] === 'ダンジョン名' || row[1] === 'スタミナ') {
+            continue;
+        }
+
         if (row.length >= 3) {
             let series = "";
             let name = "";
@@ -79,6 +78,7 @@ function parseCSV(text) {
                 rawItems = row[2];
             }
 
+            // 素材名の中にある不要な記号や空白を徹底的に消去
             rawItems = rawItems.replace(/^"|"$/g, '');
             const rewards = rawItems.split(',').map(item => item.trim()).filter(item => item.length > 0);
 
