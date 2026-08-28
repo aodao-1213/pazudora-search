@@ -1,3 +1,6 @@
+/* ====================================================
+   ベーススタイル・全体の枠組み
+   ==================================================== */
 body {
     font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', sans-serif;
     background-color: #f4f7f6;
@@ -30,13 +33,15 @@ h2 {
     display: none !important;
 }
 
-/* --- トップ画面のボタンスタイル --- */
+/* ====================================================
+   トップ画面・ボタンスタイル
+   ==================================================== */
 .top-menu {
     display: flex;
     flex-direction: column;
     gap: 15px;
     max-width: 400px;
-    margin: 0 auto; /* ボタンを中央寄せ */
+    margin: 0 auto;
 }
 .top-button {
     padding: 20px;
@@ -53,8 +58,6 @@ h2 {
 .top-button:hover {
     background-color: #2980b9;
 }
-
-/* --- トップに戻るボタンスタイル --- */
 .back-button {
     display: inline-block;
     margin-bottom: 20px;
@@ -71,7 +74,9 @@ h2 {
     background-color: #7f8c8d;
 }
 
-/* --- 入力欄・検索ボタン --- */
+/* ====================================================
+   検索画面の入力欄とボタン
+   ==================================================== */
 input[type="text"] {
     width: calc(100% - 22px);
     padding: 10px;
@@ -95,7 +100,9 @@ input[type="text"] {
     background-color: #27ae60;
 }
 
-/* --- 結果表示エリア --- */
+/* ====================================================
+   リストとアイテムの基本スタイル
+   ==================================================== */
 .result-box {
     margin-top: 15px;
     padding: 15px;
@@ -105,7 +112,7 @@ input[type="text"] {
 }
 .item {
     border-bottom: 1px dashed #bdc3c7;
-    padding: 12px 0;
+    padding: 15px 0;
 }
 .item:last-child {
     border-bottom: none;
@@ -124,31 +131,33 @@ input[type="text"] {
     padding: 2px 6px;
     border-radius: 4px;
     margin-left: 8px;
+    vertical-align: middle;
 }
 
-/* --- 画像化に向けた素材アイコンのスタイル --- */
-.materials-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 10px;
-}
-.material-badge {
-    background-color: #ecf0f1;
+/* ====================================================
+   ドロップリストの階層レイアウト（ステージ＞ダンジョン＞ドロップ種別）
+   ==================================================== */
+.series-group {
+    margin-bottom: 25px;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
     border: 1px solid #bdc3c7;
-    border-radius: 6px;
-    padding: 8px 12px;
-    font-size: 14px;
-    color: #2c3e50;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
+}
+/* ★ ステージ名の文字サイズ拡大 */
+.series-group h3 {
+    background-color: #34495e;
+    color: white;
+    margin: 0;
+    padding: 12px 15px;
+    font-size: 22px; 
     font-weight: bold;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+.series-group .item {
+    padding: 15px;
+    background: #f9f9f9;
 }
 
-/* --- ドロップカテゴリとグループ化のスタイル --- */
 .drop-category {
     margin-top: 15px;
     padding: 10px;
@@ -163,19 +172,25 @@ input[type="text"] {
     border-left: 4px solid #3498db;
     padding-left: 8px;
 }
+
+/* ★ スマホ画面はみ出し防止用の折り返し設定 */
 .category-groups {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: wrap; 
     gap: 12px;
+    max-width: 100%; 
 }
 .drop-group {
     display: inline-flex;
+    flex-wrap: wrap; 
     align-items: center;
     background: #f8f9fa;
     border: 1px solid #dcdde1;
     border-radius: 8px;
     padding: 5px 8px;
     gap: 5px;
+    max-width: 100%; 
+    box-sizing: border-box;
 }
 .group-note {
     font-size: 13px;
@@ -185,7 +200,39 @@ input[type="text"] {
     white-space: nowrap;
 }
 
-/* 検索画面用 */
+/* ====================================================
+   ★ アイコン画像のサイズ統一
+   ==================================================== */
+.material-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 45px;
+    height: 45px;
+    flex-shrink: 0;
+}
+.material-badge img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    background-color: #fff;
+}
+.fallback-text {
+    font-size: 11px;
+    color: #e74c3c;
+    font-weight: bold;
+    margin-top: 4px;
+    text-align: center;
+    line-height: 1.2;
+    word-wrap: break-word;
+    width: 100%;
+}
+
+/* ====================================================
+   検索画面用ラベルスタイル
+   ==================================================== */
 .search-category {
     color: #27ae60;
     font-weight: bold;
@@ -196,23 +243,4 @@ input[type="text"] {
     color: #e67e22;
     font-weight: bold;
     font-size: 13px;
-}
-
-/* --- アイコン画像のサイズ統一 --- */
-.material-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 45px;  /* ここで画像の横幅を固定 */
-    height: 45px; /* ここで画像の縦幅を固定 */
-    flex-shrink: 0; /* 画面が狭くても縮まないようにする */
-}
-
-.material-badge img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain; /* はみ出さずに綺麗に枠内に収める設定 */
-    border-radius: 6px;  /* 角を少し丸くしてアプリっぽくする */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.15); /* 軽い影をつける */
-    background-color: #fff;
 }
