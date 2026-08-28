@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>パズドラ 闘技場報酬＆素材検索ツール</title>
+    <style>
+        /* 見た目を整えるCSS */
+        body {
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .section {
+            margin-bottom: 40px;
+        }
+        input[type="text"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .result-box {
+            margin-top: 15px;
+            padding: 15px;
+            background: #ecf0f1;
+            border-radius: 4px;
+        }
+        .item {
+            border-bottom: 1px solid #bdc3c7;
+            padding: 10px 0;
+        }
+        .item:last-child {
+            border-bottom: none;
+        }
+        .item-title {
+            font-weight: bold;
+            color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>パズドラ 闘技場報酬＆素材検索</h1>
+
+    <div class="section">
+        <h2>素材からドロップ場所を検索</h2>
+        <input type="text" id="searchInput" placeholder="例：ホノピィ、創装の宝玉 など">
+        <button onclick="searchMaterial()">検索する</button>
+        <div id="searchResult" class="result-box">
+            検索結果がここに表示されます。
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="section">
+        <h2>闘技場シリーズ 全報酬リスト</h2>
+        <div id="arenaList" class="result-box">
+            </div>
+    </div>
+</div>
+
+<script>
+    /* ==========================================
+       ▼ ここから下のデータを自分で追加・編集します ▼
+       ========================================== */
+
+    // 1. 素材検索用のデータ（名前と、落ちるダンジョンのリスト）
+    const materialData = [
+        { name: "ホノピィ", locations: ["極限の闘技場1", "裏・極限の闘技場", "未知の新生"] },
+        { name: "ニジピィ", locations: ["裏・極限の闘技場", "修羅の幻界"] },
+        { name: "創装の宝玉", locations: ["四次元の探訪者", "機構城の絶対者"] },
+        { name: "スーパーノエルドラゴン", locations: ["裏・修羅の幻界", "未知の新生（百式）"] }
+    ];
+
+    // 2. 闘技場報酬リスト用のデータ（ダンジョン名と、もらえる報酬）
+    const arenaData = [
+        { name: "極限の闘技場【ノーコン】 (双極1)", rewards: ["ピィ(各色)", "ノエルドラゴン"] },
+        { name: "裏・極限の闘技場 (裏双極)", rewards: ["ニジピィ", "潜在たまドラ", "精霊王の希石"] },
+        { name: "修羅の幻界 (魔門の守護者)", rewards: ["枠解放たまドラ", "リッチゴールドドラゴン", "大量の経験値"] }
+    ];
+
+    /* ==========================================
+       ▲ データを追加・編集するのはここまで ▲
+       ========================================== */
+
+    // --- 検索ボタンを押したときの処理 ---
+    function searchMaterial() {
+        const query = document.getElementById('searchInput').value.trim();
+        const resultDiv = document.getElementById('searchResult');
+        
+        if (query === "") {
+            resultDiv.innerHTML = "検索キーワードを入力してください。";
+            return;
+        }
+
+        // 入力された文字が含まれる素材を探す
+        const results = materialData.filter(item => item.name.includes(query));
+
+        if (results.length > 0) {
+            let html = "";
+            results.forEach(item => {
+                html += `<div class="item">
+                            <div class="item-title">${item.name}</div>
+                            <div>ドロップ場所: ${item.locations.join('、 ')}</div>
+                         </div>`;
+            });
+            resultDiv.innerHTML = html;
+        } else {
+            resultDiv.innerHTML = "見つかりませんでした。別のキーワードを試してください。";
+        }
+    }
+
+    // --- 画面が開いたときに闘技場リストを表示する処理 ---
+    function displayArenaList() {
+        const listDiv = document.getElementById('arenaList');
+        let html = "";
+        
+        arenaData.forEach(arena => {
+            html += `<div class="item">
+                        <div class="item-title">${arena.name}</div>
+                        <div>主な報酬: ${arena.rewards.join('、 ')}</div>
+                     </div>`;
+        });
+        
+        listDiv.innerHTML = html;
+    }
+
+    // ページ読み込み時に闘技場リストを表示
+    window.onload = displayArenaList;
+</script>
+
+</body>
+</html>
