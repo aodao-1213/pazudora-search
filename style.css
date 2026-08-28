@@ -147,3 +147,51 @@ input[type="text"] {
     font-weight: bold;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
+
+/* --- グループ化と画像のスタイル --- */
+.series-group {
+    margin-bottom: 25px;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #bdc3c7;
+}
+.series-group h3 {
+    background-color: #34495e;
+    color: white;
+    margin: 0;
+    padding: 10px 15px;
+    font-size: 18px;
+}
+.series-group .item {
+    padding: 15px;
+    background: #f9f9f9;
+}
+/* ★縦に並べるための設定に変更 */
+.material-badge {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    vertical-align: top;
+    width: 60px;
+}
+.material-badge img {
+    width: 45px;
+    height: 45px;
+    object-fit: contain;
+    border-radius: 4px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+/* ★足りない素材の名前を赤文字で小さく表示 */
+.fallback-text {
+    font-size: 11px;
+    color: #e74c3c;
+    font-weight: bold;
+    margin-top: 4px;
+    text-align: center;
+    line-height: 1.2;
+    word-wrap: break-word;
+    width: 100%;
+}

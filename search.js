@@ -1,6 +1,3 @@
-// 目的：検索機能
-
-// 素材検索の処理
 function searchMaterial() {
     const query = document.getElementById('searchInput').value.trim();
     const resultDiv = document.getElementById('searchResult');
@@ -18,8 +15,9 @@ function searchMaterial() {
                 if (!foundMap[reward]) {
                     foundMap[reward] = [];
                 }
-                if (!foundMap[reward].includes(dungeon.name)) {
-                    foundMap[reward].push(dungeon.name);
+                const locationStr = `${dungeon.series} / ${dungeon.name}`;
+                if (!foundMap[reward].includes(locationStr)) {
+                    foundMap[reward].push(locationStr);
                 }
             }
         });
@@ -31,8 +29,15 @@ function searchMaterial() {
         let html = "";
         itemNames.forEach(name => {
             html += `<div class="item">
-                        <div class="item-title"><span class="material-badge">${name}</span></div>
-                        <div style="margin-top: 8px;">📍 ドロップ場所: ${foundMap[name].join('、 ')}</div>
+                        <div class="item-title">
+                            <div class="material-badge" title="${name}">
+                                <!-- ★検索結果も同様に変更 -->
+                                <img src="images/${name}.png" alt="${name}" 
+                                     onerror="this.onerror=null; this.src='images/question.png'; this.nextElementSibling.style.display='block';">
+                                <span class="fallback-text" style="display:none;">${name}</span>
+                            </div>
+                        </div>
+                        <div style="margin-top: 8px;">📍 ドロップ場所:<br> ${foundMap[name].join('<br> ')}</div>
                      </div>`;
         });
         resultDiv.innerHTML = html;
