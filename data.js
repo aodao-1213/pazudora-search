@@ -55,7 +55,6 @@ function parseCategory(text, isRandom) {
 
 function parseExcelData(data) {
     const result = [];
-    // プログラムが「ドロップ素材」として認識する列のリスト
     const knownColumns = ['ステージ', 'ステージ名', 'ダンジョン', 'ダンジョン名', 'スタミナ', 'ボス・部位破壊', '確定ドロップ', '確率ドロップ', '確定ランダムドロップ', '確率ランダムドロップ'];
 
     data.forEach(row => {
@@ -63,17 +62,23 @@ function parseExcelData(data) {
         const name = row['ダンジョン'] || row['ダンジョン名'] || '不明';
         const stamina = row['スタミナ'] || '';
 
-        // ★ 備考データの動的抽出（上記以外の新しい列をすべて備考として扱う）
         const remarks = [];
         for (const key in row) {
             if (!knownColumns.includes(key)) {
                 let val = String(row[key]).trim();
-                if (!val) continue; // 空欄の場合は無視
+                if (!val) continue;
+
+                // ★ 自動カンマ付与処理
+                // 万が一エクセルで既にカンマを入れていても二重にならないよう一旦消す
+                val = val.replace(/,/g, ''); 
+                // 数字の並びを見つけて、自動で3桁区切りのカンマをつける
+                val = val.replace(/\d+/g, match => Number(match).toLocaleString());
 
                 // 「ポイント」や「プラス限界突破」が含まれる列名なら、数値の前に + をつける
                 if (key.includes('ポイント') || key.includes('プラス限界突破')) {
                     if (!val.startsWith('+')) val = '+' + val;
                 }
+                
                 remarks.push({ label: key, value: val });
             }
         }
