@@ -8,7 +8,9 @@ let dungeonData = [];
 // ページ読み込み時の処理
 window.onload = async function() {
     await loadCSV();
-    displayArenaList(); // ui.js の関数を呼び出す
+    if (typeof displayArenaList === 'function') {
+        displayArenaList(); // ui.js の関数を呼び出す
+    }
 };
 
 async function loadCSV() {
@@ -16,17 +18,19 @@ async function loadCSV() {
         const response = await fetch('dangeon.csv');
         const buffer = await response.arrayBuffer();
         
-        // まず標準のUTF-8で解釈してみる
+        // 1. まず標準のUTF-8で解釈してみる
         let text = new TextDecoder('utf-8').decode(buffer);
         
-        // もしUTF-8で解釈して文字化け記号「」が含まれていたら、Shift_JISで解釈し直す
-        if (text.includes('')) {
+        // 2. もし文字化け記号（\uFFFD は「」のプログラム上の表記）が含まれていたら、Shift_JISで解釈し直す
+        // （※前回はここが空っぽだったため、データが壊れて消えてしまっていました）
+        if (text.includes('\uFFFD')) {
             text = new TextDecoder('shift_jis').decode(buffer);
         }
         
         dungeonData = parseCSV(text);
     } catch (error) {
         console.error('CSVの読み込みに失敗しました:', error);
+        document.getElementById('arenaList').innerHTML = "データの読み込みに失敗しました。";
     }
 }
 
@@ -55,6 +59,7 @@ function parseCSV(text) {
         }
         row.push(cur.trim());
 
+        // 3列以上（ダンジョン名、スタミナ、報酬）ある場合のみデータとして追加
         if (row.length >= 3) {
             const name = row[0];
             const stamina = row[1];
@@ -65,5 +70,4 @@ function parseCSV(text) {
         }
     }
     return result;
-}
 }
