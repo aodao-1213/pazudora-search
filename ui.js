@@ -7,19 +7,13 @@ function showScreen(screenName) {
     else if (screenName === 'arena') document.getElementById('sectionArena').classList.remove('hidden');
 }
 
-// ★ 検索画面からダンジョンへジャンプする機能
 function jumpToDungeon(dungeonName) {
-    showScreen('arena'); // 報酬リスト画面に切り替え
-    
-    // 画面切り替えのラグを考慮して少し待ってからスクロール
+    showScreen('arena');
     setTimeout(() => {
         const safeId = encodeURIComponent(dungeonName);
         const target = document.getElementById(`dungeon-${safeId}`);
         if (target) {
-            // 対象のダンジョンまでスムーズにスクロール
             target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            
-            // どこにジャンプしたか分かりやすいように背景を黄色く光らせる
             target.style.transition = "background-color 0.5s";
             target.style.backgroundColor = "#fff3cd";
             setTimeout(() => {
@@ -48,10 +42,21 @@ function displayArenaList() {
         
         dungeons.forEach(arena => {
             const safeId = encodeURIComponent(arena.name);
-            // ★ ダンジョンごとに目印となる id を追加
             html += `<div class="item" id="dungeon-${safeId}">
                         <div class="item-title">${arena.name} <span class="stamina-badge">スタミナ: ${arena.stamina}</span></div>`;
             
+            // ★ 備考リストの表示（ダンジョン名の下）
+            if (arena.remarks && arena.remarks.length > 0) {
+                html += `<div class="dungeon-remarks">`;
+                arena.remarks.forEach(rem => {
+                    html += `<div class="remark-item">
+                                <span class="remark-label">${rem.label}</span>
+                                <span class="remark-value">${rem.value}</span>
+                             </div>`;
+                });
+                html += `</div>`;
+            }
+
             arena.drops.forEach(dropCategory => {
                 if (dropCategory.groups.length > 0) {
                     html += `<div class="drop-category">

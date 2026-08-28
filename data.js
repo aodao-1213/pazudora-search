@@ -10,21 +10,18 @@ async function loadExcel() {
         const response = await fetch('dangeon.xlsx');
         const arrayBuffer = await response.arrayBuffer();
         
-        // Excelデータを解析
         const workbook = XLSX.read(arrayBuffer, { type: 'array' });
         const firstSheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[firstSheetName];
         
-        // JSONデータに変換
         const jsonData = XLSX.utils.sheet_to_json(worksheet);
         dungeonData = parseExcelData(jsonData);
     } catch (error) {
         console.error('Excelの読み込みに失敗:', error);
-        document.getElementById('arenaList').innerHTML = "データの読み込みに失敗しました。dangeon.xlsxが正しく配置されているか確認してください。";
+        document.getElementById('arenaList').innerHTML = "データの読み込みに失敗しました。";
     }
 }
 
-// ドロップ項目をグループ化して解析する関数
 function parseCategory(text, isRandom) {
     if (!text) return [];
     let items = text.toString().split(',');
@@ -35,7 +32,6 @@ function parseCategory(text, isRandom) {
         item = item.trim();
         if (!item) continue;
         
-        // 名前とカッコ()の中身を分ける
         let match = item.match(/^(.*?)(?:\((.*)\))?$/);
         let name = match[1].trim();
         let note = match[2] ? match[2].trim() : "";
@@ -48,7 +44,6 @@ function parseCategory(text, isRandom) {
                 currentGroup = { items: [], note: "" };
             }
         } else {
-            // ランダムではない場合、カンマ区切りはそれぞれ別グループ
             groups.push({ items: [name], note: note });
         }
     }
@@ -60,10 +55,28 @@ function parseCategory(text, isRandom) {
 
 function parseExcelData(data) {
     const result = [];
+    // プログラムが「ドロップ素材」として認識する列のリスト
+    const knownColumns = ['ステージ', 'ステージ名', 'ダンジョン', 'ダンジョン名', 'スタミナ', 'ボス・部位破壊', '確定ドロップ', '確率ドロップ', '確定ランダムドロップ', '確率ランダムドロップ'];
+
     data.forEach(row => {
         const series = row['ステージ'] || row['ステージ名'] || 'その他';
         const name = row['ダンジョン'] || row['ダンジョン名'] || '不明';
         const stamina = row['スタミナ'] || '';
+
+        // ★ 備考データの動的抽出（上記以外の新しい列をすべて備考として扱う）
+        const remarks = [];
+        for (const key in row) {
+            if (!knownColumns.includes(key)) {
+                let val = String(row[key]).trim();
+                if (!val) continue; // 空欄の場合は無視
+
+                // 「ポイント」や「プラス限界突破」が含まれる列名なら、数値の前に + をつける
+                if (key.includes('ポイント') || key.includes('プラス限界突破')) {
+                    if (!val.startsWith('+')) val = '+' + val;
+                }
+                remarks.push({ label: key, value: val });
+            }
+        }
 
         const drops = [
             { category: "ボス・部位破壊", groups: parseCategory(row['ボス・部位破壊'], false) },
@@ -73,7 +86,6 @@ function parseExcelData(data) {
             { category: "確率ランダムドロップ", groups: parseCategory(row['確率ランダムドロップ'], true) }
         ];
 
-        // 検索用に全アイテムをフラット化
         const allRewards = [];
         drops.forEach(d => {
             d.groups.forEach(g => {
@@ -83,7 +95,7 @@ function parseExcelData(data) {
             });
         });
 
-        result.push({ series, name, stamina, drops, allRewards });
+        result.push({ series, name, stamina, remarks, drops, allRewards });
     });
     return result;
 }

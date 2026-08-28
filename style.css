@@ -281,3 +281,36 @@ input[type="text"] {
     color: #2980b9;
     text-decoration: underline;
 }
+
+/* ====================================================
+   備考（リザルト情報）のスタイル
+   ==================================================== */
+.dungeon-remarks {
+    margin-top: 12px;
+    margin-bottom: 5px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.remark-item {
+    display: inline-flex;
+    align-items: center;
+    background: #fff;
+    border: 1px solid #bdc3c7;
+    border-radius: 4px;
+    overflow: hidden;
+    font-size: 13px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+.remark-label {
+    background-color: #34495e;
+    color: #fff;
+    padding: 4px 8px;
+    font-weight: bold;
+}
+.remark-value {
+    padding: 4px 10px;
+    color: #2c3e50;
+    font-weight: bold;
+    background-color: #ecf0f1;
+}
