@@ -1,89 +1,89 @@
 let dungeonData = [];
 
 window.onload = async function() {
-    await loadCSV();
-    if (typeof displayArenaList === 'function') {
-        displayArenaList();
-    }
+    await loadExcel();
+    if (typeof displayArenaList === 'function') displayArenaList();
 };
 
-async function loadCSV() {
+async function loadExcel() {
     try {
-        const response = await fetch('dangeon.csv');
-        const buffer = await response.arrayBuffer();
+        const response = await fetch('dangeon.xlsx');
+        const arrayBuffer = await response.arrayBuffer();
         
-        let text = new TextDecoder('utf-8').decode(buffer);
-        if (text.includes('\uFFFD')) {
-            text = new TextDecoder('shift_jis').decode(buffer);
-        }
+        // Excelデータを解析
+        const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
         
-        dungeonData = parseCSV(text);
+        // JSONデータに変換
+        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+        dungeonData = parseExcelData(jsonData);
     } catch (error) {
-        console.error('CSVの読み込みに失敗:', error);
-        document.getElementById('arenaList').innerHTML = "データの読み込みに失敗しました。";
+        console.error('Excelの読み込みに失敗:', error);
+        document.getElementById('arenaList').innerHTML = "データの読み込みに失敗しました。dangeon.xlsxが正しく配置されているか確認してください。";
     }
 }
 
-function parseCSV(text) {
-    const lines = text.trim().split(/\r?\n/);
-    const result = [];
+// ドロップ項目をグループ化して解析する関数
+function parseCategory(text, isRandom) {
+    if (!text) return [];
+    let items = text.toString().split(',');
+    let groups = [];
+    let currentGroup = { items: [], note: "" };
 
-    for (const line of lines) {
-        if (!line.trim()) continue;
+    for (let item of items) {
+        item = item.trim();
+        if (!item) continue;
+        
+        // 名前とカッコ()の中身を分ける
+        let match = item.match(/^(.*?)(?:\((.*)\))?$/);
+        let name = match[1].trim();
+        let note = match[2] ? match[2].trim() : "";
 
-        const row = [];
-        let cur = '';
-        let inQuotes = false;
-
-        for (let i = 0; i < line.length; i++) {
-            const char = line[i];
-            if (char === '"') {
-                inQuotes = !inQuotes;
-            } else if (char === ',' && !inQuotes) {
-                row.push(cur.trim());
-                cur = '';
-            } else {
-                cur += char;
+        if (isRandom) {
+            currentGroup.items.push(name);
+            if (note) {
+                currentGroup.note = note;
+                groups.push(currentGroup);
+                currentGroup = { items: [], note: "" };
             }
-        }
-        row.push(cur.trim());
-
-        // ★追加：CSVの1行目が「見出し（ヘッダー）」だった場合、無視してスキップする
-        if (row[0] === 'シリーズ' || row[0] === 'シリーズ名' || row[1] === 'ダンジョン名' || row[1] === 'スタミナ') {
-            continue;
-        }
-
-        if (row.length >= 3) {
-            let series = "";
-            let name = "";
-            let stamina = "";
-            let rawItems = "";
-
-            if (row.length >= 4) {
-                series = row[0];
-                name = row[1];
-                stamina = row[2];
-                rawItems = row[3];
-            } else {
-                const fullName = row[0];
-                if (fullName.includes('/')) {
-                    const parts = fullName.split('/');
-                    series = parts[0].trim();
-                    name = parts[1].trim();
-                } else {
-                    series = "その他";
-                    name = fullName;
-                }
-                stamina = row[1];
-                rawItems = row[2];
-            }
-
-            // 素材名の中にある不要な記号や空白を徹底的に消去
-            rawItems = rawItems.replace(/^"|"$/g, '');
-            const rewards = rawItems.split(',').map(item => item.trim()).filter(item => item.length > 0);
-
-            result.push({ series, name, stamina, rewards });
+        } else {
+            // ランダムではない場合、カンマ区切りはそれぞれ別グループ
+            groups.push({ items: [name], note: note });
         }
     }
+    if (isRandom && currentGroup.items.length > 0) {
+        groups.push(currentGroup);
+    }
+    return groups;
+}
+
+function parseExcelData(data) {
+    const result = [];
+    data.forEach(row => {
+        const series = row['ステージ'] || row['ステージ名'] || 'その他';
+        const name = row['ダンジョン'] || row['ダンジョン名'] || '不明';
+        const stamina = row['スタミナ'] || '';
+
+        const drops = [
+            { category: "ボス・部位破壊", groups: parseCategory(row['ボス・部位破壊'], false) },
+            { category: "確定ドロップ", groups: parseCategory(row['確定ドロップ'], false) },
+            { category: "確率ドロップ", groups: parseCategory(row['確率ドロップ'], false) },
+            { category: "確定ランダムドロップ", groups: parseCategory(row['確定ランダムドロップ'], true) },
+            { category: "確率ランダムドロップ", groups: parseCategory(row['確率ランダムドロップ'], true) }
+        ];
+
+        // 検索用に全アイテムをフラット化
+        const allRewards = [];
+        drops.forEach(d => {
+            d.groups.forEach(g => {
+                g.items.forEach(item => {
+                    allRewards.push({ name: item, category: d.category, note: g.note });
+                });
+            });
+        });
+
+        result.push({ series, name, stamina, drops, allRewards });
+    });
     return result;
 }

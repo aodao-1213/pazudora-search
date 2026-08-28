@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>パズドラ 闘技場報酬＆素材検索ツール</title>
-    <!-- CSSファイルの読み込み -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,7 +11,6 @@
 <div class="container">
     <h1>パズドラ 検索＆報酬ツール</h1>
 
-    <!-- ★トップ画面 -->
     <div id="sectionTop">
         <p style="text-align: center; margin-bottom: 30px;">利用したい機能を選んでください</p>
         <div class="top-menu">
@@ -21,28 +19,25 @@
         </div>
     </div>
 
-    <!-- ★素材検索画面（初期は .hidden で隠す） -->
     <div id="sectionSearch" class="hidden">
         <button class="back-button" onclick="showScreen('top')">← トップに戻る</button>
         <h2>素材からドロップ場所を検索</h2>
         <input type="text" id="searchInput" placeholder="例：希石、宝玉、たまドラ など">
         <button class="action-button" onclick="searchMaterial()">検索する</button>
-        <div id="searchResult" class="result-box">
-            ここに検索結果が表示されます。
-        </div>
+        <div id="searchResult" class="result-box">ここに検索結果が表示されます。</div>
     </div>
 
-    <!-- ★報酬リスト画面（初期は .hidden で隠す） -->
     <div id="sectionArena" class="hidden">
         <button class="back-button" onclick="showScreen('top')">← トップに戻る</button>
         <h2>闘技場シリーズ 全報酬リスト</h2>
-        <div id="arenaList" class="result-box">
-            <!-- CSVから読み込んだデータを自動表示 -->
-        </div>
+        <div id="arenaList" class="result-box"></div>
     </div>
 </div>
 
-<!-- JavaScriptファイルの読み込み（順番が重要） -->
+<!-- ★ Excelファイルを読み込むためのライブラリを追加 -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<!-- プログラム本体 -->
 <script src="data.js"></script>
 <script src="ui.js"></script>
 <script src="search.js"></script>

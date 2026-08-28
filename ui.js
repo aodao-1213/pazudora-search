@@ -1,19 +1,12 @@
-// --- 画面の切り替え処理 ---
 function showScreen(screenName) {
     document.getElementById('sectionTop').classList.add('hidden');
     document.getElementById('sectionSearch').classList.add('hidden');
     document.getElementById('sectionArena').classList.add('hidden');
-
-    if (screenName === 'top') {
-        document.getElementById('sectionTop').classList.remove('hidden');
-    } else if (screenName === 'search') {
-        document.getElementById('sectionSearch').classList.remove('hidden');
-    } else if (screenName === 'arena') {
-        document.getElementById('sectionArena').classList.remove('hidden');
-    }
+    if (screenName === 'top') document.getElementById('sectionTop').classList.remove('hidden');
+    else if (screenName === 'search') document.getElementById('sectionSearch').classList.remove('hidden');
+    else if (screenName === 'arena') document.getElementById('sectionArena').classList.remove('hidden');
 }
 
-// --- 報酬リスト表示処理 ---
 function displayArenaList() {
     const listDiv = document.getElementById('arenaList');
     if (dungeonData.length === 0) {
@@ -32,25 +25,42 @@ function displayArenaList() {
         html += `<div class="series-group"><h3>${seriesName}</h3>`;
         
         dungeons.forEach(arena => {
-            let materialsHtml = '<div class="materials-container">';
-            arena.rewards.forEach(reward => {
-                // ★エラー時に question.png を表示し、下のテキストを表示させる
-                materialsHtml += `
-                    <div class="material-badge" title="${reward}">
-                        <img src="images/${reward}.png" alt="${reward}" 
-                             onerror="this.onerror=null; this.src='images/question.png'; this.nextElementSibling.style.display='block';">
-                        <span class="fallback-text" style="display:none;">${reward}</span>
-                    </div>`;
-            });
-            materialsHtml += '</div>';
-
             html += `<div class="item">
-                        <div class="item-title">${arena.name} <span class="stamina-badge">スタミナ: ${arena.stamina}</span></div>
-                        ${materialsHtml}
-                     </div>`;
+                        <div class="item-title">${arena.name} <span class="stamina-badge">スタミナ: ${arena.stamina}</span></div>`;
+            
+            arena.drops.forEach(dropCategory => {
+                if (dropCategory.groups.length > 0) {
+                    html += `<div class="drop-category">
+                                <h4>${dropCategory.category}</h4>
+                                <div class="category-groups">`;
+                    
+                    dropCategory.groups.forEach(group => {
+                        html += `<div class="drop-group">`;
+                        
+                        group.items.forEach(itemName => {
+                            const safeName = encodeURIComponent(itemName);
+                            html += `<div class="material-badge" title="${itemName}">
+                                        <img src="images/${safeName}.png" alt="${itemName}" 
+                                             onerror="this.onerror=null; this.src='images/question.png'; this.nextElementSibling.style.display='block';">
+                                        <span class="fallback-text" style="display:none;">${itemName}</span>
+                                     </div>`;
+                        });
+
+                        if (group.note) {
+                            // 備考が「×」で始まらない場合はカッコ()をつける
+                            let displayNote = group.note;
+                            if (!displayNote.match(/^[×xX～~]/)) displayNote = `(${displayNote})`;
+                            html += `<div class="group-note">${displayNote}</div>`;
+                        }
+                        
+                        html += `</div>`; // end drop-group
+                    });
+                    html += `</div></div>`;
+                }
+            });
+            html += `</div>`;
         });
         html += `</div>`;
     }
-
     listDiv.innerHTML = html;
 }
