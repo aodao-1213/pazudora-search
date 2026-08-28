@@ -110,3 +110,28 @@ input[type="text"] {
     border-radius: 4px;
     margin-left: 8px;
 }
+
+
+
+/* --- 画像化に向けた素材アイコンのスタイル --- */
+.materials-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+.material-badge {
+    background-color: #ecf0f1;
+    border: 1px solid #bdc3c7;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 14px;
+    color: #2c3e50;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    /* 将来、ここに background-image: url('...'); を指定すると画像になります */
+}
