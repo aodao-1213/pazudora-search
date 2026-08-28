@@ -197,3 +197,22 @@ input[type="text"] {
     font-weight: bold;
     font-size: 13px;
 }
+
+/* --- アイコン画像のサイズ統一 --- */
+.material-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 45px;  /* ここで画像の横幅を固定 */
+    height: 45px; /* ここで画像の縦幅を固定 */
+    flex-shrink: 0; /* 画面が狭くても縮まないようにする */
+}
+
+.material-badge img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* はみ出さずに綺麗に枠内に収める設定 */
+    border-radius: 6px;  /* 角を少し丸くしてアプリっぽくする */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15); /* 軽い影をつける */
+    background-color: #fff;
+}
