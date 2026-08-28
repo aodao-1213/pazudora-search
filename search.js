@@ -1,3 +1,43 @@
+// ★ Enterキーで検索を実行する設定
+document.getElementById('searchInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        searchMaterial();
+        this.blur(); // スマホで検索後にキーボードを自動で閉じる
+    }
+});
+
+// ★ 検索履歴を読み込んでリストを更新する関数
+function updateSearchHistory() {
+    const datalist = document.getElementById('searchHistoryList');
+    if (!datalist) return;
+    let history = JSON.parse(localStorage.getItem('padSearchHistory') || '[]');
+    
+    let html = '';
+    history.forEach(word => {
+        html += `<option value="${word}"></option>`;
+    });
+    datalist.innerHTML = html;
+}
+
+// ★ 検索ワードをブラウザに保存する関数
+function saveSearchHistory(query) {
+    if (!query) return;
+    let history = JSON.parse(localStorage.getItem('padSearchHistory') || '[]');
+    
+    // 同じワードがあれば削除して、常に最新を一番上にする
+    history = history.filter(item => item !== query);
+    history.unshift(query);
+    
+    // 最大10件まで保存
+    if (history.length > 10) history.pop();
+    
+    localStorage.setItem('padSearchHistory', JSON.stringify(history));
+    updateSearchHistory();
+}
+
+// ページを開いた時に履歴をセット
+updateSearchHistory();
+
 function searchMaterial() {
     const query = document.getElementById('searchInput').value.trim();
     const resultDiv = document.getElementById('searchResult');
@@ -6,6 +46,9 @@ function searchMaterial() {
         resultDiv.innerHTML = "検索キーワードを入力してください。";
         return;
     }
+
+    // ★ 検索が実行されたら履歴を保存
+    saveSearchHistory(query);
 
     const foundMap = {};
 
@@ -17,7 +60,6 @@ function searchMaterial() {
                 let displayNote = reward.note;
                 if (displayNote && !displayNote.match(/^[×xX～~]/)) displayNote = `(${displayNote})`;
                 
-                // ★ 場所名ではなく、データをそのまま保存する
                 foundMap[reward.name].push({
                     series: dungeon.series,
                     dungeonName: dungeon.name,
@@ -34,11 +76,9 @@ function searchMaterial() {
         itemNames.forEach(name => {
             const safeName = encodeURIComponent(name);
             const locations = foundMap[name];
-            // 複数落ちる場合は一番上のダンジョンを代表ジャンプ先に
             const firstDungeon = locations[0].dungeonName;
 
             html += `<div class="item">
-                        <!-- ★ 画像と名前をまとめ、クリックでジャンプするように設定 -->
                         <div class="search-result-header clickable" onclick="jumpToDungeon('${firstDungeon}')">
                             <div class="material-badge" title="${name}">
                                 <img src="images/${safeName}.png" alt="${name}" 
@@ -51,7 +91,6 @@ function searchMaterial() {
                         <div style="margin-top: 10px;">📍 ドロップ場所:</div>
                         <ul class="search-location-list">`;
             
-            // ★ 個別のダンジョンテキストを押してもジャンプ可能に
             locations.forEach(loc => {
                 const noteHtml = loc.note ? `<span class="search-note">${loc.note}</span>` : '';
                 html += `<li class="jump-link" onclick="jumpToDungeon('${loc.dungeonName}')">
