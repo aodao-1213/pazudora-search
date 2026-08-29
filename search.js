@@ -1,42 +1,67 @@
-// ★ Enterキーで検索を実行する設定
+// Enterキーで検索を実行
 document.getElementById('searchInput').addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {
         searchMaterial();
-        this.blur(); // スマホで検索後にキーボードを自動で閉じる
+        this.blur();
     }
 });
 
-// ★ 検索履歴を読み込んでリストを更新する関数
-function updateSearchHistory() {
-    const datalist = document.getElementById('searchHistoryList');
-    if (!datalist) return;
+// ★ 検索履歴を画面にボタン（タグ）として複数表示する関数
+function updateSearchHistoryUI() {
+    let historyArea = document.getElementById('searchHistoryArea');
+    
+    // もしHTML側に枠が書き忘れられていても、自動で作成する機能を追加
+    if (!historyArea) {
+        historyArea = document.createElement('div');
+        historyArea.id = 'searchHistoryArea';
+        historyArea.className = 'history-area';
+        const searchInput = document.getElementById('searchInput');
+        // 入力欄のすぐ下に枠を差し込む
+        searchInput.parentNode.insertBefore(historyArea, searchInput.nextSibling);
+    }
+    
     let history = JSON.parse(localStorage.getItem('padSearchHistory') || '[]');
     
-    let html = '';
+    if (history.length === 0) {
+        historyArea.innerHTML = '';
+        historyArea.style.display = 'none';
+        return;
+    }
+
+    historyArea.style.display = 'flex';
+    let html = '<span class="history-title">履歴:</span>';
+    
+    // 履歴を最大8件までボタンとして並べる
     history.forEach(word => {
-        html += `<option value="${word}"></option>`;
+        const safeWord = word.replace(/'/g, "\\'");
+        html += `<button type="button" class="history-tag" onclick="useHistory('${safeWord}')">${word}</button>`;
     });
-    datalist.innerHTML = html;
+
+    historyArea.innerHTML = html;
 }
 
-// ★ 検索ワードをブラウザに保存する関数
+// 履歴タグをクリックしたときの処理
+function useHistory(word) {
+    document.getElementById('searchInput').value = word;
+    searchMaterial();
+}
+
+// 検索ワードを保存する関数
 function saveSearchHistory(query) {
     if (!query) return;
     let history = JSON.parse(localStorage.getItem('padSearchHistory') || '[]');
     
-    // 同じワードがあれば削除して、常に最新を一番上にする
     history = history.filter(item => item !== query);
     history.unshift(query);
     
-    // 最大10件まで保存
-    if (history.length > 10) history.pop();
+    if (history.length > 8) history.pop(); // 最大8件まで保存
     
     localStorage.setItem('padSearchHistory', JSON.stringify(history));
-    updateSearchHistory();
+    updateSearchHistoryUI();
 }
 
-// ページを開いた時に履歴をセット
-updateSearchHistory();
+// ページを開いた時に履歴を表示
+updateSearchHistoryUI();
 
 function searchMaterial() {
     const query = document.getElementById('searchInput').value.trim();
@@ -47,7 +72,6 @@ function searchMaterial() {
         return;
     }
 
-    // ★ 検索が実行されたら履歴を保存
     saveSearchHistory(query);
 
     const foundMap = {};
