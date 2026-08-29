@@ -55,15 +55,12 @@ function parseCategory(text, isRandom) {
 
 function parseExcelData(data) {
     const result = [];
-    // ★ 「注意書き」を特別な列として認識させる
     const knownColumns = ['ステージ', 'ステージ名', 'ダンジョン', 'ダンジョン名', 'スタミナ', 'ボス・部位破壊', '確定ドロップ', '確率ドロップ', '確定ランダムドロップ', '確率ランダムドロップ', '注意書き'];
 
     data.forEach(row => {
         const series = row['ステージ'] || row['ステージ名'] || 'その他';
         const name = row['ダンジョン'] || row['ダンジョン名'] || '不明';
         const stamina = row['スタミナ'] || '';
-        
-        // ★ 注意書きのデータを取得（空欄ならカラにする）
         const warning = row['注意書き'] ? String(row['注意書き']).trim() : '';
 
         const remarks = [];
@@ -79,7 +76,12 @@ function parseExcelData(data) {
                     if (!val.startsWith('+')) val = '+' + val;
                 }
                 
-                remarks.push({ label: key, value: val });
+                // ★ 画面に表示するラベル名を書き換える処理
+                let displayLabel = key;
+                if (key === 'ポイント') displayLabel = '+ポイント';
+                if (key === 'プラス限界突破') displayLabel = '+限界突破';
+                
+                remarks.push({ label: displayLabel, value: val });
             }
         }
 
@@ -100,7 +102,6 @@ function parseExcelData(data) {
             });
         });
 
-        // ★ warning（注意書き）のデータを追加して保存
         result.push({ series, name, stamina, remarks, drops, allRewards, warning });
     });
     return result;
