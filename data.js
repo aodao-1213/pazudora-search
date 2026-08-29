@@ -1,5 +1,22 @@
 let dungeonData = [];
-let announcementData = []; // ★ 追加
+let announcementData = []; 
+
+// ★ 追加: 日付を 2026/08/30 の形に整形する関数
+function formatExcelDate(dateVal) {
+    if (!dateVal) return '';
+    // エクセルのシリアル値の場合
+    if (!isNaN(dateVal) && typeof dateVal === 'number') {
+        const date = new Date(Math.round((dateVal - 25569) * 86400 * 1000));
+        return `${date.getFullYear()}/${String(date.getMonth()+1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
+    }
+    // 文字列の場合（ハイフンなどをスラッシュに置換）
+    const str = String(dateVal).trim();
+    const dateObj = new Date(str.replace(/-/g, '/'));
+    if (!isNaN(dateObj.getTime())) {
+        return `${dateObj.getFullYear()}/${String(dateObj.getMonth()+1).padStart(2, '0')}/${String(dateObj.getDate()).padStart(2, '0')}`;
+    }
+    return str; 
+}
 
 async function loadExcel() {
     try {
@@ -26,15 +43,14 @@ async function loadExcel() {
             });
         }
 
-        // ★ 追加: 3枚目のシート（お知らせ）の読み込み
         announcementData = [];
         if (workbook.SheetNames.length > 2) {
             const sheet3 = workbook.Sheets[workbook.SheetNames[2]];
-            // raw: false にすることでエクセルの日付表記をそのまま文字列として取得
-            const noticeData = XLSX.utils.sheet_to_json(sheet3, { raw: false });
+            // raw: true にして正確な日付シリアル値を取得し、関数で整形
+            const noticeData = XLSX.utils.sheet_to_json(sheet3, { raw: true });
             
             noticeData.forEach((row, index) => {
-                const date = row['日付'] ? String(row['日付']).trim() : '';
+                const date = formatExcelDate(row['日付']);
                 const title = row['アナウンス(タイトル)'] ? String(row['アナウンス(タイトル)']).trim() : '';
                 const body = row['アナウンス(本文)'] ? String(row['アナウンス(本文)']).trim() : '';
                 
@@ -42,8 +58,7 @@ async function loadExcel() {
                     announcementData.push({ id: index, date, title, body });
                 }
             });
-            // 下に追加した新しいお知らせが上に来るように順番を逆にする
-            announcementData.reverse();
+            announcementData.reverse(); // 新しい順にする
         }
         
         dungeonData = parseExcelData(jsonData, idMap);

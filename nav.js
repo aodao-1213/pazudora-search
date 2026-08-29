@@ -8,11 +8,19 @@ function updateScreenFromHash() {
     const noticeSection = document.getElementById('sectionNotice');
     if (noticeSection) noticeSection.classList.add('hidden');
     
+    const noticeListSection = document.getElementById('sectionNoticeList');
+    if (noticeListSection) noticeListSection.classList.add('hidden');
+    
     if (hash === 'top') document.getElementById('sectionTop').classList.remove('hidden');
     else if (hash === 'search') document.getElementById('sectionSearch').classList.remove('hidden');
     else if (hash === 'arena') document.getElementById('sectionArena').classList.remove('hidden');
-    // ★ 追加: お知らせ詳細画面の表示指示
     else if (hash === 'notice' && noticeSection) noticeSection.classList.remove('hidden');
+    
+    // ★ 追加: お知らせ全件表示ページを開く処理
+    else if (hash === 'noticeList' && noticeListSection) {
+        noticeListSection.classList.remove('hidden');
+        if (typeof showNoticeList === 'function') showNoticeList(1);
+    }
 }
 
 window.addEventListener('hashchange', updateScreenFromHash);

@@ -1,4 +1,5 @@
-// ★ 追加: お知らせ一覧の表示処理
+const ITEMS_PER_PAGE = 20;
+
 function displayAnnouncements() {
     const listUl = document.getElementById('announcementList');
     if (!listUl) return;
@@ -8,8 +9,10 @@ function displayAnnouncements() {
         return;
     }
 
+    // トップ画面は最新5件だけ表示
+    const topNotices = announcementData.slice(0, 5);
     let html = "";
-    announcementData.forEach(notice => {
+    topNotices.forEach(notice => {
         html += `<li class="notice-item" onclick="showNoticeDetail(${notice.id})">
                     <span class="notice-date-badge">${notice.date}</span>
                     <span class="notice-title-link">${notice.title}</span>
@@ -18,14 +21,52 @@ function displayAnnouncements() {
     listUl.innerHTML = html;
 }
 
-// ★ 追加: お知らせ詳細への遷移処理
+// ★ 追加: 全件一覧のページネーション表示
+function showNoticeList(page = 1) {
+    const listUl = document.getElementById('fullAnnouncementList');
+    const paginationArea = document.getElementById('paginationArea');
+    if (!listUl) return;
+
+    const totalPages = Math.ceil(announcementData.length / ITEMS_PER_PAGE);
+    const startIdx = (page - 1) * ITEMS_PER_PAGE;
+    const endIdx = startIdx + ITEMS_PER_PAGE;
+    const currentData = announcementData.slice(startIdx, endIdx);
+
+    let html = "";
+    currentData.forEach(notice => {
+        html += `<li class="notice-item" onclick="showNoticeDetail(${notice.id})">
+                    <span class="notice-date-badge">${notice.date}</span>
+                    <span class="notice-title-link">${notice.title}</span>
+                 </li>`;
+    });
+    listUl.innerHTML = html;
+
+    // ページネーションのボタン生成
+    let pageHtml = "";
+    if (totalPages > 1) {
+        if (page > 1) {
+            pageHtml += `<button class="page-btn" onclick="showNoticeList(${page - 1})">前へ</button>`;
+        }
+        for (let i = 1; i <= totalPages; i++) {
+            if (i === page) {
+                pageHtml += `<button class="page-btn active">${i}</button>`;
+            } else {
+                pageHtml += `<button class="page-btn" onclick="showNoticeList(${i})">${i}</button>`;
+            }
+        }
+        if (page < totalPages) {
+            pageHtml += `<button class="page-btn" onclick="showNoticeList(${page + 1})">次へ</button>`;
+        }
+    }
+    paginationArea.innerHTML = pageHtml;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 function showNoticeDetail(id) {
     const notice = announcementData.find(n => n.id === id);
     if (notice) {
         document.getElementById('noticeTitle').textContent = notice.title;
         document.getElementById('noticeDate').textContent = notice.date;
-        
-        // エクセルの改行（Alt+Enter）をHTMLの改行タグに変換して表示
         const formattedBody = notice.body.replace(/\n/g, '<br>');
         document.getElementById('noticeBody').innerHTML = formattedBody;
         
@@ -33,7 +74,6 @@ function showNoticeDetail(id) {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 }
-
 
 function displayArenaList() {
     const listDiv = document.getElementById('arenaList');

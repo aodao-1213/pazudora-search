@@ -21,22 +21,35 @@
             <button class="top-button" onclick="showScreen('arena')">🎁 報酬リスト</button>
         </div>
 
-        <!-- ★ 追加: アナウンス一覧エリア -->
         <div class="announcement-area">
             <h3>📢 お知らせ (Announcement)</h3>
             <ul id="announcementList" class="announcement-list">
-                <!-- ここにお知らせが表示されます -->
+                <!-- 最新5件が表示されます -->
             </ul>
+            <!-- ★ 追加: すべて表示するリンク -->
+            <div style="text-align: right; padding: 10px 15px;">
+                <a href="#noticeList" class="view-all-link">すべて表示する &gt;</a>
+            </div>
         </div>
     </div>
 
-    <!-- ★ 追加: お知らせ詳細画面 -->
-    <div id="sectionNotice" class="hidden">
+    <!-- ★ 追加: お知らせ全件表示（一覧）画面 -->
+    <div id="sectionNoticeList" class="hidden">
         <button class="back-button" onclick="showScreen('top')">← トップに戻る</button>
+        <h2>📢 お知らせ一覧</h2>
+        <div class="result-box">
+            <ul id="fullAnnouncementList" class="announcement-list"></ul>
+            <div id="paginationArea" class="pagination-area"></div>
+        </div>
+    </div>
+
+    <!-- お知らせ詳細画面 -->
+    <div id="sectionNotice" class="hidden">
+        <!-- ★ どこから来ても正しく戻れるように history.back() に変更 -->
+        <button class="back-button" onclick="history.back()">← 戻る</button>
         <h2 id="noticeTitle">お知らせタイトル</h2>
         <p id="noticeDate" class="notice-date"></p>
         <div id="noticeBody" class="notice-body result-box">
-            <!-- 本文 -->
         </div>
     </div>
 

@@ -151,3 +151,43 @@ h2 {
     background: #fdfdfe;
     border-top: 4px solid #3498db;
 }
+
+/* ====================================================
+   お知らせエリア拡張用スタイル（すべて表示・ページネーション）
+   ==================================================== */
+.view-all-link {
+    font-size: 13px;
+    color: #3498db;
+    text-decoration: underline;
+    font-weight: bold;
+    cursor: pointer;
+}
+.view-all-link:hover {
+    color: #2980b9;
+}
+.pagination-area {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 20px;
+}
+.page-btn {
+    padding: 6px 12px;
+    border: 1px solid #bdc3c7;
+    background: #fff;
+    color: #2c3e50;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s;
+}
+.page-btn:hover {
+    background: #ecf0f1;
+}
+.page-btn.active {
+    background: #3498db;
+    color: #fff;
+    border-color: #3498db;
+    cursor: default;
+}
