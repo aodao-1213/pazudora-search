@@ -27,6 +27,39 @@ function jumpToDungeon(dungeonName) {
     }, 50);
 }
 
+// ★ 新機能：報酬リストから検索画面へジャンプする
+function jumpToSearch(itemName) {
+    showScreen('search');
+    document.getElementById('searchInput').value = itemName;
+    if (typeof searchMaterial === 'function') {
+        searchMaterial();
+    }
+    // 画面の一番上へスムーズにスクロール
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ★ スマホのタップ（1回目＝名前、2回目＝ジャンプ）を判定するスマートロジック
+function handleBadgeClick(event, itemName) {
+    // マウスが使えるPC環境かどうかを判定
+    const canHover = window.matchMedia('(hover: hover)').matches;
+    
+    if (!canHover) {
+        // スマホ（タッチ操作）の場合
+        const badge = event.currentTarget;
+        if (badge.dataset.tapped !== "true") {
+            // 1回目のタップ：フラグを立てて吹き出しを表示（ジャンプはしない）
+            badge.dataset.tapped = "true";
+            
+            // 3秒後にタップ状態をリセットし、再び1回目からやり直せるようにする
+            setTimeout(() => { badge.dataset.tapped = "false"; }, 3000);
+            return; 
+        }
+    }
+    
+    // PCのクリック、またはスマホの2回目の連続タップで検索へジャンプ
+    jumpToSearch(itemName);
+}
+
 function displayArenaList() {
     const listDiv = document.getElementById('arenaList');
     if (dungeonData.length === 0) {
@@ -46,7 +79,6 @@ function displayArenaList() {
         
         dungeons.forEach(arena => {
             const safeId = encodeURIComponent(arena.name);
-            // ★ スタミナと同じバッジデザインでバトル数を横に並べる
             const battleHtml = arena.battles ? `<span class="stamina-badge">バトル: ${arena.battles}</span>` : '';
             
             html += `<div class="item" id="dungeon-${safeId}">
@@ -74,7 +106,11 @@ function displayArenaList() {
                         
                         group.items.forEach(itemName => {
                             const safeName = encodeURIComponent(itemName);
-                            html += `<div class="material-badge" tabindex="0">
+                            // プログラム内でエラーにならないようシングルクォーテーションをエスケープ
+                            const safeJSName = itemName.replace(/'/g, "\\'");
+                            
+                            // ★ onclick に handleBadgeClick を追加
+                            html += `<div class="material-badge" tabindex="0" onclick="handleBadgeClick(event, '${safeJSName}')">
                                         <img src="images/${safeName}.png" alt="${itemName}" 
                                              onerror="this.onerror=null; this.src='images/question.png'; this.nextElementSibling.style.display='block';">
                                         <span class="fallback-text" style="display:none;">${itemName}</span>
