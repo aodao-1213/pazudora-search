@@ -115,22 +115,24 @@ function displayArenaList() {
                         html += `</div>`;
                     });
                     
-                    html += `</div>`; // .category-groups の閉じタグ
+                    html += `</div>`; 
                     
-                    // ★ 新機能：ボス・部位破壊カテゴリの場合のみ、その下に交換レートボックスを表示
+                    // ★ 交換レートを「折りたたみ形式」に変更
                     if (dropCategory.category === 'ボス・部位破壊' && arena.exchangeRate) {
                         const rates = arena.exchangeRate.split(',');
-                        html += `<div class="exchange-rate-box">
-                                    <div class="exchange-title">🔄 部位破壊素材の交換目安</div>
-                                    <ul class="exchange-list">`;
+                        html += `<details class="exchange-details">
+                                    <summary class="exchange-summary">🔄 部位破壊素材の交換目安を見る</summary>
+                                    <div class="exchange-content">
+                                        <ul class="exchange-list">`;
                         rates.forEach(r => {
                             if (r.trim()) html += `<li>${r.trim()}</li>`;
                         });
-                        html += `   </ul>
-                                 </div>`;
+                        html += `       </ul>
+                                    </div>
+                                 </details>`;
                     }
 
-                    html += `</div>`; // .drop-category の閉じタグ
+                    html += `</div>`; 
                 }
             });
             
