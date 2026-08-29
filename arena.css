@@ -150,3 +150,20 @@
     visibility: visible;
     opacity: 1;
 }
+
+/* ====================================================
+   ダンジョン条件（超重力・陰陽）スタイル
+   ==================================================== */
+.dungeon-condition {
+    font-size: 14px;
+    color: #8e44ad; /* 紫系で目立たせる */
+    font-weight: bold;
+    margin-left: 5px;
+    vertical-align: middle;
+}
+.yinyang-icon {
+    height: 1.3em; /* 文字の高さに合わせる */
+    vertical-align: text-bottom;
+    margin-left: 8px;
+    display: inline-block;
+}

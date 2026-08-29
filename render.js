@@ -19,8 +19,25 @@ function displayArenaList() {
             const safeId = encodeURIComponent(arena.name);
             const battleHtml = arena.battles ? `<span class="stamina-badge">バトル: ${arena.battles}</span>` : '';
             
+            // ★ ダンジョン名の装飾（超重力・超高度・陰陽アイコン）
+            let titleExtra = "";
+            if (arena.gravity) titleExtra += `<span class="dungeon-condition">【超重力 ${arena.gravity}】</span>`;
+            if (arena.altitude) titleExtra += `<span class="dungeon-condition">【超高度 ${arena.altitude}】</span>`;
+            
+            if (arena.yinYang) {
+                if (arena.yinYang.includes('陰')) {
+                    titleExtra += `<img src="images/陰加護.png" alt="陰" class="yinyang-icon">`;
+                } else if (arena.yinYang.includes('陽')) {
+                    titleExtra += `<img src="images/陽加護.png" alt="陽" class="yinyang-icon">`;
+                }
+            }
+            
             html += `<div class="item" id="dungeon-${safeId}">
-                        <div class="item-title">${arena.name} <span class="stamina-badge">スタミナ: ${arena.stamina}</span> ${battleHtml}</div>`;
+                        <div class="item-title">
+                            ${arena.name}${titleExtra} 
+                            <span class="stamina-badge" style="margin-left: 8px;">スタミナ: ${arena.stamina}</span> 
+                            ${battleHtml}
+                        </div>`;
             
             if (arena.remarks && arena.remarks.length > 0) {
                 html += `<div class="dungeon-remarks">`;
