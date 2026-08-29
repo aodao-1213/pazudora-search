@@ -27,36 +27,26 @@ function jumpToDungeon(dungeonName) {
     }, 50);
 }
 
-// ★ 新機能：報酬リストから検索画面へジャンプする
 function jumpToSearch(itemName) {
     showScreen('search');
     document.getElementById('searchInput').value = itemName;
     if (typeof searchMaterial === 'function') {
         searchMaterial();
     }
-    // 画面の一番上へスムーズにスクロール
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// ★ スマホのタップ（1回目＝名前、2回目＝ジャンプ）を判定するスマートロジック
 function handleBadgeClick(event, itemName) {
-    // マウスが使えるPC環境かどうかを判定
     const canHover = window.matchMedia('(hover: hover)').matches;
     
     if (!canHover) {
-        // スマホ（タッチ操作）の場合
         const badge = event.currentTarget;
         if (badge.dataset.tapped !== "true") {
-            // 1回目のタップ：フラグを立てて吹き出しを表示（ジャンプはしない）
             badge.dataset.tapped = "true";
-            
-            // 3秒後にタップ状態をリセットし、再び1回目からやり直せるようにする
             setTimeout(() => { badge.dataset.tapped = "false"; }, 3000);
             return; 
         }
     }
-    
-    // PCのクリック、またはスマホの2回目の連続タップで検索へジャンプ
     jumpToSearch(itemName);
 }
 
@@ -106,10 +96,8 @@ function displayArenaList() {
                         
                         group.items.forEach(itemName => {
                             const safeName = encodeURIComponent(itemName);
-                            // プログラム内でエラーにならないようシングルクォーテーションをエスケープ
                             const safeJSName = itemName.replace(/'/g, "\\'");
                             
-                            // ★ onclick に handleBadgeClick を追加
                             html += `<div class="material-badge" tabindex="0" onclick="handleBadgeClick(event, '${safeJSName}')">
                                         <img src="images/${safeName}.png" alt="${itemName}" 
                                              onerror="this.onerror=null; this.src='images/question.png'; this.nextElementSibling.style.display='block';">
@@ -126,7 +114,23 @@ function displayArenaList() {
                         
                         html += `</div>`;
                     });
-                    html += `</div></div>`;
+                    
+                    html += `</div>`; // .category-groups の閉じタグ
+                    
+                    // ★ 新機能：ボス・部位破壊カテゴリの場合のみ、その下に交換レートボックスを表示
+                    if (dropCategory.category === 'ボス・部位破壊' && arena.exchangeRate) {
+                        const rates = arena.exchangeRate.split(',');
+                        html += `<div class="exchange-rate-box">
+                                    <div class="exchange-title">🔄 部位破壊素材の交換目安</div>
+                                    <ul class="exchange-list">`;
+                        rates.forEach(r => {
+                            if (r.trim()) html += `<li>${r.trim()}</li>`;
+                        });
+                        html += `   </ul>
+                                 </div>`;
+                    }
+
+                    html += `</div>`; // .drop-category の閉じタグ
                 }
             });
             

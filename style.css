@@ -426,3 +426,30 @@ input[type="text"] {
     /* ★ 1.2秒かけて光って消える動作を 3回 繰り返す */
     animation: flashOrange 1.2s ease-in-out 3;
 }
+
+/* ====================================================
+   交換レートのスタイル
+   ==================================================== */
+.exchange-rate-box {
+    margin-top: 15px;
+    padding: 12px 15px;
+    background-color: #f0f8ff; /* 薄い青背景 */
+    border: 1px dashed #3498db;
+    border-radius: 6px;
+}
+.exchange-title {
+    font-size: 13px;
+    font-weight: bold;
+    color: #2980b9;
+    margin-bottom: 8px;
+}
+.exchange-list {
+    margin: 0;
+    padding-left: 20px;
+    font-size: 13px;
+    color: #2c3e50;
+    line-height: 1.6;
+}
+.exchange-list li {
+    margin-bottom: 4px;
+}

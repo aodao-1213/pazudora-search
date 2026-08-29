@@ -18,17 +18,14 @@ async function loadExcel() {
         let idMap = {};
         if (workbook.SheetNames.length > 1) {
             const sheet2 = workbook.Sheets[workbook.SheetNames[1]];
-            // 見出しの有無や列のズレに影響されず、A列・B列を強制的に読み込む
-            const idData = XLSX.utils.sheet_to_json(sheet2, { header: 1 });
+            const idData = XLSX.utils.sheet_to_json(sheet2, { header: "A", defval: "" });
             
             idData.forEach(row => {
-                if (row.length >= 2) {
-                    const bookId = String(row[0] || '').trim();
-                    const materialName = String(row[1] || '').trim();
-                    
-                    if (bookId && materialName && materialName !== '素材名' && !materialName.includes('B列')) {
-                        idMap[materialName] = bookId;
-                    }
+                const colA = String(row.A || '').trim(); 
+                const colB = String(row.B || '').trim(); 
+                
+                if (colA && colB && !colA.includes('図鑑番号') && !colB.includes('素材名')) {
+                    idMap[colB] = colA;
                 }
             });
         }
@@ -73,15 +70,17 @@ function parseCategory(text, isRandom) {
 
 function parseExcelData(data, idMap) {
     const result = [];
-    // ★「バトル」をここに追加し、備考扱いになるのを防ぐ
-    const knownColumns = ['ステージ', 'ステージ名', 'ダンジョン', 'ダンジョン名', 'スタミナ', 'バトル', 'バトル数', 'ボス・部位破壊', '確定ドロップ', '確率ドロップ', '確定ランダムドロップ', '確率ランダムドロップ', '注意書き'];
+    // ★ 「交換可能なレート」を追加して備考と区別する
+    const knownColumns = ['ステージ', 'ステージ名', 'ダンジョン', 'ダンジョン名', 'スタミナ', 'バトル', 'バトル数', '交換可能なレート', 'ボス・部位破壊', '確定ドロップ', '確率ドロップ', '確定ランダムドロップ', '確率ランダムドロップ', '注意書き'];
 
     data.forEach(row => {
         const series = row['ステージ'] || row['ステージ名'] || 'その他';
         const name = row['ダンジョン'] || row['ダンジョン名'] || '不明';
         const stamina = row['スタミナ'] || '';
-        // ★「バトル」列の値を取得する
         const battles = row['バトル'] || row['バトル数'] || '';
+        
+        // ★ 交換レートのデータを取得
+        const exchangeRate = row['交換可能なレート'] ? String(row['交換可能なレート']).trim() : '';
         const warning = row['注意書き'] ? String(row['注意書き']).trim() : '';
 
         const remarks = [];
@@ -127,7 +126,8 @@ function parseExcelData(data, idMap) {
             });
         });
 
-        result.push({ series, name, stamina, battles, remarks, drops, allRewards, warning });
+        // ★ exchangeRate も保存して ui.js へ渡す
+        result.push({ series, name, stamina, battles, remarks, exchangeRate, drops, allRewards, warning });
     });
     return result;
 }
