@@ -372,3 +372,50 @@ input[type="text"] {
     border-radius: 4px;
     line-height: 1.5;
 }
+
+/* ====================================================
+   スマホ対応 カスタムツールチップ（吹き出し）
+   ==================================================== */
+.material-badge {
+    position: relative; /* 吹き出しの基準位置にする */
+    cursor: pointer;
+}
+
+.custom-tooltip {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    bottom: 115%; /* 画像の少し上に配置 */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.85);
+    color: #fff;
+    text-align: center;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 100;
+    transition: opacity 0.2s, visibility 0.2s;
+    pointer-events: none; /* タップの邪魔にならないようにする */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* 吹き出しのしっぽ（三角形） */
+.custom-tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: rgba(0, 0, 0, 0.85) transparent transparent transparent;
+}
+
+/* PCのマウスホバー時 ＆ スマホのタップ（フォーカス）時に表示 */
+.material-badge:hover .custom-tooltip,
+.material-badge:focus .custom-tooltip {
+    visibility: visible;
+    opacity: 1;
+}

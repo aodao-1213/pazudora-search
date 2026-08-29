@@ -67,10 +67,12 @@ function displayArenaList() {
                         
                         group.items.forEach(itemName => {
                             const safeName = encodeURIComponent(itemName);
-                            html += `<div class="material-badge" title="${itemName}">
+                            // ★ PC標準のtitle属性を消し、スマホ対応のカスタム吹き出しを追加
+                            html += `<div class="material-badge" tabindex="0">
                                         <img src="images/${safeName}.png" alt="${itemName}" 
                                              onerror="this.onerror=null; this.src='images/question.png'; this.nextElementSibling.style.display='block';">
                                         <span class="fallback-text" style="display:none;">${itemName}</span>
+                                        <span class="custom-tooltip">${itemName}</span>
                                      </div>`;
                         });
 
@@ -86,7 +88,6 @@ function displayArenaList() {
                 }
             });
             
-            // ★ ドロップ報酬の下に注意書きを表示（改行にも対応）
             if (arena.warning) {
                 const warningHtml = arena.warning.replace(/\n/g, '<br>');
                 html += `<div class="dungeon-warning">${warningHtml}</div>`;
