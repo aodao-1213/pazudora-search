@@ -1,10 +1,5 @@
 let dungeonData = [];
 
-window.onload = async function() {
-    await loadExcel();
-    if (typeof displayArenaList === 'function') displayArenaList();
-};
-
 async function loadExcel() {
     try {
         const response = await fetch('dangeon.xlsx');
@@ -70,7 +65,6 @@ function parseCategory(text, isRandom) {
 
 function parseExcelData(data, idMap) {
     const result = [];
-    // ★ 「交換可能なレート」を追加して備考と区別する
     const knownColumns = ['ステージ', 'ステージ名', 'ダンジョン', 'ダンジョン名', 'スタミナ', 'バトル', 'バトル数', '交換可能なレート', 'ボス・部位破壊', '確定ドロップ', '確率ドロップ', '確定ランダムドロップ', '確率ランダムドロップ', '注意書き'];
 
     data.forEach(row => {
@@ -78,8 +72,6 @@ function parseExcelData(data, idMap) {
         const name = row['ダンジョン'] || row['ダンジョン名'] || '不明';
         const stamina = row['スタミナ'] || '';
         const battles = row['バトル'] || row['バトル数'] || '';
-        
-        // ★ 交換レートのデータを取得
         const exchangeRate = row['交換可能なレート'] ? String(row['交換可能なレート']).trim() : '';
         const warning = row['注意書き'] ? String(row['注意書き']).trim() : '';
 
@@ -126,7 +118,6 @@ function parseExcelData(data, idMap) {
             });
         });
 
-        // ★ exchangeRate も保存して ui.js へ渡す
         result.push({ series, name, stamina, battles, remarks, exchangeRate, drops, allRewards, warning });
     });
     return result;

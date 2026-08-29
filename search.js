@@ -1,68 +1,3 @@
-document.getElementById('searchInput').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        searchMaterial();
-        this.blur();
-    }
-});
-
-function updateSearchHistoryUI() {
-    let historyArea = document.getElementById('searchHistoryArea');
-    if (!historyArea) {
-        historyArea = document.createElement('div');
-        historyArea.id = 'searchHistoryArea';
-        historyArea.className = 'history-area';
-        const searchInput = document.getElementById('searchInput');
-        searchInput.parentNode.insertBefore(historyArea, searchInput.nextSibling);
-    }
-    
-    let history = JSON.parse(localStorage.getItem('padSearchHistory') || '[]');
-    if (history.length === 0) {
-        historyArea.innerHTML = '';
-        historyArea.style.display = 'none';
-        return;
-    }
-
-    let html = '';
-    history.forEach(word => {
-        const safeWord = word.replace(/'/g, "\\'");
-        html += `<button type="button" class="history-item" onclick="useHistory('${safeWord}')">${word}</button>`;
-    });
-    historyArea.innerHTML = html;
-}
-
-document.getElementById('searchInput').addEventListener('focus', function() {
-    const history = JSON.parse(localStorage.getItem('padSearchHistory') || '[]');
-    if (history.length > 0) {
-        document.getElementById('searchHistoryArea').style.display = 'flex';
-        this.classList.add('input-active');
-    }
-});
-
-document.getElementById('searchInput').addEventListener('blur', function() {
-    setTimeout(() => {
-        const historyArea = document.getElementById('searchHistoryArea');
-        if (historyArea) historyArea.style.display = 'none';
-        this.classList.remove('input-active');
-    }, 200);
-});
-
-function useHistory(word) {
-    document.getElementById('searchInput').value = word;
-    searchMaterial();
-}
-
-function saveSearchHistory(query) {
-    if (!query) return;
-    let history = JSON.parse(localStorage.getItem('padSearchHistory') || '[]');
-    history = history.filter(item => item !== query);
-    history.unshift(query);
-    if (history.length > 10) history.pop();
-    localStorage.setItem('padSearchHistory', JSON.stringify(history));
-    updateSearchHistoryUI();
-}
-
-updateSearchHistoryUI();
-
 function searchMaterial() {
     const query = document.getElementById('searchInput').value.trim();
     const resultDiv = document.getElementById('searchResult');
@@ -72,7 +7,10 @@ function searchMaterial() {
         return;
     }
 
-    saveSearchHistory(query);
+    if (typeof saveSearchHistory === 'function') {
+        saveSearchHistory(query);
+    }
+    
     const foundMap = {};
 
     dungeonData.forEach(dungeon => {
@@ -105,7 +43,6 @@ function searchMaterial() {
             
             const displayName = data.id ? `No.${data.id} ${name}` : name;
 
-            // ★ onclickとclickableクラスを削除し、純粋な表示領域に変更
             html += `<div class="item">
                         <div class="search-result-header">
                             <div class="material-badge" tabindex="0">
@@ -122,7 +59,6 @@ function searchMaterial() {
             
             locations.forEach(loc => {
                 const noteHtml = loc.note ? `<span class="search-note">${loc.note}</span>` : '';
-                // リンク一覧からのジャンプ機能は維持
                 html += `<li class="jump-link" onclick="jumpToDungeon('${loc.dungeonName}')">
                             ${loc.series} / ${loc.dungeonName} 
                             <span class="search-category">[${loc.category}]</span> ${noteHtml}

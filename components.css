@@ -1,0 +1,98 @@
+.dungeon-remarks {
+    margin-top: 12px;
+    margin-bottom: 5px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.remark-item {
+    display: inline-flex;
+    align-items: center;
+    background: #fff;
+    border: 1px solid #bdc3c7;
+    border-radius: 4px;
+    overflow: hidden;
+    font-size: 13px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+.remark-label {
+    background-color: #34495e;
+    color: #fff;
+    padding: 4px 8px;
+    font-weight: bold;
+}
+.remark-value {
+    padding: 4px 10px;
+    color: #2c3e50;
+    font-weight: bold;
+    background-color: #ecf0f1;
+}
+.dungeon-warning {
+    margin-top: 15px;
+    padding: 10px 12px;
+    font-size: 13px;
+    color: #555;
+    background-color: #fdfdfe;
+    border: 1px solid #e0e6ed;
+    border-left: 4px solid #95a5a6;
+    border-radius: 4px;
+    line-height: 1.5;
+}
+@keyframes flashOrange {
+    0%   { background-color: transparent; }
+    50%  { background-color: rgba(255, 165, 0, 0.4); }
+    100% { background-color: transparent; }
+}
+.flash-highlight {
+    animation: flashOrange 1.2s ease-in-out 3;
+}
+.exchange-details {
+    margin-top: 15px;
+    background-color: #f8f9fa;
+    border: 1px solid #dcdde1;
+    border-radius: 6px;
+    overflow: hidden;
+}
+.exchange-summary {
+    padding: 10px 15px;
+    font-size: 13px;
+    font-weight: bold;
+    color: #2c3e50;
+    cursor: pointer;
+    list-style: none;
+    position: relative;
+    user-select: none;
+    transition: background-color 0.2s;
+}
+.exchange-summary:hover {
+    background-color: #e2e8f0;
+}
+.exchange-summary::-webkit-details-marker {
+    display: none; 
+}
+.exchange-summary::before {
+    content: "▶";
+    display: inline-block;
+    margin-right: 8px;
+    color: #3498db;
+    transition: transform 0.2s ease;
+}
+.exchange-details[open] .exchange-summary::before {
+    transform: rotate(90deg);
+}
+.exchange-content {
+    padding: 0 15px 12px 15px;
+    border-top: 1px dashed #dcdde1;
+    margin-top: 5px;
+    padding-top: 10px;
+}
+.exchange-list {
+    margin: 0;
+    padding-left: 20px;
+    font-size: 13px;
+    color: #2c3e50;
+    line-height: 1.6;
+}
+.exchange-list li {
+    margin-bottom: 4px;
+}
