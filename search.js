@@ -102,17 +102,16 @@ function searchMaterial() {
             const data = foundMap[name];
             const safeName = encodeURIComponent(name);
             const locations = data.locations;
-            const firstDungeon = locations[0].dungeonName;
             
             const displayName = data.id ? `No.${data.id} ${name}` : name;
 
+            // ★ onclickとclickableクラスを削除し、純粋な表示領域に変更
             html += `<div class="item">
-                        <div class="search-result-header clickable" onclick="jumpToDungeon('${firstDungeon}')">
+                        <div class="search-result-header">
                             <div class="material-badge" tabindex="0">
                                 <img src="images/${safeName}.png" alt="${name}" 
                                      onerror="this.onerror=null; this.src='images/question.png'; this.nextElementSibling.style.display='block';">
                                 <span class="fallback-text" style="display:none;">${name}</span>
-                                <!-- ★ 検索結果の画像にも吹き出しを追加 -->
                                 <span class="custom-tooltip">${displayName}</span>
                             </div>
                             <span class="search-result-name">${displayName}</span>
@@ -123,6 +122,7 @@ function searchMaterial() {
             
             locations.forEach(loc => {
                 const noteHtml = loc.note ? `<span class="search-note">${loc.note}</span>` : '';
+                // リンク一覧からのジャンプ機能は維持
                 html += `<li class="jump-link" onclick="jumpToDungeon('${loc.dungeonName}')">
                             ${loc.series} / ${loc.dungeonName} 
                             <span class="search-category">[${loc.category}]</span> ${noteHtml}
