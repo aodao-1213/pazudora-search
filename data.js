@@ -20,14 +20,19 @@ async function loadExcel() {
         let idMap = {};
         if (workbook.SheetNames.length > 1) {
             const sheet2 = workbook.Sheets[workbook.SheetNames[1]];
-            const idData = XLSX.utils.sheet_to_json(sheet2);
+            // ★ 見出しの有無に関わらず、強制的に表を2次元配列として読み込む
+            const idData = XLSX.utils.sheet_to_json(sheet2, { header: 1 });
+            
             idData.forEach(row => {
-                // ★ A列「図鑑番号」、B列「素材名」として読み込み
-                const bookId = row['図鑑番号'];
-                const materialName = row['素材名'];
-                
-                if (materialName && bookId) {
-                    idMap[String(materialName).trim()] = String(bookId).trim();
+                // row[0]がA列、row[1]がB列
+                if (row.length >= 2) {
+                    const bookId = row[0];
+                    const materialName = row[1];
+                    
+                    // 「素材名」などの文字が見出しとして入っていたら無視する
+                    if (bookId && materialName && materialName !== '素材名' && materialName !== 'B列 (素材名)') {
+                        idMap[String(materialName).trim()] = String(bookId).trim();
+                    }
                 }
             });
         }

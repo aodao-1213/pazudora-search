@@ -77,7 +77,6 @@ function searchMaterial() {
 
     dungeonData.forEach(dungeon => {
         dungeon.allRewards.forEach(reward => {
-            // ★ 検索した文字が「素材名」か「図鑑番号」のどちらかに含まれていればヒット
             if (reward.name.includes(query) || (reward.id && reward.id.includes(query))) {
                 if (!foundMap[reward.name]) {
                     foundMap[reward.name] = { id: reward.id, locations: [] };
@@ -105,7 +104,6 @@ function searchMaterial() {
             const locations = data.locations;
             const firstDungeon = locations[0].dungeonName;
             
-            // ★ 図鑑番号が紐付いていれば表示名に付与
             const displayName = data.id ? `No.${data.id} ${name}` : name;
 
             html += `<div class="item">
@@ -114,8 +112,9 @@ function searchMaterial() {
                                 <img src="images/${safeName}.png" alt="${name}" 
                                      onerror="this.onerror=null; this.src='images/question.png'; this.nextElementSibling.style.display='block';">
                                 <span class="fallback-text" style="display:none;">${name}</span>
+                                <!-- ★ 検索結果の画像にも吹き出しを追加 -->
+                                <span class="custom-tooltip">${displayName}</span>
                             </div>
-                            <!-- ★ 番号付きの名前に変更 -->
                             <span class="search-result-name">${displayName}</span>
                         </div>
                         

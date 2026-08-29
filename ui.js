@@ -46,11 +46,11 @@ function displayArenaList() {
         
         dungeons.forEach(arena => {
             const safeId = encodeURIComponent(arena.name);
-            // ★ スタミナの隣にバトル数用のラベルを追加
-            const battleHtml = arena.battles ? `<span class="stamina-badge" style="background-color: #e67e22;">バトル: ${arena.battles}</span>` : '';
+            // ★ スタミナと同じ .stamina-badge のみを適用
+            const battleHtml = arena.battles ? `<span class="stamina-badge">バトル: ${arena.battles}</span>` : '';
             
             html += `<div class="item" id="dungeon-${safeId}">
-                        <div class="item-title">${arena.name} <span class="stamina-badge">スタミナ: ${arena.stamina}</span> ${battleHtml}</div>`;
+                        <div class="item-title">${arena.name} <span class="stamina-badge">スタミナ: ${arena.stamina}</span>${battleHtml}</div>`;
             
             if (arena.remarks && arena.remarks.length > 0) {
                 html += `<div class="dungeon-remarks">`;
