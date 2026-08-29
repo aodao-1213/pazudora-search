@@ -417,11 +417,12 @@ input[type="text"] {
    ジャンプ時の点滅アニメーション
    ==================================================== */
 @keyframes flashOrange {
-    0%, 100% { background-color: transparent; }
-    50% { background-color: rgba(255, 165, 0, 0.35); } /* オレンジ色 */
+    0%   { background-color: transparent; }
+    50%  { background-color: rgba(255, 165, 0, 0.4); } /* フワッと色がつく */
+    100% { background-color: transparent; }
 }
 
 .flash-highlight {
-    /* 0.8秒のアニメーションを3回繰り返す */
-    animation: flashOrange 0.8s ease-in-out 3;
+    /* ★ 1.2秒かけて光って消える動作を 3回 繰り返す */
+    animation: flashOrange 1.2s ease-in-out 3;
 }

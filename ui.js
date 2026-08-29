@@ -15,18 +15,16 @@ function jumpToDungeon(dungeonName) {
         if (target) {
             target.scrollIntoView({ behavior: 'smooth', block: 'start' });
             
-            // 連続で同じ場所へジャンプしても再度点滅するように、一旦クラスをリセット
             target.classList.remove('flash-highlight');
             
             setTimeout(() => {
-                // 点滅用のアニメーションクラスを付与
                 target.classList.add('flash-highlight');
             }, 10);
 
-            // アニメーション終了後（約2.5秒後）にクラスを外して元に戻す
+            // ★ アニメーションがゆっくりになったので、外すまでの時間を 2500 → 4000 に延長
             setTimeout(() => {
                 target.classList.remove('flash-highlight');
-            }, 2500);
+            }, 4000);
         }
     }, 50);
 }
