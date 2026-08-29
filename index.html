@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>パズドラ 闘技場報酬＆素材検索ツール</title>
-    <!-- 分割したCSSを順番に読み込む -->
     <link rel="stylesheet" href="base.css">
     <link rel="stylesheet" href="search.css">
     <link rel="stylesheet" href="arena.css">
@@ -20,6 +19,24 @@
         <div class="top-menu">
             <button class="top-button" onclick="showScreen('search')">🔍 素材検索</button>
             <button class="top-button" onclick="showScreen('arena')">🎁 報酬リスト</button>
+        </div>
+
+        <!-- ★ 追加: アナウンス一覧エリア -->
+        <div class="announcement-area">
+            <h3>📢 お知らせ (Announcement)</h3>
+            <ul id="announcementList" class="announcement-list">
+                <!-- ここにお知らせが表示されます -->
+            </ul>
+        </div>
+    </div>
+
+    <!-- ★ 追加: お知らせ詳細画面 -->
+    <div id="sectionNotice" class="hidden">
+        <button class="back-button" onclick="showScreen('top')">← トップに戻る</button>
+        <h2 id="noticeTitle">お知らせタイトル</h2>
+        <p id="noticeDate" class="notice-date"></p>
+        <div id="noticeBody" class="notice-body result-box">
+            <!-- 本文 -->
         </div>
     </div>
 
@@ -38,7 +55,6 @@
         <button class="back-button" onclick="showScreen('top')">← トップに戻る</button>
         <h2>闘技場シリーズ 全報酬リスト</h2>
         <div id="arenaList" class="result-box">
-            <!-- データ表示領域 -->
         </div>
     </div>
 </div>

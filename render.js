@@ -1,3 +1,40 @@
+// ★ 追加: お知らせ一覧の表示処理
+function displayAnnouncements() {
+    const listUl = document.getElementById('announcementList');
+    if (!listUl) return;
+
+    if (announcementData.length === 0) {
+        listUl.innerHTML = "<li class='notice-item'>現在お知らせはありません。</li>";
+        return;
+    }
+
+    let html = "";
+    announcementData.forEach(notice => {
+        html += `<li class="notice-item" onclick="showNoticeDetail(${notice.id})">
+                    <span class="notice-date-badge">${notice.date}</span>
+                    <span class="notice-title-link">${notice.title}</span>
+                 </li>`;
+    });
+    listUl.innerHTML = html;
+}
+
+// ★ 追加: お知らせ詳細への遷移処理
+function showNoticeDetail(id) {
+    const notice = announcementData.find(n => n.id === id);
+    if (notice) {
+        document.getElementById('noticeTitle').textContent = notice.title;
+        document.getElementById('noticeDate').textContent = notice.date;
+        
+        // エクセルの改行（Alt+Enter）をHTMLの改行タグに変換して表示
+        const formattedBody = notice.body.replace(/\n/g, '<br>');
+        document.getElementById('noticeBody').innerHTML = formattedBody;
+        
+        showScreen('notice');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
+
 function displayArenaList() {
     const listDiv = document.getElementById('arenaList');
     if (dungeonData.length === 0) {

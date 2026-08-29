@@ -1,5 +1,6 @@
 window.onload = async function() {
     await loadExcel();
+    if (typeof displayAnnouncements === 'function') displayAnnouncements(); // ★ 追加
     if (typeof displayArenaList === 'function') displayArenaList();
 };
 

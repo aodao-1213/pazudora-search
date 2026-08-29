@@ -1,4 +1,5 @@
 let dungeonData = [];
+let announcementData = []; // ★ 追加
 
 async function loadExcel() {
     try {
@@ -23,6 +24,26 @@ async function loadExcel() {
                     idMap[colB] = colA;
                 }
             });
+        }
+
+        // ★ 追加: 3枚目のシート（お知らせ）の読み込み
+        announcementData = [];
+        if (workbook.SheetNames.length > 2) {
+            const sheet3 = workbook.Sheets[workbook.SheetNames[2]];
+            // raw: false にすることでエクセルの日付表記をそのまま文字列として取得
+            const noticeData = XLSX.utils.sheet_to_json(sheet3, { raw: false });
+            
+            noticeData.forEach((row, index) => {
+                const date = row['日付'] ? String(row['日付']).trim() : '';
+                const title = row['アナウンス(タイトル)'] ? String(row['アナウンス(タイトル)']).trim() : '';
+                const body = row['アナウンス(本文)'] ? String(row['アナウンス(本文)']).trim() : '';
+                
+                if (title) {
+                    announcementData.push({ id: index, date, title, body });
+                }
+            });
+            // 下に追加した新しいお知らせが上に来るように順番を逆にする
+            announcementData.reverse();
         }
         
         dungeonData = parseExcelData(jsonData, idMap);
@@ -65,7 +86,6 @@ function parseCategory(text, isRandom) {
 
 function parseExcelData(data, idMap) {
     const result = [];
-    // ★ 「その他の効果」も除外リストに追加
     const knownColumns = ['ステージ', 'ステージ名', 'ダンジョン', 'ダンジョン名', 'スタミナ', 'バトル', 'バトル数', '交換可能なレート', 'ボス・部位破壊', '確定ドロップ', '確率ドロップ', '確定ランダムドロップ', '確率ランダムドロップ', '注意書き', '陽/陰', '超重力', '超高度', 'その他の効果'];
 
     data.forEach(row => {
@@ -83,18 +103,15 @@ function parseExcelData(data, idMap) {
         if (gravity.match(/^\d+\/\d+$/)) gravity = gravity.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         if (altitude.match(/^\d+\/\d+$/)) altitude = altitude.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
-        // ★ 「その他の効果」を【効果名】と詳細説明に分割する
         const rawOtherEffects = row['その他の効果'] ? String(row['その他の効果']).trim() : '';
         let effectName = '';
         let effectDetail = '';
         if (rawOtherEffects) {
-            // 例: "【灼熱】,HP10%減少..." -> 【灼熱】と詳細に分ける
             const match = rawOtherEffects.match(/^(【.*?】)(?:[,、]\s*(.*))?$/);
             if (match) {
                 effectName = match[1];
                 effectDetail = match[2] || '';
             } else {
-                // 【】がついていない場合はそのまま名前にする
                 effectName = rawOtherEffects;
             }
         }
@@ -142,7 +159,6 @@ function parseExcelData(data, idMap) {
             });
         });
 
-        // 分割した effectName と effectDetail を追加
         result.push({ series, name, stamina, battles, remarks, exchangeRate, drops, allRewards, warning, yinYang, gravity, altitude, effectName, effectDetail });
     });
     return result;
