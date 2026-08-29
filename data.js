@@ -65,8 +65,8 @@ function parseCategory(text, isRandom) {
 
 function parseExcelData(data, idMap) {
     const result = [];
-    // ★ 新しく追加した「陽/陰」「超重力」「超高度」を除外リストに追加
-    const knownColumns = ['ステージ', 'ステージ名', 'ダンジョン', 'ダンジョン名', 'スタミナ', 'バトル', 'バトル数', '交換可能なレート', 'ボス・部位破壊', '確定ドロップ', '確率ドロップ', '確定ランダムドロップ', '確率ランダムドロップ', '注意書き', '陽/陰', '超重力', '超高度'];
+    // ★ 「その他の効果」も除外リストに追加
+    const knownColumns = ['ステージ', 'ステージ名', 'ダンジョン', 'ダンジョン名', 'スタミナ', 'バトル', 'バトル数', '交換可能なレート', 'ボス・部位破壊', '確定ドロップ', '確率ドロップ', '確定ランダムドロップ', '確率ランダムドロップ', '注意書き', '陽/陰', '超重力', '超高度', 'その他の効果'];
 
     data.forEach(row => {
         const series = row['ステージ'] || row['ステージ名'] || 'その他';
@@ -76,13 +76,28 @@ function parseExcelData(data, idMap) {
         const exchangeRate = row['交換可能なレート'] ? String(row['交換可能なレート']).trim() : '';
         const warning = row['注意書き'] ? String(row['注意書き']).trim() : '';
 
-        // ★ 新規データの取得とカンマ整形
         const yinYang = row['陽/陰'] ? String(row['陽/陰']).trim() : '';
         let gravity = row['超重力'] ? String(row['超重力']).trim() : '';
         let altitude = row['超高度'] ? String(row['超高度']).trim() : '';
         
         if (gravity.match(/^\d+\/\d+$/)) gravity = gravity.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         if (altitude.match(/^\d+\/\d+$/)) altitude = altitude.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+        // ★ 「その他の効果」を【効果名】と詳細説明に分割する
+        const rawOtherEffects = row['その他の効果'] ? String(row['その他の効果']).trim() : '';
+        let effectName = '';
+        let effectDetail = '';
+        if (rawOtherEffects) {
+            // 例: "【灼熱】,HP10%減少..." -> 【灼熱】と詳細に分ける
+            const match = rawOtherEffects.match(/^(【.*?】)(?:[,、]\s*(.*))?$/);
+            if (match) {
+                effectName = match[1];
+                effectDetail = match[2] || '';
+            } else {
+                // 【】がついていない場合はそのまま名前にする
+                effectName = rawOtherEffects;
+            }
+        }
 
         const remarks = [];
         for (const key in row) {
@@ -127,8 +142,8 @@ function parseExcelData(data, idMap) {
             });
         });
 
-        // ui.jsへ渡すデータに新しい属性をセット
-        result.push({ series, name, stamina, battles, remarks, exchangeRate, drops, allRewards, warning, yinYang, gravity, altitude });
+        // 分割した effectName と effectDetail を追加
+        result.push({ series, name, stamina, battles, remarks, exchangeRate, drops, allRewards, warning, yinYang, gravity, altitude, effectName, effectDetail });
     });
     return result;
 }

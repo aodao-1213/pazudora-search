@@ -19,16 +19,30 @@ function displayArenaList() {
             const safeId = encodeURIComponent(arena.name);
             const battleHtml = arena.battles ? `<span class="stamina-badge">バトル: ${arena.battles}</span>` : '';
             
-            // ★ ダンジョン名の装飾（超重力・超高度・陰陽アイコン）
             let titleExtra = "";
-            if (arena.gravity) titleExtra += `<span class="dungeon-condition">【超重力 ${arena.gravity}】</span>`;
-            if (arena.altitude) titleExtra += `<span class="dungeon-condition">【超高度 ${arena.altitude}】</span>`;
             
+            // 1. 陰/陽 アイコン（一番前）
             if (arena.yinYang) {
                 if (arena.yinYang.includes('陰')) {
                     titleExtra += `<img src="images/陰加護.png" alt="陰" class="yinyang-icon">`;
                 } else if (arena.yinYang.includes('陽')) {
                     titleExtra += `<img src="images/陽加護.png" alt="陽" class="yinyang-icon">`;
+                }
+            }
+            
+            // 2. 超重力・超高度
+            if (arena.gravity) titleExtra += `<span class="dungeon-condition">【超重力 ${arena.gravity}】</span>`;
+            if (arena.altitude) titleExtra += `<span class="dungeon-condition">【超高度 ${arena.altitude}】</span>`;
+            
+            // 3. その他の効果（ツールチップ対応）
+            if (arena.effectName) {
+                if (arena.effectDetail) {
+                    titleExtra += `<span class="dungeon-condition condition-tooltip-container" tabindex="0">
+                                       ${arena.effectName}
+                                       <span class="custom-tooltip">${arena.effectDetail}</span>
+                                   </span>`;
+                } else {
+                    titleExtra += `<span class="dungeon-condition">${arena.effectName}</span>`;
                 }
             }
             

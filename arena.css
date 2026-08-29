@@ -145,24 +145,32 @@
     border-style: solid;
     border-color: rgba(0, 0, 0, 0.85) transparent transparent transparent;
 }
+/* ★ 追加：テキストのツールチップホバー設定 */
 .material-badge:hover .custom-tooltip,
-.material-badge:focus .custom-tooltip {
+.material-badge:focus .custom-tooltip,
+.condition-tooltip-container:hover .custom-tooltip,
+.condition-tooltip-container:focus .custom-tooltip {
     visibility: visible;
     opacity: 1;
 }
 
 /* ====================================================
-   ダンジョン条件（超重力・陰陽）スタイル
+   ダンジョン条件（超重力・陰陽・その他の効果）スタイル
    ==================================================== */
 .dungeon-condition {
     font-size: 14px;
-    color: #8e44ad; /* 紫系で目立たせる */
+    color: #8e44ad; 
     font-weight: bold;
     margin-left: 5px;
     vertical-align: middle;
 }
+.condition-tooltip-container {
+    position: relative;
+    cursor: help; /* カーソルを「？」マークにして説明があることを示す */
+    display: inline-block;
+}
 .yinyang-icon {
-    height: 1.3em; /* 文字の高さに合わせる */
+    height: 1.3em;
     vertical-align: text-bottom;
     margin-left: 8px;
     display: inline-block;
