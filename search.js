@@ -6,19 +6,10 @@ document.getElementById('searchInput').addEventListener('keypress', function(e) 
     }
 });
 
-// ★ 検索履歴を画面にボタン（タグ）として複数表示する関数
+// ★ 検索履歴をドロップダウンリストとして生成する関数
 function updateSearchHistoryUI() {
-    let historyArea = document.getElementById('searchHistoryArea');
-    
-    // もしHTML側に枠が書き忘れられていても、自動で作成する機能を追加
-    if (!historyArea) {
-        historyArea = document.createElement('div');
-        historyArea.id = 'searchHistoryArea';
-        historyArea.className = 'history-area';
-        const searchInput = document.getElementById('searchInput');
-        // 入力欄のすぐ下に枠を差し込む
-        searchInput.parentNode.insertBefore(historyArea, searchInput.nextSibling);
-    }
+    const historyArea = document.getElementById('searchHistoryArea');
+    if (!historyArea) return;
     
     let history = JSON.parse(localStorage.getItem('padSearchHistory') || '[]');
     
@@ -28,25 +19,38 @@ function updateSearchHistoryUI() {
         return;
     }
 
-    historyArea.style.display = 'flex';
-    let html = '<span class="history-title">履歴:</span>';
-    
-    // 履歴を最大8件までボタンとして並べる
+    let html = '';
     history.forEach(word => {
         const safeWord = word.replace(/'/g, "\\'");
-        html += `<button type="button" class="history-tag" onclick="useHistory('${safeWord}')">${word}</button>`;
+        html += `<button type="button" class="history-item" onclick="useHistory('${safeWord}')">${word}</button>`;
     });
 
     historyArea.innerHTML = html;
 }
 
-// 履歴タグをクリックしたときの処理
+// ★ 入力欄をタップした時に履歴を表示する
+document.getElementById('searchInput').addEventListener('focus', function() {
+    const history = JSON.parse(localStorage.getItem('padSearchHistory') || '[]');
+    if (history.length > 0) {
+        document.getElementById('searchHistoryArea').style.display = 'flex';
+        this.classList.add('input-active'); // リストと一体化させるために角丸を消す
+    }
+});
+
+// ★ 外をタップした時に履歴を隠す（リストのクリックが空振りしないよう少し待つ）
+document.getElementById('searchInput').addEventListener('blur', function() {
+    setTimeout(() => {
+        const historyArea = document.getElementById('searchHistoryArea');
+        if (historyArea) historyArea.style.display = 'none';
+        this.classList.remove('input-active');
+    }, 200);
+});
+
 function useHistory(word) {
     document.getElementById('searchInput').value = word;
     searchMaterial();
 }
 
-// 検索ワードを保存する関数
 function saveSearchHistory(query) {
     if (!query) return;
     let history = JSON.parse(localStorage.getItem('padSearchHistory') || '[]');
@@ -54,13 +58,12 @@ function saveSearchHistory(query) {
     history = history.filter(item => item !== query);
     history.unshift(query);
     
-    if (history.length > 8) history.pop(); // 最大8件まで保存
+    if (history.length > 10) history.pop(); // 少し多めに10件まで保存
     
     localStorage.setItem('padSearchHistory', JSON.stringify(history));
     updateSearchHistoryUI();
 }
 
-// ページを開いた時に履歴を表示
 updateSearchHistoryUI();
 
 function searchMaterial() {
