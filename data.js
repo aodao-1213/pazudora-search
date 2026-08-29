@@ -12,26 +12,22 @@ async function loadExcel() {
         
         const workbook = XLSX.read(arrayBuffer, { type: 'array' });
         
-        // 1枚目のシート（ダンジョンデータ）
         const sheet1 = workbook.Sheets[workbook.SheetNames[0]];
         const jsonData = XLSX.utils.sheet_to_json(sheet1);
         
-        // 2枚目のシート（図鑑データ）
         let idMap = {};
         if (workbook.SheetNames.length > 1) {
             const sheet2 = workbook.Sheets[workbook.SheetNames[1]];
-            // ★ 見出しの有無に関わらず、強制的に表を2次元配列として読み込む
+            // 見出しの有無や列のズレに影響されず、A列・B列を強制的に読み込む
             const idData = XLSX.utils.sheet_to_json(sheet2, { header: 1 });
             
             idData.forEach(row => {
-                // row[0]がA列、row[1]がB列
                 if (row.length >= 2) {
-                    const bookId = row[0];
-                    const materialName = row[1];
+                    const bookId = String(row[0] || '').trim();
+                    const materialName = String(row[1] || '').trim();
                     
-                    // 「素材名」などの文字が見出しとして入っていたら無視する
-                    if (bookId && materialName && materialName !== '素材名' && materialName !== 'B列 (素材名)') {
-                        idMap[String(materialName).trim()] = String(bookId).trim();
+                    if (bookId && materialName && materialName !== '素材名' && !materialName.includes('B列')) {
+                        idMap[materialName] = bookId;
                     }
                 }
             });
@@ -77,13 +73,15 @@ function parseCategory(text, isRandom) {
 
 function parseExcelData(data, idMap) {
     const result = [];
-    const knownColumns = ['ステージ', 'ステージ名', 'ダンジョン', 'ダンジョン名', 'スタミナ', 'バトル数', 'ボス・部位破壊', '確定ドロップ', '確率ドロップ', '確定ランダムドロップ', '確率ランダムドロップ', '注意書き'];
+    // ★「バトル」をここに追加し、備考扱いになるのを防ぐ
+    const knownColumns = ['ステージ', 'ステージ名', 'ダンジョン', 'ダンジョン名', 'スタミナ', 'バトル', 'バトル数', 'ボス・部位破壊', '確定ドロップ', '確率ドロップ', '確定ランダムドロップ', '確率ランダムドロップ', '注意書き'];
 
     data.forEach(row => {
         const series = row['ステージ'] || row['ステージ名'] || 'その他';
         const name = row['ダンジョン'] || row['ダンジョン名'] || '不明';
         const stamina = row['スタミナ'] || '';
-        const battles = row['バトル数'] || '';
+        // ★「バトル」列の値を取得する
+        const battles = row['バトル'] || row['バトル数'] || '';
         const warning = row['注意書き'] ? String(row['注意書き']).trim() : '';
 
         const remarks = [];
