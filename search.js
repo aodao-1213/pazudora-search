@@ -1,4 +1,3 @@
-// Enterキーで検索を実行
 document.getElementById('searchInput').addEventListener('keypress', function(e) {
     if (e.key === 'Enter') {
         searchMaterial();
@@ -6,13 +5,17 @@ document.getElementById('searchInput').addEventListener('keypress', function(e) 
     }
 });
 
-// ★ 検索履歴をドロップダウンリストとして生成する関数
 function updateSearchHistoryUI() {
-    const historyArea = document.getElementById('searchHistoryArea');
-    if (!historyArea) return;
+    let historyArea = document.getElementById('searchHistoryArea');
+    if (!historyArea) {
+        historyArea = document.createElement('div');
+        historyArea.id = 'searchHistoryArea';
+        historyArea.className = 'history-area';
+        const searchInput = document.getElementById('searchInput');
+        searchInput.parentNode.insertBefore(historyArea, searchInput.nextSibling);
+    }
     
     let history = JSON.parse(localStorage.getItem('padSearchHistory') || '[]');
-    
     if (history.length === 0) {
         historyArea.innerHTML = '';
         historyArea.style.display = 'none';
@@ -24,20 +27,17 @@ function updateSearchHistoryUI() {
         const safeWord = word.replace(/'/g, "\\'");
         html += `<button type="button" class="history-item" onclick="useHistory('${safeWord}')">${word}</button>`;
     });
-
     historyArea.innerHTML = html;
 }
 
-// ★ 入力欄をタップした時に履歴を表示する
 document.getElementById('searchInput').addEventListener('focus', function() {
     const history = JSON.parse(localStorage.getItem('padSearchHistory') || '[]');
     if (history.length > 0) {
         document.getElementById('searchHistoryArea').style.display = 'flex';
-        this.classList.add('input-active'); // リストと一体化させるために角丸を消す
+        this.classList.add('input-active');
     }
 });
 
-// ★ 外をタップした時に履歴を隠す（リストのクリックが空振りしないよう少し待つ）
 document.getElementById('searchInput').addEventListener('blur', function() {
     setTimeout(() => {
         const historyArea = document.getElementById('searchHistoryArea');
@@ -54,12 +54,9 @@ function useHistory(word) {
 function saveSearchHistory(query) {
     if (!query) return;
     let history = JSON.parse(localStorage.getItem('padSearchHistory') || '[]');
-    
     history = history.filter(item => item !== query);
     history.unshift(query);
-    
-    if (history.length > 10) history.pop(); // 少し多めに10件まで保存
-    
+    if (history.length > 10) history.pop();
     localStorage.setItem('padSearchHistory', JSON.stringify(history));
     updateSearchHistoryUI();
 }
@@ -76,18 +73,20 @@ function searchMaterial() {
     }
 
     saveSearchHistory(query);
-
     const foundMap = {};
 
     dungeonData.forEach(dungeon => {
         dungeon.allRewards.forEach(reward => {
-            if (reward.name.includes(query)) {
-                if (!foundMap[reward.name]) foundMap[reward.name] = [];
+            // ★ 検索した文字が「素材名」か「図鑑番号」のどちらかに含まれていればヒット
+            if (reward.name.includes(query) || (reward.id && reward.id.includes(query))) {
+                if (!foundMap[reward.name]) {
+                    foundMap[reward.name] = { id: reward.id, locations: [] };
+                }
                 
                 let displayNote = reward.note;
                 if (displayNote && !displayNote.match(/^[×xX～~]/)) displayNote = `(${displayNote})`;
                 
-                foundMap[reward.name].push({
+                foundMap[reward.name].locations.push({
                     series: dungeon.series,
                     dungeonName: dungeon.name,
                     category: reward.category,
@@ -101,18 +100,23 @@ function searchMaterial() {
     if (itemNames.length > 0) {
         let html = "";
         itemNames.forEach(name => {
+            const data = foundMap[name];
             const safeName = encodeURIComponent(name);
-            const locations = foundMap[name];
+            const locations = data.locations;
             const firstDungeon = locations[0].dungeonName;
+            
+            // ★ 図鑑番号が紐付いていれば表示名に付与
+            const displayName = data.id ? `No.${data.id} ${name}` : name;
 
             html += `<div class="item">
                         <div class="search-result-header clickable" onclick="jumpToDungeon('${firstDungeon}')">
-                            <div class="material-badge" title="${name}">
+                            <div class="material-badge" tabindex="0">
                                 <img src="images/${safeName}.png" alt="${name}" 
                                      onerror="this.onerror=null; this.src='images/question.png'; this.nextElementSibling.style.display='block';">
                                 <span class="fallback-text" style="display:none;">${name}</span>
                             </div>
-                            <span class="search-result-name">${name}</span>
+                            <!-- ★ 番号付きの名前に変更 -->
+                            <span class="search-result-name">${displayName}</span>
                         </div>
                         
                         <div style="margin-top: 10px;">📍 ドロップ場所:</div>

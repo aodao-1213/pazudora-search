@@ -11,11 +11,28 @@ async function loadExcel() {
         const arrayBuffer = await response.arrayBuffer();
         
         const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-        const firstSheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[firstSheetName];
         
-        const jsonData = XLSX.utils.sheet_to_json(worksheet);
-        dungeonData = parseExcelData(jsonData);
+        // 1枚目のシート（ダンジョンデータ）
+        const sheet1 = workbook.Sheets[workbook.SheetNames[0]];
+        const jsonData = XLSX.utils.sheet_to_json(sheet1);
+        
+        // 2枚目のシート（図鑑データ）
+        let idMap = {};
+        if (workbook.SheetNames.length > 1) {
+            const sheet2 = workbook.Sheets[workbook.SheetNames[1]];
+            const idData = XLSX.utils.sheet_to_json(sheet2);
+            idData.forEach(row => {
+                // ★ A列「図鑑番号」、B列「素材名」として読み込み
+                const bookId = row['図鑑番号'];
+                const materialName = row['素材名'];
+                
+                if (materialName && bookId) {
+                    idMap[String(materialName).trim()] = String(bookId).trim();
+                }
+            });
+        }
+        
+        dungeonData = parseExcelData(jsonData, idMap);
     } catch (error) {
         console.error('Excelの読み込みに失敗:', error);
         document.getElementById('arenaList').innerHTML = "データの読み込みに失敗しました。";
@@ -53,14 +70,15 @@ function parseCategory(text, isRandom) {
     return groups;
 }
 
-function parseExcelData(data) {
+function parseExcelData(data, idMap) {
     const result = [];
-    const knownColumns = ['ステージ', 'ステージ名', 'ダンジョン', 'ダンジョン名', 'スタミナ', 'ボス・部位破壊', '確定ドロップ', '確率ドロップ', '確定ランダムドロップ', '確率ランダムドロップ', '注意書き'];
+    const knownColumns = ['ステージ', 'ステージ名', 'ダンジョン', 'ダンジョン名', 'スタミナ', 'バトル数', 'ボス・部位破壊', '確定ドロップ', '確率ドロップ', '確定ランダムドロップ', '確率ランダムドロップ', '注意書き'];
 
     data.forEach(row => {
         const series = row['ステージ'] || row['ステージ名'] || 'その他';
         const name = row['ダンジョン'] || row['ダンジョン名'] || '不明';
         const stamina = row['スタミナ'] || '';
+        const battles = row['バトル数'] || '';
         const warning = row['注意書き'] ? String(row['注意書き']).trim() : '';
 
         const remarks = [];
@@ -76,7 +94,6 @@ function parseExcelData(data) {
                     if (!val.startsWith('+')) val = '+' + val;
                 }
                 
-                // ★ 画面に表示するラベル名を書き換える処理
                 let displayLabel = key;
                 if (key === 'ポイント') displayLabel = '+ポイント';
                 if (key === 'プラス限界突破') displayLabel = '+限界突破';
@@ -97,12 +114,17 @@ function parseExcelData(data) {
         drops.forEach(d => {
             d.groups.forEach(g => {
                 g.items.forEach(item => {
-                    allRewards.push({ name: item, category: d.category, note: g.note });
+                    allRewards.push({ 
+                        name: item, 
+                        category: d.category, 
+                        note: g.note,
+                        id: idMap[item] || "" 
+                    });
                 });
             });
         });
 
-        result.push({ series, name, stamina, remarks, drops, allRewards, warning });
+        result.push({ series, name, stamina, battles, remarks, drops, allRewards, warning });
     });
     return result;
 }
