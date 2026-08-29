@@ -1,12 +1,82 @@
 /* ====================================================
-   検索入力欄と履歴ドロップダウンのスタイル
+   ベーススタイル・全体の枠組み
    ==================================================== */
-.search-input-wrapper {
-    position: relative;
-    width: 100%;
-    margin-bottom: 10px;
+body {
+    font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', sans-serif;
+    background-color: #f4f7f6;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+}
+h1 {
+    color: #2c3e50;
+    text-align: center;
+    font-size: 24px;
+}
+h2 {
+    color: #2c3e50;
+    border-bottom: 2px solid #3498db;
+    padding-bottom: 5px;
+    margin-top: 0;
+}
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
+/* 画面の表示/非表示制御 */
+.hidden {
+    display: none !important;
+}
+
+/* ====================================================
+   トップ画面・ボタンスタイル
+   ==================================================== */
+.top-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 400px;
+    margin: 0 auto;
+}
+.top-button {
+    padding: 20px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: background-color 0.2s;
+}
+.top-button:hover {
+    background-color: #2980b9;
+}
+.back-button {
+    display: inline-block;
+    margin-bottom: 20px;
+    padding: 8px 15px;
+    background-color: #95a5a6;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+}
+.back-button:hover {
+    background-color: #7f8c8d;
+}
+
+/* ====================================================
+   検索画面の入力欄とボタン
+   ==================================================== */
 input[type="text"] {
     width: 100%;
     box-sizing: border-box;
@@ -17,18 +87,246 @@ input[type="text"] {
     margin-bottom: 0;
     transition: border-radius 0.2s;
 }
+.action-button {
+    width: 100%;
+    padding: 10px;
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+}
+.action-button:hover {
+    background-color: #27ae60;
+}
 
-/* リスト表示中に入力欄の下側の線を消して一体化させる */
+/* ====================================================
+   リストとアイテムの基本スタイル
+   ==================================================== */
+.result-box {
+    margin-top: 15px;
+    padding: 15px;
+    background: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+}
+.item {
+    border-bottom: 1px dashed #bdc3c7;
+    padding: 15px 0;
+}
+.item:last-child {
+    border-bottom: none;
+}
+.item-title {
+    font-weight: bold;
+    color: #e74c3c;
+    font-size: 17px;
+    margin-bottom: 5px;
+}
+.stamina-badge {
+    display: inline-block;
+    background: #7f8c8d;
+    color: white;
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
+/* ====================================================
+   ドロップリストの階層レイアウト
+   ==================================================== */
+.series-group {
+    margin-bottom: 25px;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #bdc3c7;
+}
+.series-group h3 {
+    background-color: #34495e;
+    color: white;
+    margin: 0;
+    padding: 12px 15px;
+    font-size: 22px; 
+    font-weight: bold;
+}
+.series-group .item {
+    padding: 15px;
+    background: #f9f9f9;
+}
+.drop-category {
+    margin-top: 15px;
+    padding: 10px;
+    background: #fff;
+    border: 1px solid #e0e6ed;
+    border-radius: 6px;
+}
+.drop-category h4 {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    color: #2980b9;
+    border-left: 4px solid #3498db;
+    padding-left: 8px;
+}
+.category-groups {
+    display: flex;
+    flex-wrap: wrap; 
+    gap: 12px;
+    max-width: 100%; 
+}
+.drop-group {
+    display: inline-flex;
+    flex-wrap: wrap; 
+    align-items: center;
+    background: #f8f9fa;
+    border: 1px solid #dcdde1;
+    border-radius: 8px;
+    padding: 5px 8px;
+    gap: 5px;
+    max-width: 100%; 
+    box-sizing: border-box;
+}
+.group-note {
+    font-size: 13px;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-left: 2px;
+    white-space: nowrap;
+}
+
+/* ====================================================
+   アイコン画像のサイズ統一
+   ==================================================== */
+.material-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 45px;
+    height: 45px;
+    flex-shrink: 0;
+}
+.material-badge img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    background-color: #fff;
+}
+.fallback-text {
+    font-size: 11px;
+    color: #e74c3c;
+    font-weight: bold;
+    margin-top: 4px;
+    text-align: center;
+    line-height: 1.2;
+    word-wrap: break-word;
+    width: 100%;
+}
+
+/* ====================================================
+   検索画面用ラベル・ジャンプスタイル
+   ==================================================== */
+    .search-category {
+    color: #27ae60;
+    font-weight: bold;
+    font-size: 13px;
+    margin-left: 5px;
+}
+.search-note {
+    color: #e67e22;
+    font-weight: bold;
+    font-size: 13px;
+}
+.search-result-header {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+.search-result-name {
+    font-size: 18px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+.clickable {
+    cursor: pointer;
+}
+.clickable:hover {
+    background-color: #ecf0f1; 
+}
+.search-location-list {
+    margin: 5px 0 0 0;
+    padding-left: 20px;
+}
+.jump-link {
+    color: #3498db;
+    cursor: pointer;
+    margin-bottom: 5px;
+    display: list-item;
+}
+.jump-link:hover {
+    color: #2980b9;
+    text-decoration: underline;
+}
+
+/* ====================================================
+   備考（リザルト情報）のスタイル
+   ==================================================== */
+.dungeon-remarks {
+    margin-top: 12px;
+    margin-bottom: 5px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.remark-item {
+    display: inline-flex;
+    align-items: center;
+    background: #fff;
+    border: 1px solid #bdc3c7;
+    border-radius: 4px;
+    overflow: hidden;
+    font-size: 13px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+.remark-label {
+    background-color: #34495e;
+    color: #fff;
+    padding: 4px 8px;
+    font-weight: bold;
+}
+.remark-value {
+    padding: 4px 10px;
+    color: #2c3e50;
+    font-weight: bold;
+    background-color: #ecf0f1;
+}
+
+/* ====================================================
+   検索入力欄と履歴ドロップダウンのスタイル
+   ==================================================== */
+.search-input-wrapper {
+    position: relative;
+    width: 100%;
+    margin-bottom: 10px;
+}
 .input-active {
     border-radius: 4px 4px 0 0 !important;
     border-bottom: 1px solid #eee !important;
 }
-
 .history-dropdown {
-    display: none; /* 初期は非表示 */
+    display: none; 
     flex-direction: column;
     position: absolute;
-    top: 100%; /* 入力欄の真下に配置 */
+    top: 100%; 
     left: 0;
     width: 100%;
     background: #fff;
@@ -40,7 +338,6 @@ input[type="text"] {
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     z-index: 100;
 }
-
 .history-item {
     width: 100%;
     text-align: left;
@@ -54,11 +351,9 @@ input[type="text"] {
     cursor: pointer;
     transition: background-color 0.2s;
 }
-
 .history-item:last-child {
     border-bottom: none;
 }
-
 .history-item:hover {
-    background-color: #f0f8ff; /* 画像のような薄い水色 */
+    background-color: #f0f8ff; 
 }
