@@ -45,7 +45,6 @@ function displayArenaList() {
             html += `<div class="item" id="dungeon-${safeId}">
                         <div class="item-title">${arena.name} <span class="stamina-badge">スタミナ: ${arena.stamina}</span></div>`;
             
-            // ★ 備考リストの表示（ダンジョン名の下）
             if (arena.remarks && arena.remarks.length > 0) {
                 html += `<div class="dungeon-remarks">`;
                 arena.remarks.forEach(rem => {
@@ -86,6 +85,13 @@ function displayArenaList() {
                     html += `</div></div>`;
                 }
             });
+            
+            // ★ ドロップ報酬の下に注意書きを表示（改行にも対応）
+            if (arena.warning) {
+                const warningHtml = arena.warning.replace(/\n/g, '<br>');
+                html += `<div class="dungeon-warning">${warningHtml}</div>`;
+            }
+
             html += `</div>`;
         });
         html += `</div>`;

@@ -357,3 +357,18 @@ input[type="text"] {
 .history-item:hover {
     background-color: #f0f8ff; 
 }
+
+/* ====================================================
+   注意書きのスタイル
+   ==================================================== */
+.dungeon-warning {
+    margin-top: 15px;
+    padding: 10px 12px;
+    font-size: 13px;
+    color: #555;
+    background-color: #fdfdfe;
+    border: 1px solid #e0e6ed;
+    border-left: 4px solid #95a5a6; /* 左側にワンポイントの線 */
+    border-radius: 4px;
+    line-height: 1.5;
+}

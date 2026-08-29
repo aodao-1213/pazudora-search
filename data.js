@@ -55,12 +55,16 @@ function parseCategory(text, isRandom) {
 
 function parseExcelData(data) {
     const result = [];
-    const knownColumns = ['ステージ', 'ステージ名', 'ダンジョン', 'ダンジョン名', 'スタミナ', 'ボス・部位破壊', '確定ドロップ', '確率ドロップ', '確定ランダムドロップ', '確率ランダムドロップ'];
+    // ★ 「注意書き」を特別な列として認識させる
+    const knownColumns = ['ステージ', 'ステージ名', 'ダンジョン', 'ダンジョン名', 'スタミナ', 'ボス・部位破壊', '確定ドロップ', '確率ドロップ', '確定ランダムドロップ', '確率ランダムドロップ', '注意書き'];
 
     data.forEach(row => {
         const series = row['ステージ'] || row['ステージ名'] || 'その他';
         const name = row['ダンジョン'] || row['ダンジョン名'] || '不明';
         const stamina = row['スタミナ'] || '';
+        
+        // ★ 注意書きのデータを取得（空欄ならカラにする）
+        const warning = row['注意書き'] ? String(row['注意書き']).trim() : '';
 
         const remarks = [];
         for (const key in row) {
@@ -68,13 +72,9 @@ function parseExcelData(data) {
                 let val = String(row[key]).trim();
                 if (!val) continue;
 
-                // ★ 自動カンマ付与処理
-                // 万が一エクセルで既にカンマを入れていても二重にならないよう一旦消す
                 val = val.replace(/,/g, ''); 
-                // 数字の並びを見つけて、自動で3桁区切りのカンマをつける
                 val = val.replace(/\d+/g, match => Number(match).toLocaleString());
 
-                // 「ポイント」や「プラス限界突破」が含まれる列名なら、数値の前に + をつける
                 if (key.includes('ポイント') || key.includes('プラス限界突破')) {
                     if (!val.startsWith('+')) val = '+' + val;
                 }
@@ -100,7 +100,8 @@ function parseExcelData(data) {
             });
         });
 
-        result.push({ series, name, stamina, remarks, drops, allRewards });
+        // ★ warning（注意書き）のデータを追加して保存
+        result.push({ series, name, stamina, remarks, drops, allRewards, warning });
     });
     return result;
 }
