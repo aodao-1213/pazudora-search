@@ -66,7 +66,6 @@
 
         <div class="result-box note-box">
             <h3 class="note-heading">0-3. ドロップの種類について</h3>
-            <p>例として、大樹の霊王の一部を用います。</p>
             <ul class="note-list">
                 <li><strong>①ボス・部位破壊</strong><br>ボスの本体や部位、乱入の部位のドロップです。特に数の記載がなければ、ドロップ数は各1つです(例外としては、新億兆など)。また、カッコ内にどれがどこでドロップするか記載してます。</li>
                 <li><strong>②確定ドロップ</strong><br>文字通り、確定でドロップするものです。</li>
@@ -74,8 +73,25 @@
                 <li><strong>④ランダムドロップ</strong><br>複数種類の中からランダムでドロップするものです。<br>ランダムドロップの中でも確定でドロップするもの、不確定でドロップするものがあります。<br>基本的には確定ランダムドロップですが、∞級1人専用コロシアムのみ確率ランダムドロップです。</li>
             </ul>
             
-            <!-- ★ 修正: 画像ではなく、プログラムで実際の報酬リストを生成して表示する枠 -->
-            <div id="noteExampleDrop" style="margin-top: 15px; border: 2px solid #bdc3c7; border-radius: 8px; padding: 10px; background: #fdfdfe;">
+            <!-- ★追加: 画像の具体例テキストを黒背景で再現 -->
+            <div style="margin-top: 25px; padding: 20px; background-color: #17202a; color: #ecf0f1; border-radius: 8px 8px 0 0; font-size: 14px; line-height: 1.8;">
+                <p style="margin-top: 0;">大樹の霊王を例とすると、</p>
+                
+                <p><strong>①ボス・部位破壊</strong><br>
+                ボス本体では、『宿木の大樹霊王・アドネアの希石』、ボス部位では『宿木の大樹霊王・アドネアの左根の希石』と『宿木の大樹霊王・アドネアの右根の希石』、乱入部位では『神器に宿る者・グラオルの希石』をドロップする。</p>
+                
+                <p><strong>②確定ドロップ</strong><br>
+                『潜在たまドラ☆枠解放』を <strong style="color: #f1c40f;">"確定で" 10体</strong>ドロップする。</p>
+
+                <p><strong>③確率ドロップ</strong><br>
+                『ゴールドたまドラ』を <strong style="color: #f1c40f;">"一定確率で" 1体</strong>ドロップする。</p>
+
+                <p style="margin-bottom: 0;"><strong>④ランダムドロップ</strong><br>
+                『創装の宝玉』、『ダイヤドラゴンフルーツ』、『古代の三神面』の中から<strong>ランダム</strong>で8個 <strong style="color: #f1c40f;">"確定で"</strong> ドロップする</p>
+            </div>
+
+            <!-- プログラムで実際の報酬リストを生成して表示する枠（黒背景の下にくっつける） -->
+            <div id="noteExampleDrop" style="border: 2px solid #17202a; border-top: none; border-radius: 0 0 8px 8px; padding: 15px; background: #fdfdfe;">
                 <!-- ここに大樹の霊王のドロップリストが自動生成されます -->
             </div>
         </div>
