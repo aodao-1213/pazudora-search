@@ -1,75 +1,70 @@
 function searchMaterial() {
-    const query = document.getElementById('searchInput').value.trim();
+    const input = document.getElementById('searchInput').value.trim();
     const resultDiv = document.getElementById('searchResult');
-
-    if (query === "") {
-        resultDiv.innerHTML = "検索キーワードを入力してください。";
+    
+    const historyArea = document.getElementById('searchHistoryArea');
+    if (historyArea) historyArea.style.display = 'none';
+    
+    if (!input) {
+        resultDiv.innerHTML = "<p style='color: #e74c3c;'>素材名を入力してください。</p>";
         return;
     }
 
-    if (typeof saveSearchHistory === 'function') {
-        saveSearchHistory(query);
-    }
-    
-    const foundMap = {};
+    saveSearchHistory(input);
 
-    dungeonData.forEach(dungeon => {
-        dungeon.allRewards.forEach(reward => {
-            if (reward.name.includes(query) || (reward.id && reward.id.includes(query))) {
-                if (!foundMap[reward.name]) {
-                    foundMap[reward.name] = { id: reward.id, locations: [] };
-                }
+    const results = [];
+    let foundId = "";
+
+    dungeonData.forEach(arena => {
+        arena.allRewards.forEach(reward => {
+            if (reward.name.includes(input)) {
+                if (reward.id && !foundId) foundId = reward.id;
                 
-                let displayNote = reward.note;
-                if (displayNote && !displayNote.match(/^[×xX～~]/)) displayNote = `(${displayNote})`;
-                
-                foundMap[reward.name].locations.push({
-                    series: dungeon.series,
-                    dungeonName: dungeon.name,
+                results.push({
+                    series: arena.series,
+                    dungeon: arena.name,
                     category: reward.category,
-                    note: displayNote || ""
+                    note: reward.note,
+                    exactName: reward.name
                 });
             }
         });
     });
 
-    const itemNames = Object.keys(foundMap);
-    if (itemNames.length > 0) {
-        let html = "";
-        itemNames.forEach(name => {
-            const data = foundMap[name];
-            const safeName = encodeURIComponent(name);
-            const locations = data.locations;
-            
-            const displayName = data.id ? `No.${data.id} ${name}` : name;
-
-            html += `<div class="item">
-                        <div class="search-result-header">
-                            <div class="material-badge" tabindex="0">
-                                <img src="images/${safeName}.png" alt="${name}" 
-                                     onerror="this.onerror=null; this.src='images/question.png'; this.nextElementSibling.style.display='block';">
-                                <span class="fallback-text" style="display:none;">${name}</span>
-                                <span class="custom-tooltip">${displayName}</span>
-                            </div>
-                            <span class="search-result-name">${displayName}</span>
-                        </div>
-                        
-                        <div style="margin-top: 10px;">📍 ドロップ場所:</div>
-                        <ul class="search-location-list">`;
-            
-            locations.forEach(loc => {
-                const noteHtml = loc.note ? `<span class="search-note">${loc.note}</span>` : '';
-                html += `<li class="jump-link" onclick="jumpToDungeon('${loc.dungeonName}')">
-                            ${loc.series} / ${loc.dungeonName} 
-                            <span class="search-category">[${loc.category}]</span> ${noteHtml}
-                         </li>`;
-            });
-
-            html += `   </ul>
-                     </div>`;
-        });
-        resultDiv.innerHTML = html;
-    } else {
-        resultDiv.innerHTML = "該当する素材は見つかりませんでした。";
+    if (results.length === 0) {
+        resultDiv.innerHTML = `<p>「${input}」がドロップする闘技場は見つかりませんでした。</p>`;
+        return;
     }
+
+    const matchNames = [...new Set(results.map(r => r.exactName))];
+    const targetName = matchNames.length === 1 ? matchNames[0] : input;
+
+    let idDisplay = foundId ? `No.${foundId} ` : "";
+    const safeTargetName = encodeURIComponent(targetName);
+
+    // ★ 修正: onerror を追加して画像エラー時に question.png を表示する
+    let html = `<div class="search-result-header">
+                    <div class="result-image-wrapper">
+                        <img src="images/${safeTargetName}.png" alt="${targetName}" 
+                             onerror="this.onerror=null; this.src='images/question.png'; this.nextElementSibling.style.display='block';">
+                        <span class="fallback-text" style="display:none;">${targetName}</span>
+                    </div>
+                    <h3>${idDisplay}${targetName}</h3>
+                </div>
+                <p style="margin: 10px 0 5px 0; font-weight: bold; color: #555;">📍 ドロップ場所:</p>
+                <ul class="search-result-list">`;
+
+    results.forEach(res => {
+        const safeDungeon = res.dungeon.replace(/'/g, "\\'");
+        let noteHtml = res.note ? ` <span class="search-note">${res.note}</span>` : '';
+        html += `<li>
+                    <span class="dungeon-link" onclick="jumpToDungeon('${safeDungeon}')">
+                        ${res.series} / ${res.dungeon}
+                    </span> 
+                    <span class="search-category">[${res.category}]</span>${noteHtml}
+                 </li>`;
+    });
+
+    html += `</ul>`;
+    resultDiv.innerHTML = html;
 }
