@@ -36,17 +36,20 @@ document.addEventListener('DOMContentLoaded', () => {
         updateSearchHistoryUI();
     }
 
-    // ★ 追加: 画面の空いている場所をタップした時に吹き出しを消す処理
+    // ★ 修正: 検索ボックスのフォーカスを奪わないように条件を厳格化
     function dismissTooltips(event) {
         const isBadge = event.target.closest('.material-badge');
         const isCondition = event.target.closest('.condition-tooltip-container');
         
         // アイコン以外の場所をタップした場合
         if (!isBadge && !isCondition) {
-            // CSSのフォーカスを外して吹き出しを隠す
-            if (document.activeElement) {
-                document.activeElement.blur();
+            const activeEl = document.activeElement;
+            
+            // フォーカスが当たっているのが「アイコン」や「条件テキスト」の場合のみフォーカスを外す
+            if (activeEl && (activeEl.classList.contains('material-badge') || activeEl.classList.contains('condition-tooltip-container'))) {
+                activeEl.blur();
             }
+
             // ダブルタップ判定用のフラグもすべてリセットする
             document.querySelectorAll('.material-badge').forEach(badge => {
                 badge.dataset.tapped = "false";
@@ -54,7 +57,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // PCのクリックとスマホのタップ両方に対応させる
     document.addEventListener('click', dismissTooltips);
     document.addEventListener('touchstart', dismissTooltips, { passive: true });
 });
