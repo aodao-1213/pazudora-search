@@ -1,7 +1,7 @@
 .result-box {
     margin-top: 15px;
     padding: 15px;
-    background: #f9f9f9;
+    background: #fff;
     border: 1px solid #e0e0e0;
     border-radius: 4px;
 }
@@ -37,6 +37,7 @@
     background: #fff;
     border-radius: 8px;
     border: 1px solid #bdc3c7;
+    overflow: hidden; /* 角丸からはみ出ないように */
 }
 .series-group h3 {
     background-color: #34495e;
@@ -45,21 +46,19 @@
     padding: 12px 15px;
     font-size: 20px; 
     font-weight: bold;
-    border-radius: 7px 7px 0 0;
 }
+/* ★中枠の背景色を消してスッキリ */
 .series-group .item {
     padding: 15px;
-    background: #f9f9f9;
+    background: #fff; 
 }
+/* ★小枠（カテゴリ）の枠線と背景を消去 */
 .drop-category {
-    margin-top: 15px;
-    padding: 10px;
-    background: #fff;
-    border: 1px solid #e0e6ed;
-    border-radius: 6px;
+    margin-top: 12px;
+    padding-top: 8px;
 }
 .drop-category h4 {
-    margin: 0 0 10px 0;
+    margin: 0 0 8px 0;
     font-size: 14px;
     color: #2980b9;
     border-left: 4px solid #3498db;
@@ -68,17 +67,14 @@
 .category-groups {
     display: flex;
     flex-wrap: wrap; 
-    gap: 10px;
+    gap: 12px;
 }
+/* ★極小枠（グループ）の枠線と背景を消去し、余白を削る */
 .drop-group {
     display: inline-flex;
     flex-wrap: wrap; 
     align-items: center;
-    background: #f8f9fa;
-    border: 1px solid #dcdde1;
-    border-radius: 8px;
-    padding: 5px 8px;
-    gap: 5px;
+    gap: 4px;
 }
 .group-note {
     font-size: 13px;
@@ -154,19 +150,20 @@
     opacity: 1;
 }
 
+/* ★スマホ向け：左右の余白を極限まで削って表示スペースを広げる */
 @media (max-width: 600px) {
     .item-title {
         gap: 4px;
     }
     .series-group .item {
-        padding: 12px 10px;
+        padding: 12px 6px; /* 左右の余白を15px→6pxに大幅圧縮 */
     }
     .dungeon-name {
         font-size: 15px;
     }
     .series-group h3 {
         font-size: 17px;
-        padding: 10px 12px;
+        padding: 10px 10px;
     }
     .stamina-badge {
         font-size: 11px;
@@ -178,8 +175,5 @@
     }
     .group-note {
         font-size: 12px;
-    }
-    .drop-group {
-        padding: 4px 6px;
     }
 }
