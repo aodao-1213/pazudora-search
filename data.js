@@ -1,5 +1,6 @@
 let dungeonData = [];
 let announcementData = []; 
+let globalIdMap = {}; // ★追加: どこからでも図鑑番号を引っ張り出せるようにする
 
 function formatExcelDate(dateVal) {
     if (!dateVal) return '';
@@ -39,6 +40,8 @@ async function loadExcel() {
                 }
             });
         }
+        
+        globalIdMap = idMap; // ★追加: 取得した番号リストを共通変数に入れる
 
         announcementData = [];
         if (workbook.SheetNames.length > 2) {
@@ -97,7 +100,6 @@ function parseCategory(text, isRandom) {
 
 function parseExcelData(data, idMap) {
     const result = [];
-    // ★修正: 新しい列名「ボス・乱入・部位破壊」も除外リストに追加してバッジとして認識させる
     const knownColumns = ['ステージ', 'ステージ名', 'ダンジョン', 'ダンジョン名', 'スタミナ', 'バトル', 'バトル数', '交換可能なレート', 'ボス・部位破壊', 'ボス・乱入・部位破壊', '確定ドロップ', '確率ドロップ', '確定ランダムドロップ', '確率ランダムドロップ', '注意書き', '陽/陰', '超重力', '超高度', 'その他の効果'];
 
     data.forEach(row => {
@@ -149,7 +151,6 @@ function parseExcelData(data, idMap) {
             }
         }
 
-        // ★修正: 旧名・新名どちらの列が使われても対応できるようにする
         const bossCategoryName = row['ボス・乱入・部位破壊'] ? 'ボス・乱入・部位破壊' : 'ボス・部位破壊';
         const bossCategoryData = row['ボス・乱入・部位破壊'] || row['ボス・部位破壊'];
 

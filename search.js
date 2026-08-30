@@ -40,12 +40,13 @@ function searchMaterial() {
     const targetName = matchNames.length === 1 ? matchNames[0] : input;
 
     let idDisplay = foundId ? `No.${foundId} ` : "";
-    const safeTargetName = encodeURIComponent(targetName);
+    
+    // ★ 修正: 図鑑番号（foundId）があればそれを画像名に、無ければ名前を使う
+    const imageFileName = foundId ? foundId : (typeof globalIdMap !== 'undefined' && globalIdMap[targetName] ? globalIdMap[targetName] : encodeURIComponent(targetName));
 
-    // ★ 修正: onerror を追加して画像エラー時に question.png を表示する
     let html = `<div class="search-result-header">
                     <div class="result-image-wrapper">
-                        <img src="images/${safeTargetName}.png" alt="${targetName}" 
+                        <img src="images/${imageFileName}.png" alt="${targetName}" 
                              onerror="this.onerror=null; this.src='images/question.png'; this.nextElementSibling.style.display='block';">
                         <span class="fallback-text" style="display:none;">${targetName}</span>
                     </div>
