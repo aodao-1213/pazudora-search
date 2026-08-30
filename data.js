@@ -1,15 +1,12 @@
 let dungeonData = [];
 let announcementData = []; 
 
-// ★ 追加: 日付を 2026/08/30 の形に整形する関数
 function formatExcelDate(dateVal) {
     if (!dateVal) return '';
-    // エクセルのシリアル値の場合
     if (!isNaN(dateVal) && typeof dateVal === 'number') {
         const date = new Date(Math.round((dateVal - 25569) * 86400 * 1000));
         return `${date.getFullYear()}/${String(date.getMonth()+1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
     }
-    // 文字列の場合（ハイフンなどをスラッシュに置換）
     const str = String(dateVal).trim();
     const dateObj = new Date(str.replace(/-/g, '/'));
     if (!isNaN(dateObj.getTime())) {
@@ -46,7 +43,6 @@ async function loadExcel() {
         announcementData = [];
         if (workbook.SheetNames.length > 2) {
             const sheet3 = workbook.Sheets[workbook.SheetNames[2]];
-            // raw: true にして正確な日付シリアル値を取得し、関数で整形
             const noticeData = XLSX.utils.sheet_to_json(sheet3, { raw: true });
             
             noticeData.forEach((row, index) => {
@@ -58,7 +54,7 @@ async function loadExcel() {
                     announcementData.push({ id: index, date, title, body });
                 }
             });
-            announcementData.reverse(); // 新しい順にする
+            announcementData.reverse(); 
         }
         
         dungeonData = parseExcelData(jsonData, idMap);
@@ -101,7 +97,8 @@ function parseCategory(text, isRandom) {
 
 function parseExcelData(data, idMap) {
     const result = [];
-    const knownColumns = ['ステージ', 'ステージ名', 'ダンジョン', 'ダンジョン名', 'スタミナ', 'バトル', 'バトル数', '交換可能なレート', 'ボス・部位破壊', '確定ドロップ', '確率ドロップ', '確定ランダムドロップ', '確率ランダムドロップ', '注意書き', '陽/陰', '超重力', '超高度', 'その他の効果'];
+    // ★修正: 新しい列名「ボス・乱入・部位破壊」も除外リストに追加してバッジとして認識させる
+    const knownColumns = ['ステージ', 'ステージ名', 'ダンジョン', 'ダンジョン名', 'スタミナ', 'バトル', 'バトル数', '交換可能なレート', 'ボス・部位破壊', 'ボス・乱入・部位破壊', '確定ドロップ', '確率ドロップ', '確定ランダムドロップ', '確率ランダムドロップ', '注意書き', '陽/陰', '超重力', '超高度', 'その他の効果'];
 
     data.forEach(row => {
         const series = row['ステージ'] || row['ステージ名'] || 'その他';
@@ -152,8 +149,12 @@ function parseExcelData(data, idMap) {
             }
         }
 
+        // ★修正: 旧名・新名どちらの列が使われても対応できるようにする
+        const bossCategoryName = row['ボス・乱入・部位破壊'] ? 'ボス・乱入・部位破壊' : 'ボス・部位破壊';
+        const bossCategoryData = row['ボス・乱入・部位破壊'] || row['ボス・部位破壊'];
+
         const drops = [
-            { category: "ボス・部位破壊", groups: parseCategory(row['ボス・部位破壊'], false) },
+            { category: bossCategoryName, groups: parseCategory(bossCategoryData, false) },
             { category: "確定ドロップ", groups: parseCategory(row['確定ドロップ'], false) },
             { category: "確率ドロップ", groups: parseCategory(row['確率ドロップ'], false) },
             { category: "確定ランダムドロップ", groups: parseCategory(row['確定ランダムドロップ'], true) },

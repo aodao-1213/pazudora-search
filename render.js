@@ -174,7 +174,8 @@ function displayArenaList() {
                     
                     html += `</div>`; 
                     
-                    if (dropCategory.category === 'ボス・部位破壊' && arena.exchangeRate) {
+                    // ★修正: 列名が「ボス・部位破壊」でも「ボス・乱入・部位破壊」でも交換レートが表示されるようにする
+                    if ((dropCategory.category === 'ボス・部位破壊' || dropCategory.category === 'ボス・乱入・部位破壊') && arena.exchangeRate) {
                         const rates = arena.exchangeRate.split(',');
                         html += `<details class="exchange-details">
                                     <summary class="exchange-summary">🔄 部位破壊素材の交換目安を見る</summary>
@@ -203,12 +204,10 @@ function displayArenaList() {
     listDiv.innerHTML = html;
 }
 
-// ★ 追加: 注意書き用の「大樹の霊王」ドロップ例を自動生成する機能
 function displayNoteExample() {
     const container = document.getElementById('noteExampleDrop');
     if (!container) return;
 
-    // データから「大樹の霊王」を探し出す
     const targetDungeon = dungeonData.find(d => d.name === '大樹の霊王');
     if (!targetDungeon) {
         container.innerHTML = "<p style='color: #e74c3c; font-weight: bold;'>大樹の霊王のデータが見つかりません。</p>";
@@ -217,7 +216,6 @@ function displayNoteExample() {
 
     let html = `<h4 style="margin: 0 0 10px 0; color: #e74c3c; border-bottom: 1px dashed #bdc3c7; padding-bottom: 5px;">【例】大樹の霊王のドロップ</h4>`;
     
-    // ドロップリストのHTMLを構築（報酬リストと同じデザインを適用）
     targetDungeon.drops.forEach(dropCategory => {
         if (dropCategory.groups.length > 0) {
             html += `<div class="drop-category" style="margin-top: 5px; padding-top: 5px;">
