@@ -321,3 +321,24 @@ h2 {
     border-top: 1px dashed #ccc;
     margin: 20px 0;
 }
+
+/* ====================================================
+   黒背景の具体例ボックス用スタイル
+   ==================================================== */
+.dark-example-box {
+    margin-top: 25px;
+    padding: 20px;
+    background-color: #17202a;
+    border-radius: 8px 8px 0 0;
+    font-size: 14px;
+    line-height: 1.8;
+}
+/* 中の文字を強制的に白にする */
+.dark-example-box p, 
+.dark-example-box strong {
+    color: #ecf0f1 !important;
+}
+/* 黄色の強調文字 */
+.dark-example-box .text-yellow {
+    color: #f1c40f !important;
+}
