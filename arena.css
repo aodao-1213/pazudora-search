@@ -12,11 +12,18 @@
 .item:last-child {
     border-bottom: none;
 }
+/* ★ 修正: タイトル周りをFlexbox化して自動折り返し */
 .item-title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+.dungeon-name {
     font-weight: bold;
     color: #e74c3c;
-    font-size: 17px;
-    margin-bottom: 5px;
+    font-size: 18px;
 }
 .stamina-badge {
     display: inline-block;
@@ -25,8 +32,6 @@
     font-size: 12px;
     padding: 2px 6px;
     border-radius: 4px;
-    margin-left: 8px;
-    vertical-align: middle;
 }
 .series-group {
     margin-bottom: 25px;
@@ -39,7 +44,7 @@
     color: white;
     margin: 0;
     padding: 12px 15px;
-    font-size: 22px; 
+    font-size: 20px; 
     font-weight: bold;
     border-radius: 7px 7px 0 0;
 }
@@ -64,8 +69,7 @@
 .category-groups {
     display: flex;
     flex-wrap: wrap; 
-    gap: 12px;
-    max-width: 100%; 
+    gap: 10px;
 }
 .drop-group {
     display: inline-flex;
@@ -76,8 +80,6 @@
     border-radius: 8px;
     padding: 5px 8px;
     gap: 5px;
-    max-width: 100%; 
-    box-sizing: border-box;
 }
 .group-note {
     font-size: 13px;
@@ -145,7 +147,6 @@
     border-style: solid;
     border-color: rgba(0, 0, 0, 0.85) transparent transparent transparent;
 }
-/* ★ 追加：テキストのツールチップホバー設定 */
 .material-badge:hover .custom-tooltip,
 .material-badge:focus .custom-tooltip,
 .condition-tooltip-container:hover .custom-tooltip,
@@ -154,24 +155,26 @@
     opacity: 1;
 }
 
-/* ====================================================
-   ダンジョン条件（超重力・陰陽・その他の効果）スタイル
-   ==================================================== */
-.dungeon-condition {
-    font-size: 14px;
-    color: #8e44ad; 
-    font-weight: bold;
-    margin-left: 5px;
-    vertical-align: middle;
-}
-.condition-tooltip-container {
-    position: relative;
-    cursor: help; /* カーソルを「？」マークにして説明があることを示す */
-    display: inline-block;
-}
-.yinyang-icon {
-    height: 1.3em;
-    vertical-align: text-bottom;
-    margin-left: 8px;
-    display: inline-block;
+/* ★ 追加: スマホ（幅600px以下）向けのレスポンシブデザイン */
+@media (max-width: 600px) {
+    .series-group .item {
+        padding: 12px 10px;
+    }
+    .dungeon-name {
+        font-size: 16px;
+    }
+    .series-group h3 {
+        font-size: 17px;
+        padding: 10px 12px;
+    }
+    .material-badge {
+        width: 38px;
+        height: 38px;
+    }
+    .group-note {
+        font-size: 12px;
+    }
+    .drop-group {
+        padding: 4px 6px;
+    }
 }

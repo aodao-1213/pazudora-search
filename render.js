@@ -89,6 +89,8 @@ function showNoticeDetail(id) {
     }
 }
 
+// ...（上部のお知らせ関連の処理はそのまま維持）...
+
 function displayArenaList() {
     const listDiv = document.getElementById('arenaList');
     if (dungeonData.length === 0) {
@@ -111,8 +113,6 @@ function displayArenaList() {
             const battleHtml = arena.battles ? `<span class="stamina-badge">バトル: ${arena.battles}</span>` : '';
             
             let titleExtra = "";
-            
-            // 1. 陰/陽 アイコン（一番前）
             if (arena.yinYang) {
                 if (arena.yinYang.includes('陰')) {
                     titleExtra += `<img src="images/陰加護.png" alt="陰" class="yinyang-icon">`;
@@ -120,12 +120,8 @@ function displayArenaList() {
                     titleExtra += `<img src="images/陽加護.png" alt="陽" class="yinyang-icon">`;
                 }
             }
-            
-            // 2. 超重力・超高度
             if (arena.gravity) titleExtra += `<span class="dungeon-condition">【超重力 ${arena.gravity}】</span>`;
             if (arena.altitude) titleExtra += `<span class="dungeon-condition">【超高度 ${arena.altitude}】</span>`;
-            
-            // 3. その他の効果（ツールチップ対応）
             if (arena.effectName) {
                 if (arena.effectDetail) {
                     titleExtra += `<span class="dungeon-condition condition-tooltip-container" tabindex="0">
@@ -137,10 +133,12 @@ function displayArenaList() {
                 }
             }
             
+            // ★ 修正: item-title をFlexboxで綺麗に並べるため、ダンジョン名を <span> で囲み、直書きの margin を削除
             html += `<div class="item" id="dungeon-${safeId}">
                         <div class="item-title">
-                            ${arena.name}${titleExtra} 
-                            <span class="stamina-badge" style="margin-left: 8px;">スタミナ: ${arena.stamina}</span> 
+                            <span class="dungeon-name">${arena.name}</span>
+                            ${titleExtra} 
+                            <span class="stamina-badge">スタミナ: ${arena.stamina}</span> 
                             ${battleHtml}
                         </div>`;
             

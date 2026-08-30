@@ -1,9 +1,9 @@
 .dungeon-remarks {
-    margin-top: 12px;
-    margin-bottom: 5px;
+    margin-top: 8px;
+    margin-bottom: 10px;
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
 }
 .remark-item {
     display: inline-flex;
@@ -95,4 +95,40 @@
 }
 .exchange-list li {
     margin-bottom: 4px;
+}
+
+/* ====================================================
+   ダンジョン条件（超重力・陰陽・その他の効果）スタイル
+   ==================================================== */
+/* ★ 修正: 直書きの margin-left を消し、Flexboxの gap に任せる */
+.dungeon-condition {
+    font-size: 14px;
+    color: #8e44ad; 
+    font-weight: bold;
+    vertical-align: middle;
+}
+.condition-tooltip-container {
+    position: relative;
+    cursor: help; 
+    display: inline-block;
+}
+.yinyang-icon {
+    height: 1.3em;
+    vertical-align: text-bottom;
+    display: inline-block;
+}
+
+/* ★ 追加: スマホ（幅600px以下）向けのレスポンシブデザイン */
+@media (max-width: 600px) {
+    .remark-label {
+        padding: 3px 6px;
+        font-size: 11px;
+    }
+    .remark-value {
+        padding: 3px 8px;
+        font-size: 12px;
+    }
+    .dungeon-condition {
+        font-size: 12px;
+    }
 }
