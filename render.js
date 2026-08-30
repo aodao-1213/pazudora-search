@@ -9,7 +9,6 @@ function displayAnnouncements() {
         return;
     }
 
-    // トップ画面は最新5件だけ表示
     const topNotices = announcementData.slice(0, 5);
     let html = "";
     topNotices.forEach(notice => {
@@ -21,13 +20,11 @@ function displayAnnouncements() {
     listUl.innerHTML = html;
 }
 
-// ★ 追加: 全件一覧のページネーション表示
 function showNoticeList(page = 1) {
     const listUl = document.getElementById('fullAnnouncementList');
     const paginationArea = document.getElementById('paginationArea');
     if (!listUl) return;
 
-    // ★ 修正: ページが1ページだけでも最低「1」と判定する
     const totalPages = Math.ceil(announcementData.length / ITEMS_PER_PAGE) || 1; 
     const startIdx = (page - 1) * ITEMS_PER_PAGE;
     const endIdx = startIdx + ITEMS_PER_PAGE;
@@ -46,25 +43,21 @@ function showNoticeList(page = 1) {
     }
     listUl.innerHTML = html;
 
-    // ★ 修正: 現在のページ数表記と、番号ボタンの生成
     let pageHtml = `<div class="page-info-text">${page} ページ目 / 全 ${totalPages} ページ</div>
                     <div class="pagination-buttons">`;
     
-    // 前へボタン
     if (page > 1) {
         pageHtml += `<button class="page-btn" onclick="showNoticeList(${page - 1})">前へ</button>`;
     }
     
-    // 番号ボタン（1, 2, 3...）
     for (let i = 1; i <= totalPages; i++) {
         if (i === page) {
-            pageHtml += `<button class="page-btn active">${i}</button>`; // 現在のページは色を変える
+            pageHtml += `<button class="page-btn active">${i}</button>`;
         } else {
-            pageHtml += `<button class="page-btn" onclick="showNoticeList(${i})">${i}</button>`; // クリックで移動
+            pageHtml += `<button class="page-btn" onclick="showNoticeList(${i})">${i}</button>`;
         }
     }
     
-    // 次へボタン
     if (page < totalPages) {
         pageHtml += `<button class="page-btn" onclick="showNoticeList(${page + 1})">次へ</button>`;
     }
@@ -72,7 +65,6 @@ function showNoticeList(page = 1) {
     pageHtml += `</div>`;
     paginationArea.innerHTML = pageHtml;
     
-    // ページを切り替えたら画面の一番上にスクロール
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -88,8 +80,6 @@ function showNoticeDetail(id) {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 }
-
-// ...（上部のお知らせ関連の処理はそのまま維持）...
 
 function displayArenaList() {
     const listDiv = document.getElementById('arenaList');
@@ -133,7 +123,6 @@ function displayArenaList() {
                 }
             }
             
-            // ★ 修正: item-title をFlexboxで綺麗に並べるため、ダンジョン名を <span> で囲み、直書きの margin を削除
             html += `<div class="item" id="dungeon-${safeId}">
                         <div class="item-title">
                             <span class="dungeon-name">${arena.name}</span>

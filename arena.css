@@ -12,12 +12,11 @@
 .item:last-child {
     border-bottom: none;
 }
-/* ★ 修正: タイトル周りをFlexbox化して自動折り返し */
 .item-title {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     margin-bottom: 8px;
 }
 .dungeon-name {
@@ -155,17 +154,23 @@
     opacity: 1;
 }
 
-/* ★ 追加: スマホ（幅600px以下）向けのレスポンシブデザイン */
 @media (max-width: 600px) {
+    .item-title {
+        gap: 4px;
+    }
     .series-group .item {
         padding: 12px 10px;
     }
     .dungeon-name {
-        font-size: 16px;
+        font-size: 15px;
     }
     .series-group h3 {
         font-size: 17px;
         padding: 10px 12px;
+    }
+    .stamina-badge {
+        font-size: 11px;
+        padding: 2px 5px;
     }
     .material-badge {
         width: 38px;
