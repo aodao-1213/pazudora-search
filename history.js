@@ -25,11 +25,18 @@ function updateSearchHistoryUI() {
     historyArea.innerHTML = html;
 }
 
+// ★ 修正: クリック時に文字を入力するだけで、検索は実行しない
 function useHistory(word) {
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
-        searchInput.value = word;
-        if (typeof searchMaterial === 'function') searchMaterial();
+        searchInput.value = word; // 文字をセット
+        
+        // ドロップダウンを非表示にする
+        const historyArea = document.getElementById('searchHistoryArea');
+        if (historyArea) historyArea.style.display = 'none';
+        
+        // 入力欄からフォーカスを外し、ユーザーが検索ボタンを押しやすくする
+        searchInput.blur();
     }
 }
 

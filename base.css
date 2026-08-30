@@ -166,11 +166,20 @@ h2 {
     color: #2980b9;
 }
 .pagination-area {
+    margin-top: 20px;
+}
+.page-info-text {
+    text-align: center;
+    font-size: 13px;
+    color: #7f8c8d;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+.pagination-buttons {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
     gap: 8px;
-    margin-top: 20px;
 }
 .page-btn {
     padding: 6px 12px;

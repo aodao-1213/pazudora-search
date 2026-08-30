@@ -27,38 +27,52 @@ function showNoticeList(page = 1) {
     const paginationArea = document.getElementById('paginationArea');
     if (!listUl) return;
 
-    const totalPages = Math.ceil(announcementData.length / ITEMS_PER_PAGE);
+    // ★ 修正: ページが1ページだけでも最低「1」と判定する
+    const totalPages = Math.ceil(announcementData.length / ITEMS_PER_PAGE) || 1; 
     const startIdx = (page - 1) * ITEMS_PER_PAGE;
     const endIdx = startIdx + ITEMS_PER_PAGE;
     const currentData = announcementData.slice(startIdx, endIdx);
 
     let html = "";
-    currentData.forEach(notice => {
-        html += `<li class="notice-item" onclick="showNoticeDetail(${notice.id})">
-                    <span class="notice-date-badge">${notice.date}</span>
-                    <span class="notice-title-link">${notice.title}</span>
-                 </li>`;
-    });
+    if (currentData.length === 0) {
+        html = "<li class='notice-item'>お知らせがありません。</li>";
+    } else {
+        currentData.forEach(notice => {
+            html += `<li class="notice-item" onclick="showNoticeDetail(${notice.id})">
+                        <span class="notice-date-badge">${notice.date}</span>
+                        <span class="notice-title-link">${notice.title}</span>
+                     </li>`;
+        });
+    }
     listUl.innerHTML = html;
 
-    // ページネーションのボタン生成
-    let pageHtml = "";
-    if (totalPages > 1) {
-        if (page > 1) {
-            pageHtml += `<button class="page-btn" onclick="showNoticeList(${page - 1})">前へ</button>`;
-        }
-        for (let i = 1; i <= totalPages; i++) {
-            if (i === page) {
-                pageHtml += `<button class="page-btn active">${i}</button>`;
-            } else {
-                pageHtml += `<button class="page-btn" onclick="showNoticeList(${i})">${i}</button>`;
-            }
-        }
-        if (page < totalPages) {
-            pageHtml += `<button class="page-btn" onclick="showNoticeList(${page + 1})">次へ</button>`;
+    // ★ 修正: 現在のページ数表記と、番号ボタンの生成
+    let pageHtml = `<div class="page-info-text">${page} ページ目 / 全 ${totalPages} ページ</div>
+                    <div class="pagination-buttons">`;
+    
+    // 前へボタン
+    if (page > 1) {
+        pageHtml += `<button class="page-btn" onclick="showNoticeList(${page - 1})">前へ</button>`;
+    }
+    
+    // 番号ボタン（1, 2, 3...）
+    for (let i = 1; i <= totalPages; i++) {
+        if (i === page) {
+            pageHtml += `<button class="page-btn active">${i}</button>`; // 現在のページは色を変える
+        } else {
+            pageHtml += `<button class="page-btn" onclick="showNoticeList(${i})">${i}</button>`; // クリックで移動
         }
     }
+    
+    // 次へボタン
+    if (page < totalPages) {
+        pageHtml += `<button class="page-btn" onclick="showNoticeList(${page + 1})">次へ</button>`;
+    }
+    
+    pageHtml += `</div>`;
     paginationArea.innerHTML = pageHtml;
+    
+    // ページを切り替えたら画面の一番上にスクロール
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
