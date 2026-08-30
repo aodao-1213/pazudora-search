@@ -200,3 +200,40 @@ h2 {
     border-color: #3498db;
     cursor: default;
 }
+
+/* ====================================================
+   フッター（クレジット表記）スタイル
+   ==================================================== */
+.footer-credit {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid #e0e6ed;
+    text-align: center;
+    font-size: 13px;
+    color: #7f8c8d;
+}
+.footer-credit a {
+    color: #3498db;
+    text-decoration: none;
+    font-weight: bold;
+}
+.footer-credit a:hover {
+    color: #2980b9;
+    text-decoration: underline;
+}
+.credit-separator {
+    margin: 0 10px;
+    color: #bdc3c7;
+}
+
+/* スマホ閲覧時は縦に並べて綺麗に見せる */
+@media (max-width: 500px) {
+    .credit-separator {
+        display: none;
+    }
+    .footer-credit {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+}

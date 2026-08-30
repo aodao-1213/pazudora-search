@@ -23,17 +23,13 @@
 
         <div class="announcement-area">
             <h3>📢 お知らせ (Announcement)</h3>
-            <ul id="announcementList" class="announcement-list">
-                <!-- 最新5件が表示されます -->
-            </ul>
-            <!-- ★ 追加: すべて表示するリンク -->
+            <ul id="announcementList" class="announcement-list"></ul>
             <div style="text-align: right; padding: 10px 15px;">
                 <a href="#noticeList" class="view-all-link">すべて表示する &gt;</a>
             </div>
         </div>
     </div>
 
-    <!-- ★ 追加: お知らせ全件表示（一覧）画面 -->
     <div id="sectionNoticeList" class="hidden">
         <button class="back-button" onclick="showScreen('top')">← トップに戻る</button>
         <h2>📢 お知らせ一覧</h2>
@@ -43,14 +39,11 @@
         </div>
     </div>
 
-    <!-- お知らせ詳細画面 -->
     <div id="sectionNotice" class="hidden">
-        <!-- ★ どこから来ても正しく戻れるように history.back() に変更 -->
         <button class="back-button" onclick="history.back()">← 戻る</button>
         <h2 id="noticeTitle">お知らせタイトル</h2>
         <p id="noticeDate" class="notice-date"></p>
-        <div id="noticeBody" class="notice-body result-box">
-        </div>
+        <div id="noticeBody" class="notice-body result-box"></div>
     </div>
 
     <div id="sectionSearch" class="hidden">
@@ -67,8 +60,14 @@
     <div id="sectionArena" class="hidden">
         <button class="back-button" onclick="showScreen('top')">← トップに戻る</button>
         <h2>闘技場シリーズ 全報酬リスト</h2>
-        <div id="arenaList" class="result-box">
-        </div>
+        <div id="arenaList" class="result-box"></div>
+    </div>
+
+    <!-- ★ 追加: クレジット表記（全画面共通で一番下に表示） -->
+    <div class="footer-credit">
+        created by 蒼(<a href="https://x.com/aodao__" target="_blank" rel="noopener noreferrer">@aodao__</a>)
+        <span class="credit-separator">|</span>
+        special thanks ゆうにうむ様(<a href="https://x.com/yuunium" target="_blank" rel="noopener noreferrer">@yuunium</a>)
     </div>
 </div>
 
