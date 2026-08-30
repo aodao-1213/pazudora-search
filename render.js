@@ -202,3 +202,54 @@ function displayArenaList() {
     }
     listDiv.innerHTML = html;
 }
+
+// ★ 追加: 注意書き用の「大樹の霊王」ドロップ例を自動生成する機能
+function displayNoteExample() {
+    const container = document.getElementById('noteExampleDrop');
+    if (!container) return;
+
+    // データから「大樹の霊王」を探し出す
+    const targetDungeon = dungeonData.find(d => d.name === '大樹の霊王');
+    if (!targetDungeon) {
+        container.innerHTML = "<p style='color: #e74c3c; font-weight: bold;'>大樹の霊王のデータが見つかりません。</p>";
+        return;
+    }
+
+    let html = `<h4 style="margin: 0 0 10px 0; color: #e74c3c; border-bottom: 1px dashed #bdc3c7; padding-bottom: 5px;">【例】大樹の霊王のドロップ</h4>`;
+    
+    // ドロップリストのHTMLを構築（報酬リストと同じデザインを適用）
+    targetDungeon.drops.forEach(dropCategory => {
+        if (dropCategory.groups.length > 0) {
+            html += `<div class="drop-category" style="margin-top: 5px; padding-top: 5px;">
+                        <h4>${dropCategory.category}</h4>
+                        <div class="category-groups">`;
+            
+            dropCategory.groups.forEach(group => {
+                html += `<div class="drop-group">`;
+                
+                group.items.forEach(itemName => {
+                    const safeName = encodeURIComponent(itemName);
+                    const safeJSName = itemName.replace(/'/g, "\\'");
+                    
+                    html += `<div class="material-badge" tabindex="0" onclick="handleBadgeClick(event, '${safeJSName}')">
+                                <img src="images/${safeName}.png" alt="${itemName}" 
+                                     onerror="this.onerror=null; this.src='images/question.png'; this.nextElementSibling.style.display='block';">
+                                <span class="fallback-text" style="display:none;">${itemName}</span>
+                                <span class="custom-tooltip">${itemName}</span>
+                             </div>`;
+                });
+
+                if (group.note) {
+                    let displayNote = group.note;
+                    if (!displayNote.match(/^[×xX～~]/)) displayNote = `(${displayNote})`;
+                    html += `<div class="group-note">${displayNote}</div>`;
+                }
+                
+                html += `</div>`;
+            });
+            
+            html += `</div></div>`; 
+        }
+    });
+    container.innerHTML = html;
+}

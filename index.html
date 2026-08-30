@@ -49,7 +49,7 @@
         </div>
     </div>
 
-    <!-- ★ 追加: 注意書き画面（画像からの書き起こし） -->
+    <!-- ★ 該当部分の書き換え -->
     <div id="sectionNotes" class="hidden">
         <button class="back-button" onclick="showScreen('top')">← トップに戻る</button>
         <h2>⚠️ 注意書き</h2>
@@ -74,9 +74,9 @@
                 <li><strong>④ランダムドロップ</strong><br>複数種類の中からランダムでドロップするものです。<br>ランダムドロップの中でも確定でドロップするもの、不確定でドロップするものがあります。<br>基本的には確定ランダムドロップですが、∞級1人専用コロシアムのみ確率ランダムドロップです。</li>
             </ul>
             
-            <!-- ドロップ例の画像用（画像ファイルを用意してimagesフォルダに入れてください） -->
-            <div style="text-align: center; margin-top: 15px;">
-                <img src="images/ドロップ例.png" alt="ドロップ例" style="max-width: 100%; border-radius: 6px; border: 1px solid #ccc;">
+            <!-- ★ 修正: 画像ではなく、プログラムで実際の報酬リストを生成して表示する枠 -->
+            <div id="noteExampleDrop" style="margin-top: 15px; border: 2px solid #bdc3c7; border-radius: 8px; padding: 10px; background: #fdfdfe;">
+                <!-- ここに大樹の霊王のドロップリストが自動生成されます -->
             </div>
         </div>
 

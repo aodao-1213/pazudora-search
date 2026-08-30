@@ -2,8 +2,10 @@ window.onload = async function() {
     await loadExcel();
     if (typeof displayAnnouncements === 'function') displayAnnouncements(); 
     if (typeof displayArenaList === 'function') displayArenaList();
+    if (typeof displayNoteExample === 'function') displayNoteExample(); // ★追加
 };
 
+// ...（以下はそのまま）...
 document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
