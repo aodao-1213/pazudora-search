@@ -152,11 +152,12 @@ function displayArenaList() {
                         html += `<div class="drop-group">`;
                         
                         group.items.forEach(itemName => {
-                            const safeName = encodeURIComponent(itemName);
                             const safeJSName = itemName.replace(/'/g, "\\'");
+                            // ★修正: globalIdMap に番号があればそれを使い、無ければ名前を使う
+                            const imageFileName = globalIdMap[itemName] ? globalIdMap[itemName] : encodeURIComponent(itemName);
                             
                             html += `<div class="material-badge" tabindex="0" onclick="handleBadgeClick(event, '${safeJSName}')">
-                                        <img src="images/${safeName}.png" alt="${itemName}" 
+                                        <img src="images/${imageFileName}.png" alt="${itemName}" 
                                              onerror="this.onerror=null; this.src='images/question.png'; this.nextElementSibling.style.display='block';">
                                         <span class="fallback-text" style="display:none;">${itemName}</span>
                                         <span class="custom-tooltip">${itemName}</span>
@@ -174,7 +175,6 @@ function displayArenaList() {
                     
                     html += `</div>`; 
                     
-                    // ★修正: 列名が「ボス・部位破壊」でも「ボス・乱入・部位破壊」でも交換レートが表示されるようにする
                     if ((dropCategory.category === 'ボス・部位破壊' || dropCategory.category === 'ボス・乱入・部位破壊') && arena.exchangeRate) {
                         const rates = arena.exchangeRate.split(',');
                         html += `<details class="exchange-details">
@@ -226,11 +226,12 @@ function displayNoteExample() {
                 html += `<div class="drop-group">`;
                 
                 group.items.forEach(itemName => {
-                    const safeName = encodeURIComponent(itemName);
                     const safeJSName = itemName.replace(/'/g, "\\'");
+                    // ★修正: 例の画面でも図鑑番号を使う
+                    const imageFileName = globalIdMap[itemName] ? globalIdMap[itemName] : encodeURIComponent(itemName);
                     
                     html += `<div class="material-badge" tabindex="0" onclick="handleBadgeClick(event, '${safeJSName}')">
-                                <img src="images/${safeName}.png" alt="${itemName}" 
+                                <img src="images/${imageFileName}.png" alt="${itemName}" 
                                      onerror="this.onerror=null; this.src='images/question.png'; this.nextElementSibling.style.display='block';">
                                 <span class="fallback-text" style="display:none;">${itemName}</span>
                                 <span class="custom-tooltip">${itemName}</span>
