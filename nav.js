@@ -15,8 +15,6 @@ function updateScreenFromHash() {
     else if (hash === 'search') document.getElementById('sectionSearch').classList.remove('hidden');
     else if (hash === 'arena') document.getElementById('sectionArena').classList.remove('hidden');
     else if (hash === 'notice' && noticeSection) noticeSection.classList.remove('hidden');
-    
-    // ★ 追加: お知らせ全件表示ページを開く処理
     else if (hash === 'noticeList' && noticeListSection) {
         noticeListSection.classList.remove('hidden');
         if (typeof showNoticeList === 'function') showNoticeList(1);
@@ -64,7 +62,14 @@ function handleBadgeClick(event, itemName) {
     if (!canHover) {
         const badge = event.currentTarget;
         if (badge.dataset.tapped !== "true") {
+            // ★ 追加: 別のアイコンをタップした時は、他のフラグをすべてリセット
+            document.querySelectorAll('.material-badge').forEach(b => {
+                b.dataset.tapped = "false";
+            });
+            
             badge.dataset.tapped = "true";
+            badge.focus(); // ★ 追加: スマホでも確実にツールチップを開かせる
+            
             setTimeout(() => { badge.dataset.tapped = "false"; }, 3000);
             return; 
         }
