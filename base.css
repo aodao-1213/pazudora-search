@@ -237,3 +237,87 @@ h2 {
         gap: 8px;
     }
 }
+
+/* ====================================================
+   トップ右上リンク ＆ 使い方・注意書き画面スタイル
+   ==================================================== */
+.top-header-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+.header-link-btn {
+    background: none;
+    border: none;
+    color: #3498db;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    padding: 5px;
+    text-decoration: underline;
+}
+.header-link-btn:hover {
+    color: #2980b9;
+}
+.note-box {
+    margin-bottom: 20px;
+}
+.note-heading {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 18px;
+    color: #2c3e50;
+    border-bottom: 2px solid #bdc3c7;
+    padding-bottom: 5px;
+}
+.note-box p {
+    font-size: 15px;
+    line-height: 1.7;
+    margin-bottom: 10px;
+    color: #333;
+}
+.note-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.note-list li {
+    margin-bottom: 15px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #333;
+}
+.note-list li strong {
+    color: #2980b9;
+    display: inline-block;
+    margin-bottom: 4px;
+}
+.warning-box {
+    background-color: #fff3f3;
+    border-color: #ffcccc;
+}
+.warning-box .note-heading {
+    color: #c0392b;
+    border-bottom-color: #e74c3c;
+}
+.note-list-disc {
+    padding-left: 20px;
+    margin: 0;
+}
+.note-list-disc li {
+    margin-bottom: 10px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #333;
+}
+.manual-box h3 {
+    color: #27ae60;
+    font-size: 17px;
+    margin-bottom: 10px;
+}
+.manual-box hr {
+    border: 0;
+    border-top: 1px dashed #ccc;
+    margin: 20px 0;
+}

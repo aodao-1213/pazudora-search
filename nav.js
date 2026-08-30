@@ -1,6 +1,7 @@
 function updateScreenFromHash() {
     const hash = window.location.hash.replace('#', '') || 'top';
     
+    // すべての画面を一度隠す
     document.getElementById('sectionTop').classList.add('hidden');
     document.getElementById('sectionSearch').classList.add('hidden');
     document.getElementById('sectionArena').classList.add('hidden');
@@ -10,11 +11,20 @@ function updateScreenFromHash() {
     
     const noticeListSection = document.getElementById('sectionNoticeList');
     if (noticeListSection) noticeListSection.classList.add('hidden');
+
+    const howtoSection = document.getElementById('sectionHowTo');
+    if (howtoSection) howtoSection.classList.add('hidden');
+
+    const notesSection = document.getElementById('sectionNotes');
+    if (notesSection) notesSection.classList.add('hidden');
     
+    // 指定されたハッシュの画面だけを表示
     if (hash === 'top') document.getElementById('sectionTop').classList.remove('hidden');
     else if (hash === 'search') document.getElementById('sectionSearch').classList.remove('hidden');
     else if (hash === 'arena') document.getElementById('sectionArena').classList.remove('hidden');
     else if (hash === 'notice' && noticeSection) noticeSection.classList.remove('hidden');
+    else if (hash === 'howto' && howtoSection) howtoSection.classList.remove('hidden');
+    else if (hash === 'notes' && notesSection) notesSection.classList.remove('hidden');
     else if (hash === 'noticeList' && noticeListSection) {
         noticeListSection.classList.remove('hidden');
         if (typeof showNoticeList === 'function') showNoticeList(1);
@@ -62,13 +72,12 @@ function handleBadgeClick(event, itemName) {
     if (!canHover) {
         const badge = event.currentTarget;
         if (badge.dataset.tapped !== "true") {
-            // ★ 追加: 別のアイコンをタップした時は、他のフラグをすべてリセット
             document.querySelectorAll('.material-badge').forEach(b => {
                 b.dataset.tapped = "false";
             });
             
             badge.dataset.tapped = "true";
-            badge.focus(); // ★ 追加: スマホでも確実にツールチップを開かせる
+            badge.focus(); 
             
             setTimeout(() => { badge.dataset.tapped = "false"; }, 3000);
             return; 
