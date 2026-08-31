@@ -1,4 +1,56 @@
-<div id="sectionNotes" class="hidden">
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>パズドラ 闘技場報酬＆素材検索ツール</title>
+    <link rel="stylesheet" href="base.css">
+    <link rel="stylesheet" href="search.css">
+    <link rel="stylesheet" href="arena.css">
+    <link rel="stylesheet" href="components.css">
+</head>
+<body>
+
+<div class="container">
+    <!-- ★ 追加: トップ右上のリンクボタン -->
+    <div id="sectionTop">
+        <div class="top-header-actions">
+            <button class="header-link-btn" onclick="showScreen('howto')">📖 使い方</button>
+            <button class="header-link-btn" onclick="showScreen('notes')">⚠️ 注意書き</button>
+        </div>
+
+        <h1>パズドラ 検索＆報酬ツール</h1>
+        <p style="text-align: center; margin-bottom: 30px;">利用したい機能を選んでください</p>
+        
+        <div class="top-menu">
+            <button class="top-button" onclick="showScreen('search')">🔍 素材検索</button>
+            <button class="top-button" onclick="showScreen('arena')">🎁 報酬リスト</button>
+        </div>
+
+        <div class="announcement-area">
+            <h3>📢 お知らせ (Announcement)</h3>
+            <ul id="announcementList" class="announcement-list"></ul>
+            <div style="text-align: right; padding: 10px 15px;">
+                <a href="#noticeList" class="view-all-link">すべて表示する &gt;</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ★ 追加: 使い方画面（デザインのみのプレースホルダー） -->
+    <div id="sectionHowTo" class="hidden">
+        <button class="back-button" onclick="showScreen('top')">← トップに戻る</button>
+        <h2>📖 使い方</h2>
+        <div class="result-box manual-box">
+            <h3>素材検索の使い方</h3>
+            <p>ここに素材検索の詳しい使い方の説明文が入ります。</p>
+            <hr>
+            <h3>報酬リストの見方</h3>
+            <p>ここに報酬リストの使い方の説明文が入ります。</p>
+        </div>
+    </div>
+
+    <!-- ★ 該当部分の書き換え -->
+    <div id="sectionNotes" class="hidden">
         <button class="back-button" onclick="showScreen('top')">← トップに戻る</button>
         <h2>⚠️ 注意書き</h2>
         
@@ -51,3 +103,54 @@
             </ul>
         </div>
     </div>
+
+    <!-- 以降は既存の画面 -->
+    <div id="sectionNoticeList" class="hidden">
+        <button class="back-button" onclick="showScreen('top')">← トップに戻る</button>
+        <h2>📢 お知らせ一覧</h2>
+        <div class="result-box">
+            <ul id="fullAnnouncementList" class="announcement-list"></ul>
+            <div id="paginationArea" class="pagination-area"></div>
+        </div>
+    </div>
+
+    <div id="sectionNotice" class="hidden">
+        <button class="back-button" onclick="history.back()">← 戻る</button>
+        <h2 id="noticeTitle">お知らせタイトル</h2>
+        <p id="noticeDate" class="notice-date"></p>
+        <div id="noticeBody" class="notice-body result-box"></div>
+    </div>
+
+    <div id="sectionSearch" class="hidden">
+        <button class="back-button" onclick="showScreen('top')">← トップに戻る</button>
+        <h2>素材からドロップ場所を検索</h2>
+        <div class="search-input-wrapper">
+            <input type="text" id="searchInput" placeholder="例：希石、宝玉、たまドラ など" autocomplete="off">
+            <div id="searchHistoryArea" class="history-dropdown"></div>
+        </div>
+        <button class="action-button" onclick="searchMaterial()">検索する</button>
+        <div id="searchResult" class="result-box">ここに検索結果が表示されます。</div>
+    </div>
+
+    <div id="sectionArena" class="hidden">
+        <button class="back-button" onclick="showScreen('top')">← トップに戻る</button>
+        <h2>闘技場シリーズ 全報酬リスト</h2>
+        <div id="arenaList" class="result-box"></div>
+    </div>
+
+    <div class="footer-credit">
+        <span class="credit-person">created by 蒼(<a href="https://x.com/aodao__" target="_blank" rel="noopener noreferrer">@aodao__</a>)</span>
+        <span class="credit-separator">|</span>
+        <span class="credit-person">special thanks ゆうにうむ様(<a href="https://x.com/yuunium" target="_blank" rel="noopener noreferrer">@yuunium</a>)</span>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="data.js"></script>
+<script src="history.js"></script>
+<script src="search.js"></script>
+<script src="nav.js"></script>
+<script src="render.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
