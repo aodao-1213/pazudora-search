@@ -43,14 +43,15 @@ function searchMaterial() {
         return;
     }
 
-    let html = "";
+    // ★ 検索結果の言葉を追加
+    let html = `<h3 style="margin-top: 0; margin-bottom: 25px; font-size: 18px; color: #2c3e50;">「${input}」の検索結果</h3>`;
 
     // ==========================================
-    // 🏰 ダンジョン検索結果の表示（グレーの枠）
+    // 🏰 ダンジョン検索結果の表示（罫線区切り）
     // ==========================================
     if (dungeonHits.length > 0) {
-        html += `<div style="margin-bottom: 20px; padding: 15px; background-color: #f8f9fa; border: 1px solid #dcdde1; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-                    <h3 style="color: #2c3e50; border-bottom: 2px solid #bdc3c7; padding-bottom: 8px; margin-top: 0; margin-bottom: 12px; font-size: 16px;">🏰 ダンジョン・シリーズに一致</h3>
+        html += `<div style="margin-bottom: 30px;">
+                    <h4 style="color: #2c3e50; border-bottom: 2px solid #bdc3c7; padding-bottom: 8px; margin-top: 0; margin-bottom: 15px; font-size: 16px;">🏰 ダンジョン</h4>
                     <ul class="search-result-list" style="margin: 0; padding-left: 20px;">`;
         
         dungeonHits.forEach(arena => {
@@ -65,7 +66,7 @@ function searchMaterial() {
     }
 
     // ==========================================
-    // 💎 素材検索結果の表示（白の枠）
+    // 💎 素材検索結果の表示（罫線区切り）
     // ==========================================
     if (materialHits.length > 0) {
         const matchNames = [...new Set(materialHits.map(r => r.exactName))];
@@ -74,8 +75,8 @@ function searchMaterial() {
         let idDisplay = foundMaterialId ? `No.${foundMaterialId} ` : "";
         const imageFileName = foundMaterialId ? foundMaterialId : (typeof globalIdMap !== 'undefined' && globalIdMap[targetName] ? globalIdMap[targetName] : encodeURIComponent(targetName));
 
-        html += `<div style="padding: 15px; background-color: #fff; border: 1px solid #dcdde1; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-                    <h3 style="color: #2c3e50; border-bottom: 2px solid #bdc3c7; padding-bottom: 8px; margin-top: 0; margin-bottom: 15px; font-size: 16px;">💎 ドロップ素材に一致</h3>
+        html += `<div>
+                    <h4 style="color: #2c3e50; border-bottom: 2px solid #bdc3c7; padding-bottom: 8px; margin-top: 0; margin-bottom: 15px; font-size: 16px;">💎 ドロップ素材</h4>
                     
                     <div class="search-result-header" style="margin-bottom: 15px;">
                         <div class="result-image-wrapper">
@@ -83,7 +84,7 @@ function searchMaterial() {
                                  onerror="this.onerror=null; this.src='images/question.png'; this.nextElementSibling.style.display='block';">
                             <span class="fallback-text" style="display:none;">${targetName}</span>
                         </div>
-                        <h3 style="margin: 0; font-size: 16px;">${idDisplay}${targetName}</h3>
+                        <h4 style="margin: 0; font-size: 16px; font-weight: bold;">${idDisplay}${targetName}</h4>
                     </div>
                     
                     <p style="margin: 0 0 10px 0; font-weight: bold; color: #555; font-size: 14px;">📍 ドロップ場所:</p>
