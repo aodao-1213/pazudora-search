@@ -41,11 +41,8 @@ function searchMaterial() {
         return;
     }
 
-    // ★ 修正: 「検索結果」という言葉を明記し、その下に検索ワードを表示
-    let html = `<div style="margin-bottom: 25px;">
-                    <div style="font-size: 14px; color: #7f8c8d; font-weight: bold; margin-bottom: 8px;">🔍 検索結果</div>
-                    <h3 style="margin: 0; font-size: 22px; color: #2c3e50; border-left: 5px solid #3498db; padding-left: 10px;">${input}</h3>
-                </div>`;
+    // ★ 修正: 検索ワードの表示を削除し、「🔍 検索結果」のみを見出しとして表示
+    let html = `<h3 style="margin-top: 0; margin-bottom: 25px; font-size: 18px; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 8px;">🔍 検索結果</h3>`;
 
     if (dungeonHits.length > 0) {
         html += `<div style="margin-bottom: 30px;">
