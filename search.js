@@ -17,12 +17,10 @@ function searchMaterial() {
     let foundMaterialId = "";
 
     dungeonData.forEach(arena => {
-        // 1. ダンジョン名・シリーズ名に一致するかチェック
         if (arena.name.includes(input) || arena.series.includes(input)) {
             dungeonHits.push(arena);
         }
 
-        // 2. 素材名に一致するかチェック
         arena.allRewards.forEach(reward => {
             if (reward.name.includes(input)) {
                 if (reward.id && !foundMaterialId) foundMaterialId = reward.id;
@@ -43,12 +41,12 @@ function searchMaterial() {
         return;
     }
 
-    // ★ 修正: 「の検索結果」を外し、検索ワード自体を「項目名」としてデザイン
-    let html = `<h3 style="margin-top: 0; margin-bottom: 25px; font-size: 22px; color: #2c3e50; border-left: 5px solid #3498db; padding-left: 10px;">${input}</h3>`;
+    // ★ 修正: 「検索結果」という言葉を明記し、その下に検索ワードを表示
+    let html = `<div style="margin-bottom: 25px;">
+                    <div style="font-size: 14px; color: #7f8c8d; font-weight: bold; margin-bottom: 8px;">🔍 検索結果</div>
+                    <h3 style="margin: 0; font-size: 22px; color: #2c3e50; border-left: 5px solid #3498db; padding-left: 10px;">${input}</h3>
+                </div>`;
 
-    // ==========================================
-    // 🏰 ダンジョン検索結果の表示（罫線区切り）
-    // ==========================================
     if (dungeonHits.length > 0) {
         html += `<div style="margin-bottom: 30px;">
                     <h4 style="color: #2c3e50; border-bottom: 2px solid #bdc3c7; padding-bottom: 8px; margin-top: 0; margin-bottom: 15px; font-size: 16px;">🏰 ダンジョン</h4>
@@ -65,9 +63,6 @@ function searchMaterial() {
         html += `</ul></div>`;
     }
 
-    // ==========================================
-    // 💎 素材検索結果の表示（罫線区切り）
-    // ==========================================
     if (materialHits.length > 0) {
         const matchNames = [...new Set(materialHits.map(r => r.exactName))];
         const targetName = matchNames.length === 1 ? matchNames[0] : input;
