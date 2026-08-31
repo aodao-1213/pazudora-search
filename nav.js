@@ -38,12 +38,12 @@ function showScreen(screenName) {
 function jumpToDungeon(dungeonName) {
     showScreen('arena');
     
-    // ★修正: スマホの画面切り替えラグを考慮し、ジャンプまでの待機時間を少し長くする
     setTimeout(() => {
         const safeId = encodeURIComponent(dungeonName);
         const target = document.getElementById(`dungeon-${safeId}`);
         if (target) {
-            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // ★ 修正: block: 'start' を 'center' に変更して画面中央にスクロールさせる
+            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
             
             target.classList.remove('flash-highlight');
             setTimeout(() => {
