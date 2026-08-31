@@ -37,7 +37,7 @@
     background: #fff;
     border-radius: 8px;
     border: 1px solid #bdc3c7;
-    overflow: hidden; /* 角丸からはみ出ないように */
+    overflow: hidden; 
 }
 .series-group h3 {
     background-color: #34495e;
@@ -47,12 +47,10 @@
     font-size: 20px; 
     font-weight: bold;
 }
-/* ★中枠の背景色を消してスッキリ */
 .series-group .item {
     padding: 15px;
     background: #fff; 
 }
-/* ★小枠（カテゴリ）の枠線と背景を消去 */
 .drop-category {
     margin-top: 12px;
     padding-top: 8px;
@@ -69,7 +67,6 @@
     flex-wrap: wrap; 
     gap: 12px;
 }
-/* ★極小枠（グループ）の枠線と背景を消去し、余白を削る */
 .drop-group {
     display: inline-flex;
     flex-wrap: wrap; 
@@ -81,7 +78,9 @@
     font-weight: bold;
     color: #2c3e50;
     margin-left: 2px;
-    white-space: nowrap;
+    line-height: 1.5; /* ★追加: 複数行になった時の行間 */
+    white-space: normal; /* ★修正: nowrapを解除して改行を許可 */
+    word-break: keep-all; /* ★追加: 単語の途中で不自然に改行されないようにする */
 }
 .material-badge {
     position: relative;
@@ -150,13 +149,12 @@
     opacity: 1;
 }
 
-/* ★スマホ向け：左右の余白を極限まで削って表示スペースを広げる */
 @media (max-width: 600px) {
     .item-title {
         gap: 4px;
     }
     .series-group .item {
-        padding: 12px 6px; /* 左右の余白を15px→6pxに大幅圧縮 */
+        padding: 12px 6px;
     }
     .dungeon-name {
         font-size: 15px;

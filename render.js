@@ -153,7 +153,6 @@ function displayArenaList() {
                         
                         group.items.forEach(itemName => {
                             const safeJSName = itemName.replace(/'/g, "\\'");
-                            // ★修正: globalIdMap に番号があればそれを使い、無ければ名前を使う
                             const imageFileName = globalIdMap[itemName] ? globalIdMap[itemName] : encodeURIComponent(itemName);
                             
                             html += `<div class="material-badge" tabindex="0" onclick="handleBadgeClick(event, '${safeJSName}')">
@@ -167,6 +166,10 @@ function displayArenaList() {
                         if (group.note) {
                             let displayNote = group.note;
                             if (!displayNote.match(/^[×xX～~]/)) displayNote = `(${displayNote})`;
+                            
+                            // ★ 修正: 「※」を見つけたら改行に置換（先頭の「(」の直後は改行しない）
+                            displayNote = displayNote.replace(/※/g, '<br>※').replace(/\(<br>※/g, '(※').replace(/^<br>※/g, '※');
+                            
                             html += `<div class="group-note">${displayNote}</div>`;
                         }
                         
@@ -227,7 +230,6 @@ function displayNoteExample() {
                 
                 group.items.forEach(itemName => {
                     const safeJSName = itemName.replace(/'/g, "\\'");
-                    // ★修正: 例の画面でも図鑑番号を使う
                     const imageFileName = globalIdMap[itemName] ? globalIdMap[itemName] : encodeURIComponent(itemName);
                     
                     html += `<div class="material-badge" tabindex="0" onclick="handleBadgeClick(event, '${safeJSName}')">
@@ -241,6 +243,10 @@ function displayNoteExample() {
                 if (group.note) {
                     let displayNote = group.note;
                     if (!displayNote.match(/^[×xX～~]/)) displayNote = `(${displayNote})`;
+                    
+                    // ★ 修正: 注意書きサンプル部分も同様に改行処理を追加
+                    displayNote = displayNote.replace(/※/g, '<br>※').replace(/\(<br>※/g, '(※').replace(/^<br>※/g, '※');
+                    
                     html += `<div class="group-note">${displayNote}</div>`;
                 }
                 
