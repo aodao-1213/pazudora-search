@@ -43,8 +43,8 @@ function searchMaterial() {
         return;
     }
 
-    // ★ 検索結果の言葉を追加
-    let html = `<h3 style="margin-top: 0; margin-bottom: 25px; font-size: 18px; color: #2c3e50;">「${input}」の検索結果</h3>`;
+    // ★ 修正: 「の検索結果」を外し、検索ワード自体を「項目名」としてデザイン
+    let html = `<h3 style="margin-top: 0; margin-bottom: 25px; font-size: 22px; color: #2c3e50; border-left: 5px solid #3498db; padding-left: 10px;">${input}</h3>`;
 
     // ==========================================
     // 🏰 ダンジョン検索結果の表示（罫線区切り）
