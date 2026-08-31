@@ -35,6 +35,20 @@ function showScreen(screenName) {
     window.location.hash = screenName;
 }
 
+// ★ 追加: 目次からシリーズの大枠にジャンプする機能
+function jumpToSeries(seriesId) {
+    const target = document.getElementById(`series-${seriesId}`);
+    if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        
+        // 目次が開いている場合、見やすさのために閉じる
+        const tocDetails = document.querySelector('.toc-details');
+        if (tocDetails) {
+            tocDetails.removeAttribute('open');
+        }
+    }
+}
+
 function jumpToDungeon(dungeonName) {
     showScreen('arena');
     
@@ -42,7 +56,6 @@ function jumpToDungeon(dungeonName) {
         const safeId = encodeURIComponent(dungeonName);
         const target = document.getElementById(`dungeon-${safeId}`);
         if (target) {
-            // ★ 修正: block: 'start' を 'center' に変更して画面中央にスクロールさせる
             target.scrollIntoView({ behavior: 'smooth', block: 'center' });
             
             target.classList.remove('flash-highlight');

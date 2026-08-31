@@ -94,9 +94,27 @@ function displayArenaList() {
         groupedData[d.series].push(d);
     });
 
-    let html = "";
+    // ★ 修正: 折り畳み式の目次を生成する
+    let html = `
+        <details class="toc-details">
+            <summary class="toc-summary">📑 シリーズ目次（タップで開閉）</summary>
+            <div class="toc-content">
+                <ul class="toc-list">
+    `;
+    for (const seriesName of Object.keys(groupedData)) {
+        const safeSeriesId = encodeURIComponent(seriesName);
+        html += `<li><a href="javascript:void(0);" onclick="jumpToSeries('${safeSeriesId}')">${seriesName}</a></li>`;
+    }
+    html += `
+                </ul>
+            </div>
+        </details>
+    `;
+
     for (const [seriesName, dungeons] of Object.entries(groupedData)) {
-        html += `<div class="series-group"><h3>${seriesName}</h3>`;
+        const safeSeriesId = encodeURIComponent(seriesName);
+        // ★ 修正: シリーズごとのブロックに jumpToSeries 用の ID を付与
+        html += `<div class="series-group" id="series-${safeSeriesId}"><h3>${seriesName}</h3>`;
         
         dungeons.forEach(arena => {
             const safeId = encodeURIComponent(arena.name);
@@ -167,7 +185,6 @@ function displayArenaList() {
                             let displayNote = group.note;
                             if (!displayNote.match(/^[×xX～~]/)) displayNote = `(${displayNote})`;
                             
-                            // ★ 修正: 「※」を見つけたら改行に置換（先頭の「(」の直後は改行しない）
                             displayNote = displayNote.replace(/※/g, '<br>※').replace(/\(<br>※/g, '(※').replace(/^<br>※/g, '※');
                             
                             html += `<div class="group-note">${displayNote}</div>`;
@@ -195,15 +212,9 @@ function displayArenaList() {
                 }
             });
             
-            // ... (これより上のドロップ処理部分は変更なし) ...
-
             if (arena.warning) {
                 let warningHtml = arena.warning.replace(/\n/g, '<br>');
-                
-                // ★追加: 文の途中の「※1」「※2」などの直前に自動で改行を入れる
-                // (カッコの中にある場合や、文の先頭にある場合は改行しない)
                 warningHtml = warningHtml.replace(/([^\n(（>])\s*(※\d*)/g, '$1<br>$2');
-                
                 html += `<div class="dungeon-warning">${warningHtml}</div>`;
             }
 
@@ -213,8 +224,6 @@ function displayArenaList() {
     }
     listDiv.innerHTML = html;
 }
-
-// ... (この下の displayNoteExample は変更なし) ...
 
 function displayNoteExample() {
     const container = document.getElementById('noteExampleDrop');
@@ -253,7 +262,6 @@ function displayNoteExample() {
                     let displayNote = group.note;
                     if (!displayNote.match(/^[×xX～~]/)) displayNote = `(${displayNote})`;
                     
-                    // ★ 修正: 注意書きサンプル部分も同様に改行処理を追加
                     displayNote = displayNote.replace(/※/g, '<br>※').replace(/\(<br>※/g, '(※').replace(/^<br>※/g, '※');
                     
                     html += `<div class="group-note">${displayNote}</div>`;
