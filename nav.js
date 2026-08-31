@@ -1,7 +1,6 @@
 function updateScreenFromHash() {
     const hash = window.location.hash.replace('#', '') || 'top';
     
-    // すべての画面を一度隠す
     document.getElementById('sectionTop').classList.add('hidden');
     document.getElementById('sectionSearch').classList.add('hidden');
     document.getElementById('sectionArena').classList.add('hidden');
@@ -18,7 +17,6 @@ function updateScreenFromHash() {
     const notesSection = document.getElementById('sectionNotes');
     if (notesSection) notesSection.classList.add('hidden');
     
-    // 指定されたハッシュの画面だけを表示
     if (hash === 'top') document.getElementById('sectionTop').classList.remove('hidden');
     else if (hash === 'search') document.getElementById('sectionSearch').classList.remove('hidden');
     else if (hash === 'arena') document.getElementById('sectionArena').classList.remove('hidden');
@@ -39,6 +37,8 @@ function showScreen(screenName) {
 
 function jumpToDungeon(dungeonName) {
     showScreen('arena');
+    
+    // ★修正: スマホの画面切り替えラグを考慮し、ジャンプまでの待機時間を少し長くする
     setTimeout(() => {
         const safeId = encodeURIComponent(dungeonName);
         const target = document.getElementById(`dungeon-${safeId}`);
@@ -54,7 +54,7 @@ function jumpToDungeon(dungeonName) {
                 target.classList.remove('flash-highlight');
             }, 4000);
         }
-    }, 100);
+    }, 200);
 }
 
 function jumpToSearch(itemName) {

@@ -41,7 +41,6 @@ function searchMaterial() {
 
     let idDisplay = foundId ? `No.${foundId} ` : "";
     
-    // ★ 修正: 図鑑番号（foundId）があればそれを画像名に、無ければ名前を使う
     const imageFileName = foundId ? foundId : (typeof globalIdMap !== 'undefined' && globalIdMap[targetName] ? globalIdMap[targetName] : encodeURIComponent(targetName));
 
     let html = `<div class="search-result-header">
@@ -58,11 +57,13 @@ function searchMaterial() {
     results.forEach(res => {
         const safeDungeon = res.dungeon.replace(/'/g, "\\'");
         let noteHtml = res.note ? ` <span class="search-note">${res.note}</span>` : '';
-        html += `<li>
-                    <span class="dungeon-link" onclick="jumpToDungeon('${safeDungeon}')">
+        
+        // ★修正: スマホでも確実にタップできるように <a> タグに戻し、下線を明示的に追加
+        html += `<li style="margin-bottom: 8px;">
+                    <a href="javascript:void(0);" class="dungeon-link" onclick="jumpToDungeon('${safeDungeon}')" style="text-decoration: underline; color: #3498db; font-weight: bold; cursor: pointer;">
                         ${res.series} / ${res.dungeon}
-                    </span> 
-                    <span class="search-category">[${res.category}]</span>${noteHtml}
+                    </a> 
+                    <span class="search-category" style="color: #27ae60; font-size: 13px; margin-left: 5px;">[${res.category}]</span>${noteHtml}
                  </li>`;
     });
 
