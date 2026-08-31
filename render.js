@@ -195,8 +195,15 @@ function displayArenaList() {
                 }
             });
             
+            // ... (これより上のドロップ処理部分は変更なし) ...
+
             if (arena.warning) {
-                const warningHtml = arena.warning.replace(/\n/g, '<br>');
+                let warningHtml = arena.warning.replace(/\n/g, '<br>');
+                
+                // ★追加: 文の途中の「※1」「※2」などの直前に自動で改行を入れる
+                // (カッコの中にある場合や、文の先頭にある場合は改行しない)
+                warningHtml = warningHtml.replace(/([^\n(（>])\s*(※\d*)/g, '$1<br>$2');
+                
                 html += `<div class="dungeon-warning">${warningHtml}</div>`;
             }
 
@@ -206,6 +213,8 @@ function displayArenaList() {
     }
     listDiv.innerHTML = html;
 }
+
+// ... (この下の displayNoteExample は変更なし) ...
 
 function displayNoteExample() {
     const container = document.getElementById('noteExampleDrop');
