@@ -37,7 +37,7 @@
     background: #fff;
     border-radius: 8px;
     border: 1px solid #bdc3c7;
-    overflow: hidden; 
+    /* ★ 修正: overflow: hidden; を削除して吹き出しが切れないようにする */
 }
 .series-group h3 {
     background-color: #34495e;
@@ -46,6 +46,7 @@
     padding: 12px 15px;
     font-size: 20px; 
     font-weight: bold;
+    border-radius: 7px 7px 0 0; /* ★ 修正: 代わりにタイトルブロックの上側だけを角丸にする */
 }
 .series-group .item {
     padding: 15px;
@@ -78,9 +79,9 @@
     font-weight: bold;
     color: #2c3e50;
     margin-left: 2px;
-    line-height: 1.5; /* ★追加: 複数行になった時の行間 */
-    white-space: normal; /* ★修正: nowrapを解除して改行を許可 */
-    word-break: keep-all; /* ★追加: 単語の途中で不自然に改行されないようにする */
+    line-height: 1.5;
+    white-space: normal;
+    word-break: keep-all;
 }
 .material-badge {
     position: relative;
