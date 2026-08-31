@@ -22,8 +22,9 @@
         <h1>パズドラ 検索＆報酬ツール</h1>
         <p style="text-align: center; margin-bottom: 30px;">利用したい機能を選んでください</p>
         
-        <div class="top-menu">
-            <button class="top-button" onclick="showScreen('search')">🔍 素材検索</button>
+       <div class="top-menu">
+            <!-- ★ 修正: ボタンのテキストを変更 -->
+            <button class="top-button" onclick="showScreen('search')">🔍 素材・ダンジョン検索</button>
             <button class="top-button" onclick="showScreen('arena')">🎁 報酬リスト</button>
         </div>
 
@@ -123,9 +124,10 @@
 
     <div id="sectionSearch" class="hidden">
         <button class="back-button" onclick="showScreen('top')">← トップに戻る</button>
-        <h2>素材からドロップ場所を検索</h2>
+        <!-- ★ 修正: 見出しとプレースホルダー（例）の文字を変更 -->
+        <h2>素材・ダンジョンから検索</h2>
         <div class="search-input-wrapper">
-            <input type="text" id="searchInput" placeholder="例：希石、宝玉、たまドラ など" autocomplete="off">
+            <input type="text" id="searchInput" placeholder="例：希石、たまドラ、億兆 など" autocomplete="off">
             <div id="searchHistoryArea" class="history-dropdown"></div>
         </div>
         <button class="action-button" onclick="searchMaterial()">検索する</button>
