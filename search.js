@@ -12,26 +12,33 @@ function searchMaterial() {
 
     saveSearchHistory(input);
 
+    // ★追加: 検索ワードと「完全に一致する素材」が存在するかを事前チェック
+    let hasExactMaterialMatch = false;
+    dungeonData.forEach(arena => {
+        arena.allRewards.forEach(reward => {
+            if (reward.name === input) {
+                hasExactMaterialMatch = true;
+            }
+        });
+    });
+
     const dungeonHits = [];
     const materialHits = [];
     let foundMaterialId = "";
-    let exactMatchId = ""; // ★ 追加: 完全一致した素材のIDを記録する
 
     dungeonData.forEach(arena => {
+        // ダンジョン名の検索
         if (arena.name.includes(input) || arena.series.includes(input)) {
             dungeonHits.push(arena);
         }
 
+        // 素材名の検索
         arena.allRewards.forEach(reward => {
-            if (reward.name.includes(input)) {
-                // ★ 修正: 検索ワードと完全に同じ名前なら、そのIDを最優先でキープする
-                if (reward.name === input && reward.id) {
-                    exactMatchId = reward.id;
-                }
-                // それ以外（部分一致）のIDも予備としてキープしておく
-                if (reward.id && !foundMaterialId) {
-                    foundMaterialId = reward.id;
-                }
+            // ★修正: 完全一致が存在する場合は完全一致のみ、無ければ部分一致を許容する
+            const isMatch = hasExactMaterialMatch ? (reward.name === input) : reward.name.includes(input);
+            
+            if (isMatch) {
+                if (reward.id && !foundMaterialId) foundMaterialId = reward.id;
                 
                 materialHits.push({
                     series: arena.series,
@@ -69,20 +76,10 @@ function searchMaterial() {
 
     if (materialHits.length > 0) {
         const matchNames = [...new Set(materialHits.map(r => r.exactName))];
-        
-        // ★ 修正: 完全一致する名前があれば、それを代表の名前（ターゲット名）にする
-        let targetName = input;
-        if (matchNames.includes(input)) {
-            targetName = input;
-        } else if (matchNames.length === 1) {
-            targetName = matchNames[0];
-        }
+        const targetName = matchNames.length === 1 ? matchNames[0] : input;
 
-        // ★ 修正: 完全一致のIDがあればそれを使い、無ければ予備のIDを使う
-        const finalId = exactMatchId || foundMaterialId;
-        
-        let idDisplay = finalId ? `No.${finalId} ` : "";
-        const imageFileName = finalId ? finalId : (typeof globalIdMap !== 'undefined' && globalIdMap[targetName] ? globalIdMap[targetName] : encodeURIComponent(targetName));
+        let idDisplay = foundMaterialId ? `No.${foundMaterialId} ` : "";
+        const imageFileName = foundMaterialId ? foundMaterialId : (typeof globalIdMap !== 'undefined' && globalIdMap[targetName] ? globalIdMap[targetName] : encodeURIComponent(targetName));
 
         html += `<div>
                     <h4 style="color: #2c3e50; border-bottom: 2px solid #bdc3c7; padding-bottom: 8px; margin-top: 0; margin-bottom: 15px; font-size: 16px;">💎 ドロップ素材</h4>
@@ -103,7 +100,6 @@ function searchMaterial() {
             const safeDungeon = res.dungeon.replace(/'/g, "\\'");
             let noteHtml = res.note ? ` <span class="search-note" style="color: #e67e22; font-size: 12px; margin-left: 5px; font-weight: bold;">${res.note}</span>` : '';
             
-            // ★ 追加: 複数の名前がヒットしている場合（部分一致含む）、どの素材か分かるように補足する
             let extraNameHtml = "";
             if (matchNames.length > 1) {
                 extraNameHtml = ` <span style="font-size: 12px; color: #7f8c8d; margin-left: 5px;">(${res.exactName})</span>`;
