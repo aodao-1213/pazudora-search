@@ -1,7 +1,7 @@
 let dungeonData = [];
 let announcementData = []; 
 let globalIdMap = {}; 
-let maintenanceData = []; // ★追加: メンテナンス期間のデータを保存
+let maintenanceData = []; 
 
 function formatExcelDate(dateVal) {
     if (!dateVal) return '';
@@ -19,16 +19,16 @@ function formatExcelDate(dateVal) {
 
 async function loadExcel() {
     try {
-        const response = await fetch('dangeon.xlsx');
+        // ★修正: ブラウザのキャッシュ（古い記憶）を無視して常に最新のエクセルを読み込むようにする
+        const response = await fetch('dangeon.xlsx?t=' + new Date().getTime());
         const arrayBuffer = await response.arrayBuffer();
         
         const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+        maintenanceData = []; // 一旦リセット
         
-        // 1番目のシート (ダンジョンデータ)
         const sheet1 = workbook.Sheets[workbook.SheetNames[0]];
         const jsonData = XLSX.utils.sheet_to_json(sheet1);
         
-        // 2番目のシート (図鑑番号)
         let idMap = {};
         if (workbook.SheetNames.length > 1) {
             const sheet2 = workbook.Sheets[workbook.SheetNames[1]];
@@ -45,7 +45,6 @@ async function loadExcel() {
         }
         globalIdMap = idMap;
 
-        // 3番目のシート (お知らせ)
         announcementData = [];
         if (workbook.SheetNames.length > 2) {
             const sheet3 = workbook.Sheets[workbook.SheetNames[2]];
@@ -63,21 +62,20 @@ async function loadExcel() {
             announcementData.reverse(); 
         }
 
-        // ★追加: 4番目のシート (メンテナンス設定)
         if (workbook.SheetNames.length > 3) {
             const sheet4 = workbook.Sheets[workbook.SheetNames[3]];
             const mainteData = XLSX.utils.sheet_to_json(sheet4, { raw: false, header: "A", defval: "" });
             
             for (let i = 1; i < mainteData.length; i++) { 
                 const row = mainteData[i];
-                if (row.B && row.C) {
-                    const startStr = String(row.B).trim();
-                    const endStr = String(row.C).trim();
-                    const startDate = new Date(startStr.replace(/-/g, '/')).getTime();
-                    const endDate = new Date(endStr.replace(/-/g, '/')).getTime();
+                if (row.B || row.C) {
+                    const startStr = String(row.B || "未定").trim();
+                    const endStr = String(row.C || "未定").trim();
+                    
+                    const startDate = startStr === "未定" ? 0 : new Date(startStr.replace(/-/g, '/')).getTime();
+                    const endDate = endStr === "未定" ? 9999999999999 : new Date(endStr.replace(/-/g, '/')).getTime();
                     
                     if (!isNaN(startDate) && !isNaN(endDate)) {
-                        // ★修正: 画面表示用の文字列（startStr, endStr）も一緒に保存する
                         maintenanceData.push({ 
                             start: startDate, 
                             end: endDate,
