@@ -50,16 +50,43 @@
         </div>
     </div>
 
-    <!-- ★ 追加: 使い方画面（デザインのみのプレースホルダー） -->
+    <!-- ★ 追加・修正: 使い方画面 -->
     <div id="sectionHowTo" class="hidden">
         <button class="back-button" onclick="showScreen('top')">← トップに戻る</button>
         <h2>📖 使い方</h2>
-        <div class="result-box manual-box">
-            <h3>素材検索の使い方</h3>
-            <p>ここに素材検索の詳しい使い方の説明文が入ります。</p>
-            <hr>
-            <h3>報酬リストの見方</h3>
-            <p>ここに報酬リストの使い方の説明文が入ります。</p>
+        
+        <div class="result-box note-box">
+            <h3 class="note-heading">1. 素材・ダンジョンから検索する</h3>
+            <p>トップ画面の「素材・ダンジョン検索」から、探したいアイテム名やダンジョン名を入力して検索できます。</p>
+            
+            <ul class="note-list">
+                <li><strong>① キーワードを入力</strong><br>「希石」や「たまドラ」、「億兆」などの一部の文字を入力し、「検索する」ボタンを押します（Enterキーでも検索できます）。過去の検索履歴からも選べます。</li>
+                <li><strong>② 検索結果の見方</strong><br>結果は「🏰 ダンジョン」と「💎 ドロップ素材」に分かれて表示されます。</li>
+                <li><strong>③ ダンジョンへのジャンプ</strong><br>表示されたダンジョン名（青字の下線）をタップすると、報酬リストの該当箇所へ一瞬でジャンプし、画面中央に大きくハイライト表示されます。</li>
+            </ul>
+        </div>
+
+        <div class="result-box note-box">
+            <h3 class="note-heading">2. 報酬リストを活用する</h3>
+            <p>トップ画面の「報酬リスト」から、すべての闘技場シリーズのドロップ報酬を一覧で確認できます。</p>
+            
+            <ul class="note-list">
+                <li><strong>① ダンジョン目次を使う</strong><br>リストの最上部にある「📑 ダンジョン目次」をタップすると開閉します。見たいシリーズ名をタップすれば、スクロールの手間なく一発で移動できます。</li>
+                <li><strong>② アイコン（バッジ）の機能</strong><br>ドロップする素材のアイコンをタップ（または長押し）すると、その素材がどこで落ちるのかを「素材・ダンジョン検索」で即座に調べられます。</li>
+                <li><strong>③ アイコンに触れて詳細を確認</strong><br>パソコンではマウスを乗せると「素材名」がポップアップ表示されます。スマホではタップすると名前が確認できます。</li>
+                <li><strong>④ 素材の交換目安を見る</strong><br>ダンジョンの下部にある「🔄 素材の交換目安を見る」をタップすると、部位破壊素材などの詳しい交換レートを確認できます。</li>
+            </ul>
+        </div>
+
+        <div class="result-box note-box">
+            <h3 class="note-heading">3. ダンジョン情報の見方</h3>
+            <div class="dark-example-box">
+                <p style="margin-top: 0; color: #f1c40f !important; font-weight: bold;">【表示されるアイコンや条件の例】</p>
+                <p>・<strong>スタミナ / バトル数</strong>：挑戦に必要なスタミナと階層です。</p>
+                <p>・<strong>陽加護 / 陰加護アイコン</strong>：ダンジョンに付与されている属性補正です。</p>
+                <p>・<strong>【超重力】 / 【超高度】</strong>：ダンジョン特有の制限効果です（文字にカーソルやタップを合わせると詳細な倍率が見られます）。</p>
+                <p style="margin-bottom: 0;">・<strong>ボス・乱入・部位破壊</strong>：ボスの本体やパーツがどこでドロップするかを記載しています。</p>
+            </div>
         </div>
     </div>
 
