@@ -1,6 +1,7 @@
 let dungeonData = [];
 let announcementData = []; 
-let globalIdMap = {}; // ★追加: どこからでも図鑑番号を引っ張り出せるようにする
+let globalIdMap = {}; 
+let maintenanceData = []; // ★追加: メンテナンス期間のデータを保存
 
 function formatExcelDate(dateVal) {
     if (!dateVal) return '';
@@ -23,9 +24,11 @@ async function loadExcel() {
         
         const workbook = XLSX.read(arrayBuffer, { type: 'array' });
         
+        // 1番目のシート (ダンジョンデータ)
         const sheet1 = workbook.Sheets[workbook.SheetNames[0]];
         const jsonData = XLSX.utils.sheet_to_json(sheet1);
         
+        // 2番目のシート (図鑑番号)
         let idMap = {};
         if (workbook.SheetNames.length > 1) {
             const sheet2 = workbook.Sheets[workbook.SheetNames[1]];
@@ -40,9 +43,9 @@ async function loadExcel() {
                 }
             });
         }
-        
-        globalIdMap = idMap; // ★追加: 取得した番号リストを共通変数に入れる
+        globalIdMap = idMap;
 
+        // 3番目のシート (お知らせ)
         announcementData = [];
         if (workbook.SheetNames.length > 2) {
             const sheet3 = workbook.Sheets[workbook.SheetNames[2]];
@@ -58,6 +61,24 @@ async function loadExcel() {
                 }
             });
             announcementData.reverse(); 
+        }
+
+        // ★追加: 4番目のシート (メンテナンス設定)
+        if (workbook.SheetNames.length > 3) {
+            const sheet4 = workbook.Sheets[workbook.SheetNames[3]];
+            // 文字列として日時をそのまま取得する
+            const mainteData = XLSX.utils.sheet_to_json(sheet4, { raw: false, header: "A", defval: "" });
+            
+            for (let i = 1; i < mainteData.length; i++) { // 1行目はヘッダーなので飛ばす
+                const row = mainteData[i];
+                if (row.B && row.C) {
+                    const startDate = new Date(String(row.B).replace(/-/g, '/')).getTime();
+                    const endDate = new Date(String(row.C).replace(/-/g, '/')).getTime();
+                    if (!isNaN(startDate) && !isNaN(endDate)) {
+                        maintenanceData.push({ start: startDate, end: endDate });
+                    }
+                }
+            }
         }
         
         dungeonData = parseExcelData(jsonData, idMap);

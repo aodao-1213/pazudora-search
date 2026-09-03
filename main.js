@@ -1,24 +1,29 @@
-// ==========================================
-// 🛠 管理者用設定
-// ==========================================
-// ★ メンテナンスモードにする場合は false を true に変更する
-const IS_MAINTENANCE = true; 
-
 // ★ 管理者だけがアクセスするための合言葉（好きな文字列に変更可能）
-const ADMIN_PASS = "HK"; 
+const ADMIN_PASS = "aodao"; 
 
 window.onload = async function() {
-    // メンテナンスモードの判定
-    const urlParams = new URLSearchParams(window.location.search);
-    if (IS_MAINTENANCE && urlParams.get('admin') !== ADMIN_PASS) {
-        // 一般ユーザーにはメイン画面を隠し、メンテナンス画面を出す
-        document.querySelector('.container').style.display = 'none';
-        document.getElementById('maintenanceScreen').classList.remove('hidden');
-        return; // Excelの読み込みなど、これ以降の処理を完全にストップ
+    // 最初にExcelデータをすべて読み込む
+    await loadExcel();
+
+    // ★追加: 現在の時刻とExcelのメンテナンス期間を比較
+    const now = new Date().getTime();
+    let isMaintenance = false;
+    for (let m of maintenanceData) {
+        if (now >= m.start && now <= m.end) {
+            isMaintenance = true;
+            break;
+        }
     }
 
-    // 通常の読み込み処理（メンテオフ、または管理者が合言葉で入った場合）
-    await loadExcel();
+    // メンテナンス期間中で、かつ管理者の合言葉が無い場合は画面を切り替えてストップ
+    const urlParams = new URLSearchParams(window.location.search);
+    if (isMaintenance && urlParams.get('admin') !== ADMIN_PASS) {
+        document.querySelector('.container').style.display = 'none';
+        document.getElementById('maintenanceScreen').classList.remove('hidden');
+        return; 
+    }
+
+    // 問題なければ通常の画面を描画する
     if (typeof displayAnnouncements === 'function') displayAnnouncements(); 
     if (typeof displayArenaList === 'function') displayArenaList();
     if (typeof displayNoteExample === 'function') displayNoteExample(); 
