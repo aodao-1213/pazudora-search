@@ -27,8 +27,12 @@ window.onload = async function() {
         
         const periodText = document.getElementById('maintenancePeriodText');
         if (periodText && activeMainte) {
-            // ★ 修正: <br> を外し、1行で表示するように変更
-            periodText.innerHTML = `${activeMainte.startStr} 〜 ${activeMainte.endStr}`;
+            // ★ 修正: 両方が「未定」の場合は専用のテキストを表示する
+            if (activeMainte.startStr === "未定" && activeMainte.endStr === "未定") {
+                periodText.innerHTML = "終了時期は未定です。";
+            } else {
+                periodText.innerHTML = `${activeMainte.startStr} 〜 ${activeMainte.endStr}`;
+            }
         }
         
         document.getElementById('maintenanceScreen').classList.remove('hidden');
