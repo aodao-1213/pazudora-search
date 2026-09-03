@@ -66,16 +66,24 @@ async function loadExcel() {
         // ★追加: 4番目のシート (メンテナンス設定)
         if (workbook.SheetNames.length > 3) {
             const sheet4 = workbook.Sheets[workbook.SheetNames[3]];
-            // 文字列として日時をそのまま取得する
             const mainteData = XLSX.utils.sheet_to_json(sheet4, { raw: false, header: "A", defval: "" });
             
-            for (let i = 1; i < mainteData.length; i++) { // 1行目はヘッダーなので飛ばす
+            for (let i = 1; i < mainteData.length; i++) { 
                 const row = mainteData[i];
                 if (row.B && row.C) {
-                    const startDate = new Date(String(row.B).replace(/-/g, '/')).getTime();
-                    const endDate = new Date(String(row.C).replace(/-/g, '/')).getTime();
+                    const startStr = String(row.B).trim();
+                    const endStr = String(row.C).trim();
+                    const startDate = new Date(startStr.replace(/-/g, '/')).getTime();
+                    const endDate = new Date(endStr.replace(/-/g, '/')).getTime();
+                    
                     if (!isNaN(startDate) && !isNaN(endDate)) {
-                        maintenanceData.push({ start: startDate, end: endDate });
+                        // ★修正: 画面表示用の文字列（startStr, endStr）も一緒に保存する
+                        maintenanceData.push({ 
+                            start: startDate, 
+                            end: endDate,
+                            startStr: startStr,
+                            endStr: endStr
+                        });
                     }
                 }
             }

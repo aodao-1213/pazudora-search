@@ -1,24 +1,41 @@
-// ★ 管理者だけがアクセスするための合言葉（好きな文字列に変更可能）
+// ★ 管理者だけがアクセスするための合言葉
 const ADMIN_PASS = "aodao"; 
 
 window.onload = async function() {
-    // 最初にExcelデータをすべて読み込む
     await loadExcel();
 
-    // ★追加: 現在の時刻とExcelのメンテナンス期間を比較
     const now = new Date().getTime();
     let isMaintenance = false;
+    let activeMainte = null; // 現在該当しているメンテナンス設定を保持
+
+    // 現在の時刻がメンテナンス期間内かチェック
     for (let m of maintenanceData) {
         if (now >= m.start && now <= m.end) {
             isMaintenance = true;
+            activeMainte = m;
             break;
         }
     }
 
-    // メンテナンス期間中で、かつ管理者の合言葉が無い場合は画面を切り替えてストップ
     const urlParams = new URLSearchParams(window.location.search);
+    
+    // ★追加: テスト機能。URLの末尾が ?test=1 なら強制的にメンテナンス画面を表示する
+    if (urlParams.get('test') === '1') {
+        isMaintenance = true;
+        // Excelに予定が1つでもあればそれを表示し、無ければダミーテキストを表示
+        activeMainte = maintenanceData[0] || { startStr: 'テスト開始日時', endStr: 'テスト終了日時' };
+    }
+
+    // メンテナンス状態 ＆ 管理者パスワードがない場合
     if (isMaintenance && urlParams.get('admin') !== ADMIN_PASS) {
         document.querySelector('.container').style.display = 'none';
+        
+        // ★追加: メンテナンス画面の「未定」の文字を、Excelから取った日時に書き換える
+        const periodText = document.getElementById('maintenancePeriodText');
+        if (periodText && activeMainte) {
+            periodText.innerHTML = `${activeMainte.startStr} 〜 <br>${activeMainte.endStr}`;
+        }
+        
         document.getElementById('maintenanceScreen').classList.remove('hidden');
         return; 
     }
