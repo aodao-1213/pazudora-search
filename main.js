@@ -1,11 +1,29 @@
+// ==========================================
+// 🛠 管理者用設定
+// ==========================================
+// ★ メンテナンスモードにする場合は false を true に変更する
+const IS_MAINTENANCE = true; 
+
+// ★ 管理者だけがアクセスするための合言葉（好きな文字列に変更可能）
+const ADMIN_PASS = "HK"; 
+
 window.onload = async function() {
+    // メンテナンスモードの判定
+    const urlParams = new URLSearchParams(window.location.search);
+    if (IS_MAINTENANCE && urlParams.get('admin') !== ADMIN_PASS) {
+        // 一般ユーザーにはメイン画面を隠し、メンテナンス画面を出す
+        document.querySelector('.container').style.display = 'none';
+        document.getElementById('maintenanceScreen').classList.remove('hidden');
+        return; // Excelの読み込みなど、これ以降の処理を完全にストップ
+    }
+
+    // 通常の読み込み処理（メンテオフ、または管理者が合言葉で入った場合）
     await loadExcel();
     if (typeof displayAnnouncements === 'function') displayAnnouncements(); 
     if (typeof displayArenaList === 'function') displayArenaList();
-    if (typeof displayNoteExample === 'function') displayNoteExample(); // ★追加
+    if (typeof displayNoteExample === 'function') displayNoteExample(); 
 };
 
-// ...（以下はそのまま）...
 document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
@@ -38,21 +56,17 @@ document.addEventListener('DOMContentLoaded', () => {
         updateSearchHistoryUI();
     }
 
-    // ★ 修正: 検索ボックスのフォーカスを奪わないように条件を厳格化
     function dismissTooltips(event) {
         const isBadge = event.target.closest('.material-badge');
         const isCondition = event.target.closest('.condition-tooltip-container');
         
-        // アイコン以外の場所をタップした場合
         if (!isBadge && !isCondition) {
             const activeEl = document.activeElement;
             
-            // フォーカスが当たっているのが「アイコン」や「条件テキスト」の場合のみフォーカスを外す
             if (activeEl && (activeEl.classList.contains('material-badge') || activeEl.classList.contains('condition-tooltip-container'))) {
                 activeEl.blur();
             }
 
-            // ダブルタップ判定用のフラグもすべてリセットする
             document.querySelectorAll('.material-badge').forEach(badge => {
                 badge.dataset.tapped = "false";
             });
