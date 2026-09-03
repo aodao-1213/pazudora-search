@@ -94,10 +94,10 @@ function displayArenaList() {
         groupedData[d.series].push(d);
     });
 
-    // ★ 修正: 折り畳み式の目次を生成する
+    // ★ 修正: 目次のタイトルを「ダンジョン目次」に変更
     let html = `
         <details class="toc-details">
-            <summary class="toc-summary">📑 シリーズ目次（タップで開閉）</summary>
+            <summary class="toc-summary">📑 ダンジョン目次</summary>
             <div class="toc-content">
                 <ul class="toc-list">
     `;
@@ -113,7 +113,6 @@ function displayArenaList() {
 
     for (const [seriesName, dungeons] of Object.entries(groupedData)) {
         const safeSeriesId = encodeURIComponent(seriesName);
-        // ★ 修正: シリーズごとのブロックに jumpToSeries 用の ID を付与
         html += `<div class="series-group" id="series-${safeSeriesId}"><h3>${seriesName}</h3>`;
         
         dungeons.forEach(arena => {
@@ -184,33 +183,32 @@ function displayArenaList() {
                         if (group.note) {
                             let displayNote = group.note;
                             if (!displayNote.match(/^[×xX～~]/)) displayNote = `(${displayNote})`;
-                            
                             displayNote = displayNote.replace(/※/g, '<br>※').replace(/\(<br>※/g, '(※').replace(/^<br>※/g, '※');
-                            
                             html += `<div class="group-note">${displayNote}</div>`;
                         }
                         
                         html += `</div>`;
                     });
                     
-                    html += `</div>`; 
-                    
-                    if ((dropCategory.category === 'ボス・部位破壊' || dropCategory.category === 'ボス・乱入・部位破壊') && arena.exchangeRate) {
-                        const rates = arena.exchangeRate.split(',');
-                        html += `<details class="exchange-details">
-                                    <summary class="exchange-summary">🔄 部位破壊素材の交換目安を見る</summary>
-                                    <div class="exchange-content">
-                                        <ul class="exchange-list">`;
-                        rates.forEach(r => {
-                            if (r.trim()) html += `<li>${r.trim()}</li>`;
-                        });
-                        html += `       </ul>
-                                    </div>
-                                 </details>`;
-                    }
-                    html += `</div>`; 
+                    html += `</div></div>`; 
                 }
             });
+            
+            // ★ 修正: 部位破壊だけでなく、交換レートが存在するダンジョン全てに対応
+            // ドロップカテゴリーの枠外（ダンジョンの最後）に独立して表示させ、文言も「素材の交換目安」に変更しました。
+            if (arena.exchangeRate) {
+                const rates = arena.exchangeRate.split(',');
+                html += `<details class="exchange-details" style="margin-top: 15px;">
+                            <summary class="exchange-summary">🔄 素材の交換目安を見る</summary>
+                            <div class="exchange-content">
+                                <ul class="exchange-list">`;
+                rates.forEach(r => {
+                    if (r.trim()) html += `<li>${r.trim()}</li>`;
+                });
+                html += `       </ul>
+                            </div>
+                         </details>`;
+            }
             
             if (arena.warning) {
                 let warningHtml = arena.warning.replace(/\n/g, '<br>');
@@ -261,9 +259,7 @@ function displayNoteExample() {
                 if (group.note) {
                     let displayNote = group.note;
                     if (!displayNote.match(/^[×xX～~]/)) displayNote = `(${displayNote})`;
-                    
                     displayNote = displayNote.replace(/※/g, '<br>※').replace(/\(<br>※/g, '(※').replace(/^<br>※/g, '※');
-                    
                     html += `<div class="group-note">${displayNote}</div>`;
                 }
                 
