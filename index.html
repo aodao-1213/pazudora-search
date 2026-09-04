@@ -59,19 +59,10 @@
             <h3 class="note-heading">1. 素材・ダンジョンから検索する</h3>
             <p>トップ画面の「素材・ダンジョン検索」から、探したいアイテム名やダンジョン名を入力して検索できます。</p>
             
-            <!-- ★追加: 検索の図解 -->
-            <div style="margin: 15px 0; padding: 15px; background: #f8f9fa; border: 1px solid #bdc3c7; border-radius: 8px; text-align: center;">
-                <div style="background: #fff; border: 1px solid #3498db; padding: 8px 12px; border-radius: 4px; display: inline-block; width: 80%; text-align: left; color: #2c3e50; font-weight: bold; margin-bottom: 8px;">
-                    🔍 希石<span style="animation: blink 1s step-end infinite; border-right: 2px solid #2c3e50;"></span>
-                </div>
-                <div style="color: #3498db; font-size: 20px; margin-bottom: 8px;">⬇️</div>
-                <div style="background: #2ecc71; color: #fff; padding: 8px 12px; border-radius: 4px; display: inline-block; width: 80%; font-weight: bold;">検索する</div>
-            </div>
-
             <ul class="note-list">
-                <li><strong>① キーワードを入力</strong><br>「希石」や「たまドラ」、「億兆」などの一部の文字を入力し、「検索する」ボタンを押します（Enterキーでも検索できます）。</li>
+                <li><strong>① キーワードを入力</strong><br>「希石」や「たまドラ」、「億兆」などの一部の文字を入力し、「検索する」ボタンを押します（Enterキーでも検索できます）。過去の検索履歴からも選べます。</li>
                 <li><strong>② 検索結果の見方</strong><br>結果は「🏰 ダンジョン」と「💎 ドロップ素材」に分かれて表示されます。</li>
-                <li><strong>③ ダンジョンへのジャンプ</strong><br>表示されたダンジョン名（青字の下線）をタップすると、報酬リストの該当箇所へ一瞬でジャンプし、ハイライト表示されます。</li>
+                <li><strong>③ ダンジョンへのジャンプ</strong><br>表示されたダンジョン名（青字の下線）をタップすると、報酬リストの該当箇所へ一瞬でジャンプし、画面中央に大きくハイライト表示されます。</li>
             </ul>
         </div>
 
@@ -80,70 +71,23 @@
             <p>トップ画面の「報酬リスト」から、すべての闘技場シリーズのドロップ報酬を一覧で確認できます。</p>
             
             <ul class="note-list">
-                <li><strong>① ダンジョン目次を使う</strong><br>リストの最上部にある「📑 ダンジョン目次」をタップすると開閉します。見たいシリーズ名をタップすれば一発で移動できます。</li>
-                
-                <li><strong>② アイコンの機能（名前確認・ドロップ検索）</strong><br>
-                    <!-- ★修正: 文章をシンプルに整理 -->
-                    ご利用の端末により操作が異なります。PCは「マウスを乗せて名前確認、クリックで検索」、スマホは「1回タップで名前確認、続けてもう1回タップで検索」となります。
-                    
-                    <!-- ★追加: アイコン操作の図解 -->
-                    <div style="margin: 15px 0; padding: 15px; background: #fdfefe; border: 1px dashed #bdc3c7; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap;">
-                        <div style="position: relative; text-align: center;">
-                            <div class="material-badge" style="pointer-events: none; border: 2px solid #e74c3c;">
-                                <img src="images/question.png" alt="サンプル" style="background-color: #fff;">
-                            </div>
-                            <div style="position: absolute; top: -15px; right: -25px; background: #e74c3c; color: #fff; font-size: 11px; font-weight: bold; padding: 3px 8px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
-                                👆 ココ!
-                            </div>
-                        </div>
-                        <div style="font-size: 13px; line-height: 1.6; text-align: left;">
-                            <div style="margin-bottom: 8px;">
-                                <strong style="color: #2980b9;">💻 PCの場合</strong><br>
-                                ・マウスを乗せる ＝ <strong>名前確認</strong><br>
-                                ・クリックする ＝ <strong style="color: #e74c3c;">ドロップ検索</strong>
-                            </div>
-                            <div>
-                                <strong style="color: #27ae60;">📱 スマホの場合</strong><br>
-                                ・1回タップする ＝ <strong>名前確認</strong><br>
-                                ・続けてもう1回タップ ＝ <strong style="color: #e74c3c;">ドロップ検索</strong>
-                            </div>
-                        </div>
-                    </div>
-                </li>
-
-                <li><strong>③ 素材の交換目安を見る</strong><br>ダンジョンの下部にある「🔄 素材の交換目安を見る」をタップすると、部位破壊素材などの詳しい交換レートを確認できます。</li>
+                <li><strong>① ダンジョン目次を使う</strong><br>リストの最上部にある「📑 ダンジョン目次」をタップすると開閉します。見たいシリーズ名をタップすれば、スクロールの手間なく一発で移動できます。</li>
+                <li><strong>② アイコン（バッジ）の機能</strong><br>ドロップする素材のアイコンをタップ（または長押し）すると、その素材がどこで落ちるのかを「素材・ダンジョン検索」で即座に調べられます。</li>
+                <li><strong>③ アイコンに触れて詳細を確認</strong><br>パソコンではマウスを乗せると「素材名」がポップアップ表示されます。スマホではタップすると名前が確認できます。</li>
+                <li><strong>④ 素材の交換目安を見る</strong><br>ダンジョンの下部にある「🔄 素材の交換目安を見る」をタップすると、部位破壊素材などの詳しい交換レートを確認できます。</li>
             </ul>
         </div>
 
         <div class="result-box note-box">
             <h3 class="note-heading">3. ダンジョン情報の見方</h3>
-            <p>各ダンジョンの見出しには、攻略に必要な基本情報がアイコン付きでまとまっています。</p>
-            
-            <!-- ★追加: ダンジョン見出しの図解 -->
-            <div style="margin: 15px 0; padding: 15px; background: #fff; border: 1px solid #bdc3c7; border-radius: 8px;">
-                <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px dashed #ecf0f1;">
-                    <span style="font-weight: bold; color: #e74c3c; font-size: 18px;">大樹の霊王</span>
-                    <img src="images/陰加護.png" alt="陰" style="height: 20px;">
-                    <span style="color: #8e44ad; font-weight: bold; font-size: 13px;">【超重力 1/100】</span>
-                    <span style="background: #7f8c8d; color: white; font-size: 12px; padding: 2px 6px; border-radius: 4px;">スタミナ: 99</span>
-                </div>
-                <div style="font-size: 13px; line-height: 1.8; color: #2c3e50;">
-                    <p style="margin: 0;">・<strong>ダンジョン名</strong>：赤色で表示されます。</p>
-                    <p style="margin: 0;">・<strong>加護アイコン</strong>：ダンジョンに付与されている属性補正（陽/陰）です。</p>
-                    <p style="margin: 0;">・<strong>【特殊ルール】</strong>：超重力や超高度などの制限です（文字をタップすると詳細が見られます）。</p>
-                    <p style="margin: 0;">・<strong>スタミナ/バトル</strong>：挑戦に必要なスタミナと階層数です。</p>
-                </div>
-            </div>
-
-            <div class="dark-example-box" style="margin-top: 15px;">
-                <p style="margin-top: 0; color: #f1c40f !important; font-weight: bold;">【ドロップ区分の見方】</p>
-                <p style="margin-bottom: 0;">・<strong>ボス・乱入・部位破壊</strong>：ボスの本体やパーツがどこでドロップするかを記載しています。<br>・<strong>確定ドロップ / 確率ドロップ</strong>：道中のドロップ傾向を分類しています。</p>
+            <div class="dark-example-box">
+                <p style="margin-top: 0; color: #f1c40f !important; font-weight: bold;">【表示されるアイコンや条件の例】</p>
+                <p>・<strong>スタミナ / バトル数</strong>：挑戦に必要なスタミナと階層です。</p>
+                <p>・<strong>陽加護 / 陰加護アイコン</strong>：ダンジョンに付与されている属性補正です。</p>
+                <p>・<strong>【超重力】 / 【超高度】</strong>：ダンジョン特有の制限効果です（文字にカーソルやタップを合わせると詳細な倍率が見られます）。</p>
+                <p style="margin-bottom: 0;">・<strong>ボス・乱入・部位破壊</strong>：ボスの本体やパーツがどこでドロップするかを記載しています。</p>
             </div>
         </div>
-        
-        <style>
-            @keyframes blink { 50% { border-color: transparent; } }
-        </style>
     </div>
 
     <!-- ★ 該当部分の書き換え -->
