@@ -12,7 +12,6 @@ function searchMaterial() {
 
     saveSearchHistory(input);
 
-    // ★追加: 検索ワードと「完全に一致する素材」が存在するかを事前チェック
     let hasExactMaterialMatch = false;
     dungeonData.forEach(arena => {
         arena.allRewards.forEach(reward => {
@@ -24,28 +23,23 @@ function searchMaterial() {
 
     const dungeonHits = [];
     const materialHits = [];
-    let foundMaterialId = "";
 
     dungeonData.forEach(arena => {
-        // ダンジョン名の検索
         if (arena.name.includes(input) || arena.series.includes(input)) {
             dungeonHits.push(arena);
         }
 
-        // 素材名の検索
         arena.allRewards.forEach(reward => {
-            // ★修正: 完全一致が存在する場合は完全一致のみ、無ければ部分一致を許容する
             const isMatch = hasExactMaterialMatch ? (reward.name === input) : reward.name.includes(input);
             
             if (isMatch) {
-                if (reward.id && !foundMaterialId) foundMaterialId = reward.id;
-                
                 materialHits.push({
                     series: arena.series,
                     dungeon: arena.name,
                     category: reward.category,
                     note: reward.note,
-                    exactName: reward.name
+                    exactName: reward.name,
+                    id: reward.id
                 });
             }
         });
@@ -75,45 +69,53 @@ function searchMaterial() {
     }
 
     if (materialHits.length > 0) {
-        const matchNames = [...new Set(materialHits.map(r => r.exactName))];
-        const targetName = matchNames.length === 1 ? matchNames[0] : input;
-
-        let idDisplay = foundMaterialId ? `No.${foundMaterialId} ` : "";
-        const imageFileName = foundMaterialId ? foundMaterialId : (typeof globalIdMap !== 'undefined' && globalIdMap[targetName] ? globalIdMap[targetName] : encodeURIComponent(targetName));
-
         html += `<div>
-                    <h4 style="color: #2c3e50; border-bottom: 2px solid #bdc3c7; padding-bottom: 8px; margin-top: 0; margin-bottom: 15px; font-size: 16px;">💎 ドロップ素材</h4>
-                    
-                    <div class="search-result-header" style="margin-bottom: 15px;">
-                        <div class="result-image-wrapper">
-                            <img src="images/${imageFileName}.png" alt="${targetName}" 
-                                 onerror="this.onerror=null; this.src='images/question.png'; this.nextElementSibling.style.display='block';">
-                            <span class="fallback-text" style="display:none;">${targetName}</span>
-                        </div>
-                        <h4 style="margin: 0; font-size: 16px; font-weight: bold;">${idDisplay}${targetName}</h4>
-                    </div>
-                    
-                    <p style="margin: 0 0 10px 0; font-weight: bold; color: #555; font-size: 14px;">📍 ドロップ場所:</p>
-                    <ul class="search-result-list" style="margin: 0; padding-left: 20px;">`;
+                    <h4 style="color: #2c3e50; border-bottom: 2px solid #bdc3c7; padding-bottom: 8px; margin-top: 0; margin-bottom: 15px; font-size: 16px;">💎 ドロップ素材</h4>`;
 
+        // 素材の種類ごとにグループ化して整理する
+        const groupedMaterials = {};
         materialHits.forEach(res => {
-            const safeDungeon = res.dungeon.replace(/'/g, "\\'");
-            let noteHtml = res.note ? ` <span class="search-note" style="color: #e67e22; font-size: 12px; margin-left: 5px; font-weight: bold;">${res.note}</span>` : '';
-            
-            let extraNameHtml = "";
-            if (matchNames.length > 1) {
-                extraNameHtml = ` <span style="font-size: 12px; color: #7f8c8d; margin-left: 5px;">(${res.exactName})</span>`;
+            if (!groupedMaterials[res.exactName]) {
+                groupedMaterials[res.exactName] = {
+                    id: res.id || (typeof globalIdMap !== 'undefined' && globalIdMap[res.exactName] ? globalIdMap[res.exactName] : ""),
+                    hits: []
+                };
             }
-
-            html += `<li style="margin-bottom: 10px;">
-                        <a href="javascript:void(0);" class="dungeon-link" onclick="jumpToDungeon('${safeDungeon}')" style="text-decoration: underline; color: #3498db; font-weight: bold; cursor: pointer; font-size: 14px;">
-                            ${res.series} / ${res.dungeon}
-                        </a> 
-                        <span class="search-category" style="color: #27ae60; font-size: 13px; margin-left: 5px; font-weight: bold;">[${res.category}]</span>${noteHtml}${extraNameHtml}
-                     </li>`;
+            groupedMaterials[res.exactName].hits.push(res);
         });
 
-        html += `</ul></div>`;
+        for (const [matName, matData] of Object.entries(groupedMaterials)) {
+            let idDisplay = matData.id ? `No.${matData.id} ` : "";
+            const imageFileName = matData.id ? matData.id : encodeURIComponent(matName);
+
+            html += `<div style="margin-bottom: 25px;">
+                        <div class="search-result-header" style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+                            <div class="result-image-wrapper" style="width: 45px; height: 45px; flex-shrink: 0;">
+                                <img src="images/${imageFileName}.png" alt="${matName}" style="width: 100%; height: 100%; object-fit: contain; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.15); background-color: #fff;"
+                                     onerror="this.onerror=null; this.src='images/question.png'; this.nextElementSibling.style.display='block';">
+                                <span class="fallback-text" style="display:none; font-size: 10px; color: #e74c3c; font-weight: bold; text-align: center; word-wrap: break-word; line-height: 1.2;">${matName}</span>
+                            </div>
+                            <h5 style="margin: 0; font-size: 15px; font-weight: bold; color: #2c3e50;">${idDisplay}${matName}</h5>
+                        </div>
+                        <ul class="search-result-list" style="margin: 0; padding-left: 20px;">`;
+
+            matData.hits.forEach(res => {
+                const safeDungeon = res.dungeon.replace(/'/g, "\\'");
+                let noteHtml = res.note ? ` <span class="search-note" style="color: #e67e22; font-size: 12px; margin-left: 5px; font-weight: bold;">${res.note}</span>` : '';
+                
+                html += `<li style="margin-bottom: 10px;">
+                            <a href="javascript:void(0);" class="dungeon-link" onclick="jumpToDungeon('${safeDungeon}')" style="text-decoration: underline; color: #3498db; font-weight: bold; cursor: pointer; font-size: 14px;">
+                                ${res.series} / ${res.dungeon}
+                            </a> 
+                            <span class="search-category" style="color: #27ae60; font-size: 13px; margin-left: 5px; font-weight: bold;">[${res.category}]</span>${noteHtml}
+                         </li>`;
+            });
+
+            html += `   </ul>
+                     </div>`;
+        }
+
+        html += `</div>`;
     }
 
     resultDiv.innerHTML = html;
