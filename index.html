@@ -11,13 +11,12 @@
 </head>
 <body>
 
-<!-- ★ 追加: メンテナンス画面（普段は非表示） -->
+<!-- メンテナンス画面（普段は非表示） -->
 <div id="maintenanceScreen" class="hidden" style="text-align: center; padding: 80px 20px; font-family: sans-serif;">
     <h2 style="color: #2c3e50; border: none; margin-bottom: 30px;">🛠 ただいまメンテナンス中です</h2>
     
     <div style="background: #f8f9fa; border: 2px solid #bdc3c7; border-radius: 8px; padding: 20px; display: inline-block; max-width: 90%;">
         <p style="color: #34495e; font-weight: bold; margin: 0 0 10px 0; font-size: 15px;">【メンテナンス予定期間】</p>
-        <!-- ★ 修正: 文字色を黒(#333)にし、フォントサイズを小さめ(15px)に変更 -->
         <p id="maintenancePeriodText" style="color: #333; font-weight: bold; font-size: 15px; margin: 0;">
             未定
         </p>
@@ -25,7 +24,6 @@
 </div>
 
 <div class="container">
-    <!-- ★ 追加: トップ右上のリンクボタン -->
     <div id="sectionTop">
         <div class="top-header-actions">
             <button class="header-link-btn" onclick="showScreen('howto')">📖 使い方</button>
@@ -36,7 +34,6 @@
         <p style="text-align: center; margin-bottom: 30px;">利用したい機能を選んでください</p>
         
        <div class="top-menu">
-            <!-- ★ 修正: ボタンのテキストを変更 -->
             <button class="top-button" onclick="showScreen('search')">🔍 素材・ダンジョン検索</button>
             <button class="top-button" onclick="showScreen('arena')">🎁 報酬リスト</button>
         </div>
@@ -50,7 +47,7 @@
         </div>
     </div>
 
-    <!-- ★ 追加・修正: 使い方画面 -->
+    <!-- 使い方画面 -->
     <div id="sectionHowTo" class="hidden">
         <button class="back-button" onclick="showScreen('top')">← トップに戻る</button>
         <h2>📖 使い方</h2>
@@ -59,77 +56,37 @@
             <h3 class="note-heading">1. 素材・ダンジョンから検索する</h3>
             <p>トップ画面の「素材・ダンジョン検索」から、探したいアイテム名やダンジョン名を入力して検索できます。</p>
             
-            <ul class="note-list">
-                <li><strong>① キーワードを入力</strong><br>「希石」や「たまドラ」、「億兆」などの一部の文字を入力し、「検索する」ボタンを押します（Enterキーでも検索できます）。過去の検索履歴からも選べます。</li>
-                <li><strong>② 検索結果の見方</strong><br>結果は「🏰 ダンジョン」と「💎 ドロップ素材」に分かれて表示されます。</li>
-                <li><strong>③ ダンジョンへのジャンプ</strong><br>表示されたダンジョン名（青字の下線）をタップすると、報酬リストの該当箇所へ一瞬でジャンプし、画面中央に大きくハイライト表示されます。</li>
-            </ul>
-        </div>
-
-        <div class="result-box note-box">
-            <h3 class="note-heading">2. 報酬リストを活用する</h3>
-            <p>トップ画面の「報酬リスト」から、すべての闘技場シリーズのドロップ報酬を一覧で確認できます。</p>
-            
-            <ul class="note-list">
-                <li><strong>① ダンジョン目次を使う</strong><br>リストの最上部にある「📑 ダンジョン目次」をタップすると開閉します。見たいシリーズ名をタップすれば、スクロールの手間なく一発で移動できます。</li>
-                <li><strong>② アイコン（バッジ）の機能</strong><br>ドロップする素材のアイコンをタップ（または長押し）すると、その素材がどこで落ちるのかを「素材・ダンジョン検索」で即座に調べられます。</li>
-                <li><strong>③ アイコンに触れて詳細を確認</strong><br>パソコンではマウスを乗せると「素材名」がポップアップ表示されます。スマホではタップすると名前が確認できます。</li>
-                <li><strong>④ 素材の交換目安を見る</strong><br>ダンジョンの下部にある「🔄 素材の交換目安を見る」をタップすると、部位破壊素材などの詳しい交換レートを確認できます。</li>
-            </ul>
-        </div>
-
-        <div class="result-box note-box">
-            <h3 class="note-heading">3. ダンジョン情報の見方</h3>
-            <div class="dark-example-box">
-                <p style="margin-top: 0; color: #f1c40f !important; font-weight: bold;">【表示されるアイコンや条件の例】</p>
-                <p>・<strong>スタミナ / バトル数</strong>：挑戦に必要なスタミナと階層です。</p>
-                <p>・<strong>陽加護 / 陰加護アイコン</strong>：ダンジョンに付与されている属性補正です。</p>
-                <p>・<strong>【超重力】 / 【超高度】</strong>：ダンジョン特有の制限効果です（文字にカーソルやタップを合わせると詳細な倍率が見られます）。</p>
-                <p style="margin-bottom: 0;">・<strong>ボス・乱入・部位破壊</strong>：ボスの本体やパーツがどこでドロップするかを記載しています。</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- ★ 追加・修正: 使い方画面 -->
-    <div id="sectionHowTo" class="hidden">
-        <button class="back-button" onclick="showScreen('top')">← トップに戻る</button>
-        <h2>📖 使い方</h2>
-        
-        <div class="result-box note-box">
-            <h3 class="note-heading">1. 素材・ダンジョンから検索する</h3>
-            <p>トップ画面の「素材・ダンジョン検索」から、探したいアイテム名やダンジョン名を入力して検索できます。</p>
-            
-            <details class="exchange-details" style="margin: 15px 0;">
+            <details class="exchange-details" style="margin: 15px 0;" open>
                 <summary class="exchange-summary">🔽 検索機能の使用例を見る（タップで開閉）</summary>
                 <div class="exchange-content" style="padding: 15px; border-top: 1px solid #bdc3c7;">
-                    <p style="margin-top: 0;">例として、ダンジョン「未知の新星/混沌の億兆龍」を「億兆」というワードで検索する。</p>
+                    <p style="margin-top: 0; font-weight: bold; color: #2c3e50;">例として、ダンジョン「未知の新星 / 混沌の億兆龍」を「億兆」というワードで検索する。</p>
                     
                     <h4 style="color: #2980b9; border-left: 3px solid #3498db; padding-left: 8px;">① キーワードを入力</h4>
                     <p>検索ボックスに「億兆」と入力する。</p>
                     <div style="text-align: center; margin: 10px 0;">
-                        <img src="images/input_file_0.png" alt="検索ボックス入力" style="max-width: 100%; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <img src="images/howto_1.png" alt="検索ボックス入力" style="max-width: 100%; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                     </div>
                     
                     <p>入力の際、検索履歴から楽に入力を済ませれます。</p>
                     <div style="text-align: center; margin: 10px 0;">
-                        <img src="images/input_file_2.png" alt="検索履歴" style="max-width: 100%; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <img src="images/howto_2.png" alt="検索履歴" style="max-width: 100%; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                     </div>
                     
                     <p>入力を終えたら、検索ボタンを押す。Enter(改行)でも検索できます。</p>
                     <div style="text-align: center; margin: 10px 0;">
-                        <img src="images/input_file_1.png" alt="検索ボタン" style="max-width: 100%; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <img src="images/howto_3.png" alt="検索ボタン" style="max-width: 100%; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                     </div>
 
                     <h4 style="color: #2980b9; border-left: 3px solid #3498db; padding-left: 8px;">② 検索結果の見方</h4>
                     <p>「🏰 ダンジョン」には、「混沌の億兆龍」や「裏混沌の億兆龍」など4種類のダンジョンが表示されています。一方、「💎 ドロップ素材」には、「煌窮の億兆龍・アグリゲート」などの素材が表示されます。</p>
                     <div style="text-align: center; margin: 10px 0;">
-                        <img src="images/input_file_3.png" alt="検索結果" style="max-width: 100%; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <img src="images/howto_4.png" alt="検索結果" style="max-width: 100%; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                     </div>
 
                     <h4 style="color: #2980b9; border-left: 3px solid #3498db; padding-left: 8px;">③ ダンジョンへのジャンプ</h4>
-                    <p>青文字で記されている「未知の新星/混沌の億兆龍」をクリックすると、該当ダンジョンの報酬リストに飛ぶことができます。</p>
+                    <p>青文字で記されている「未知の新星 / 混沌の億兆龍」をクリックすると、該当ダンジョンの報酬リストに飛ぶことができます。</p>
                     <div style="text-align: center; margin: 10px 0;">
-                        <img src="images/input_file_4.png" alt="ダンジョンへのジャンプ" style="max-width: 100%; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <img src="images/howto_5.png" alt="ダンジョンへのジャンプ" style="max-width: 100%; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
                     </div>
                 </div>
             </details>
@@ -144,7 +101,6 @@
                 <li><strong>② 素材アイコンの機能（名前確認・検索）</strong><br>
                     アイコンを操作することで、素材名の確認やドロップ場所の検索ができます。ご利用の端末によって操作方法が異なります。
                     
-                    <!-- 図解ブロック -->
                     <div style="margin: 10px 0; padding: 12px; background: #fdfefe; border: 1px dashed #bdc3c7; border-radius: 8px; display: flex; align-items: center; gap: 15px;">
                         <div style="position: relative; margin-left: 5px;">
                             <div class="material-badge" style="pointer-events: none; border: 2px solid #e74c3c;">
@@ -182,6 +138,71 @@
         </div>
     </div>
 
+    <!-- 注意書き画面 -->
+    <div id="sectionNotes" class="hidden">
+        <button class="back-button" onclick="showScreen('top')">← トップに戻る</button>
+        <h2>⚠️ 注意書き</h2>
+        
+        <div class="result-box note-box">
+            <h3 class="note-heading">1. お願い</h3>
+            <p>この報酬一覧は、私自身でSNSや自分のスクショを基に作成しています。見落としも含めて、必ず正しいとは言えません。あくまでも目安として受け取っておいてください。</p>
+        </div>
+
+        <div class="result-box note-box">
+            <h3 class="note-heading">2. 達成報酬(右上のタブ)について</h3>
+            <p>各ダンジョンを初クリアすると、MP50,000ptを獲得できる。また、1つの闘技場シリーズを初踏破するたびに魔法石25+1個を獲得できる(∞級1人専用コロシアムと極限降臨ラッシュを除く)</p>
+        </div>
+
+        <div class="result-box note-box">
+            <h3 class="note-heading">3. ドロップの種類について</h3>
+            <ul class="note-list">
+                <li><strong>①ボス・部位破壊</strong><br>ボスの本体や部位、乱入の部位のドロップです。特に数の記載がなければ、ドロップ数は各1つです(例外としては、新億兆など)。また、カッコ内にどれがどこでドロップするか記載してます。</li>
+                <li><strong>②確定ドロップ</strong><br>文字通り、確定でドロップするものです。</li>
+                <li><strong>③確率ドロップ</strong><br>文字通り、一定確率でドロップするものです。実際のドロップする確率はバラバラ。明らかに低確率のものはカッコで記載しています。</li>
+                <li><strong>④ランダムドロップ</strong><br>複数種類の中からランダムでドロップするものです。<br>ランダムドロップの中でも確定でドロップするもの、不確定でドロップするものがあります。<br>基本的には確定ランダムドロップですが、∞級1人専用コロシアムのみ確率ランダムドロップです。</li>
+            </ul>
+            
+            <div class="dark-example-box">
+                <p style="margin-top: 0;">大樹の霊王を例とすると、</p>
+                
+                <p><strong>①ボス・部位破壊</strong><br>
+                ボス本体では、『宿木の大樹霊王・アドネアの希石』、ボス部位では『宿木の大樹霊王・アドネアの左根の希石』と『宿木の大樹霊王・アドネアの右根の希石』、乱入部位では『神器に宿る者・グラオルの希石』をドロップする。</p>
+                
+                <p><strong>②確定ドロップ</strong><br>
+                『潜在たまドラ☆枠解放』を <strong class="text-yellow">"確定で" 1体</strong>ドロップする。</p>
+
+                <p><strong>③確率ドロップ</strong><br>
+                『ゴールドたまドラ』を <strong class="text-yellow">"一定確率で" 1体</strong>ドロップする。</p>
+
+                <p style="margin-bottom: 0;"><strong>④ランダムドロップ</strong><br>
+                『創装の宝玉』、『ダイヤドラゴンフルーツ』、『古代の三神面』の中から<strong>ランダム</strong>で8個 <strong class="text-yellow">"確定で"</strong> ドロップする</p>
+            </div>
+
+            <!-- ドロップリスト自動生成枠 -->
+            <div id="noteExampleDrop" style="border: 2px solid #17202a; border-top: none; border-radius: 0 0 8px 8px; padding: 15px; background: #fdfdfe;">
+            </div>
+        </div>
+
+        <div class="result-box note-box warning-box">
+            <h3 class="note-heading">⚠ 部位のドロップについて注意</h3>
+            <ul class="note-list-disc">
+                <li>当然ながら、部位は破壊しないとドロップしません。</li>
+                <li>覚醒『部位破壊ボーナス』や、リーダースキルの『部位破壊素材ドロップボーナス』が不十分であれば、たとえ部位破壊したとしてもドロップしないことがあります。合計で100%を超えるようにしましょう。</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- お知らせ一覧画面 -->
+    <div id="sectionNoticeList" class="hidden">
+        <button class="back-button" onclick="showScreen('top')">← トップに戻る</button>
+        <h2>📢 お知らせ一覧</h2>
+        <div class="result-box">
+            <ul id="fullAnnouncementList" class="announcement-list"></ul>
+            <div id="paginationArea" class="pagination-area"></div>
+        </div>
+    </div>
+
+    <!-- お知らせ詳細画面 -->
     <div id="sectionNotice" class="hidden">
         <button class="back-button" onclick="history.back()">← 戻る</button>
         <h2 id="noticeTitle">お知らせタイトル</h2>
@@ -189,9 +210,9 @@
         <div id="noticeBody" class="notice-body result-box"></div>
     </div>
 
+    <!-- 検索画面 -->
     <div id="sectionSearch" class="hidden">
         <button class="back-button" onclick="showScreen('top')">← トップに戻る</button>
-        <!-- ★ 修正: 見出しとプレースホルダー（例）の文字を変更 -->
         <h2>素材・ダンジョンから検索</h2>
         <div class="search-input-wrapper">
             <input type="text" id="searchInput" placeholder="例：希石、たまドラ、億兆 など" autocomplete="off">
@@ -201,6 +222,7 @@
         <div id="searchResult" class="result-box">ここに検索結果が表示されます。</div>
     </div>
 
+    <!-- 報酬リスト画面 -->
     <div id="sectionArena" class="hidden">
         <button class="back-button" onclick="showScreen('top')">← トップに戻る</button>
         <h2>闘技場シリーズ 全報酬リスト</h2>
