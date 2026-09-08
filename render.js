@@ -94,7 +94,6 @@ function displayArenaList() {
         groupedData[d.series].push(d);
     });
 
-    // ★ 修正: 目次のタイトルを「ダンジョン目次」に変更
     let html = `
         <details class="toc-details">
             <summary class="toc-summary">📑 ダンジョン目次</summary>
@@ -194,8 +193,6 @@ function displayArenaList() {
                 }
             });
             
-            // ★ 修正: 部位破壊だけでなく、交換レートが存在するダンジョン全てに対応
-            // ドロップカテゴリーの枠外（ダンジョンの最後）に独立して表示させ、文言も「素材の交換目安」に変更しました。
             if (arena.exchangeRate) {
                 const rates = arena.exchangeRate.split(',');
                 html += `<details class="exchange-details" style="margin-top: 15px;">
@@ -210,9 +207,34 @@ function displayArenaList() {
                          </details>`;
             }
             
+            // ★ 修正: 注意書きの「ぶら下がりインデント」表示への対応
             if (arena.warning) {
-                let warningHtml = arena.warning.replace(/\n/g, '<br>');
-                warningHtml = warningHtml.replace(/([^\n(（>])\s*(※\d*)/g, '$1<br>$2');
+                // 文中にある※1などの直前で強引に改行させる
+                let formattedWarning = arena.warning.replace(/([^\n(（>])\s*(※\d+)/g, '$1\n$2');
+                let lines = formattedWarning.split(/\n/);
+                
+                let warningHtml = '';
+                let currentNote = '';
+                
+                lines.forEach(line => {
+                    // エクセル上で入力されたスペースを取り除く（CSSで自動調整するため）
+                    line = line.trim();
+                    if (!line) return;
+                    
+                    if (line.match(/^※/)) {
+                        if (currentNote) warningHtml += `<div class="warning-item">${currentNote}</div>`;
+                        currentNote = line;
+                    } else {
+                        if (currentNote) {
+                            currentNote += `<br>${line}`;
+                        } else {
+                            // 最初の行が※から始まらない場合
+                            warningHtml += `<div class="warning-item" style="padding-left: 0; text-indent: 0;">${line}</div>`;
+                        }
+                    }
+                });
+                if (currentNote) warningHtml += `<div class="warning-item">${currentNote}</div>`;
+                
                 html += `<div class="dungeon-warning">${warningHtml}</div>`;
             }
 

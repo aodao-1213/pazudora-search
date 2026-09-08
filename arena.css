@@ -230,3 +230,25 @@
         font-size: 12px;
     }
 }
+/* ====================================================
+   注意書き（※）のぶら下がりインデント設定
+   ==================================================== */
+.dungeon-warning {
+    margin-top: 15px;
+    padding: 12px 15px;
+    background-color: #fff9fa;
+    border: 1px solid #fadbd8;
+    border-left: 4px solid #e74c3c;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #2c3e50;
+    line-height: 1.7;
+}
+.warning-item {
+    padding-left: 2em; /* ※1などの文字数分を全体の左から下げる */
+    text-indent: -2em; /* 最初の行だけを左に飛び出させる */
+    margin-bottom: 6px;
+}
+.warning-item:last-child {
+    margin-bottom: 0;
+}
