@@ -111,40 +111,30 @@
     padding-left: 8px;
 }
 
-/* ★ 今回の修正箇所：点線区切りの自動調整用（上下左右） */
+/* ★ 修正: 無駄な下の線を廃止し、元の綺麗なスキマに戻す */
 .category-groups {
     display: flex;
     flex-wrap: wrap; 
-    row-gap: 12px; /* ★ 行と行の間のスキマ（一番下にはつかないので無駄な余白が消える） */
-    align-items: stretch; /* ★ 行内の高さを揃えることで縦線が綺麗に繋がる */
+    row-gap: 12px; /* 行と行の間のスキマ（元通り） */
+    align-items: center; 
 }
 .drop-group {
-    position: relative;
     display: inline-flex;
     flex-wrap: wrap; 
-    align-items: center; 
+    align-items: center;
     gap: 4px;
     
-    padding-right: 24px; /* ★ 右側のスキマ（paddingにすることで横線が途切れない） */
-    padding-bottom: 12px; /* ★ 下側のスキマ */
-    border-bottom: 1px dashed #bdc3c7;
+    padding-right: 12px;
+    margin-right: 12px;
+    border-right: 1px dashed #bdc3c7; /* 縦の点線のみ */
+    
+    padding-bottom: 0;
+    margin-bottom: 0;
+    border-bottom: none; /* 下の線は作らない */
 }
-/* ★ 縦線は疑似要素を使って右のスキマのど真ん中に引く */
-.drop-group::after {
-    content: '';
-    position: absolute;
-    right: 12px; 
-    top: 0;
-    bottom: 0;
-    border-right: 1px dashed #bdc3c7;
-}
-
-/* JSで付与して線を透明化 */
-.drop-group.no-border-right::after {
-    display: none !important;
-}
-.drop-group.no-border-bottom {
-    border-bottom-color: transparent !important;
+/* JSで付与して縦線を透明化（サイズが変わらないように色だけ消す） */
+.drop-group.no-border-right {
+    border-right-color: transparent !important;
 }
 
 .group-note {
@@ -247,14 +237,6 @@
     }
     .group-note {
         font-size: 12px;
-    }
-    /* スマホ用に点線の幅を縮める */
-    .drop-group {
-        padding-right: 16px;
-        padding-bottom: 8px;
-    }
-    .drop-group::after {
-        right: 8px;
     }
 }
 /* 注意書き（※）のぶら下がりインデント設定 */

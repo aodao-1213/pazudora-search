@@ -424,6 +424,7 @@ function parseExcelData(data, idMap) {
     return result;
 }
 
+// ★ 修正: 行ごとの右端にある縦線を消す処理だけに特化
 function updateBorders() {
     const categories = document.querySelectorAll('.category-groups');
     categories.forEach(cat => {
@@ -432,34 +433,24 @@ function updateBorders() {
         const groups = Array.from(cat.querySelectorAll('.drop-group'));
         if (groups.length === 0) return;
         
+        // 全てのグループから透明化クラスを剥がす（線を復活させる）
         groups.forEach(g => {
             g.classList.remove('no-border-right');
-            g.classList.remove('no-border-bottom');
         });
         
-        let rows = [];
-        let currentRow = [groups[0]];
         let lastCenterY = groups[0].getBoundingClientRect().top + (groups[0].offsetHeight / 2);
         
         for (let i = 1; i < groups.length; i++) {
             let currentCenterY = groups[i].getBoundingClientRect().top + (groups[i].offsetHeight / 2);
             
+            // 段が下がった（新しい行になった）ことを検知したら、その前の要素の右端の線を消す
             if (currentCenterY > lastCenterY + 20) {
-                rows.push(currentRow);
-                currentRow = [groups[i]];
+                groups[i - 1].classList.add('no-border-right');
                 lastCenterY = currentCenterY;
-            } else {
-                currentRow.push(groups[i]);
             }
         }
-        rows.push(currentRow);
         
-        rows.forEach((row, rowIndex) => {
-            row[row.length - 1].classList.add('no-border-right');
-            
-            if (rowIndex === rows.length - 1) {
-                row.forEach(g => g.classList.add('no-border-bottom'));
-            }
-        });
+        // カテゴリー内の最後尾の要素も、常に右端の線を消す
+        groups[groups.length - 1].classList.add('no-border-right');
     });
 }
