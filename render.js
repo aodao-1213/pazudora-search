@@ -239,6 +239,17 @@ function displayArenaList() {
         html += `</div>`;
     }
     listDiv.innerHTML = html;
+
+    // ★ 修正: 画像読み込みの遅延に対応するため複数回実行
+    setTimeout(updateBorders, 50);
+    setTimeout(updateBorders, 300);
+    setTimeout(updateBorders, 1000);
+    
+    // 画像がロードされるたびにも線を再計算する
+    const images = listDiv.querySelectorAll('img');
+    images.forEach(img => {
+        img.addEventListener('load', updateBorders);
+    });
 }
 
 function displayNoteExample() {
@@ -288,11 +299,10 @@ function displayNoteExample() {
         }
     });
     container.innerHTML = html;
+
+    setTimeout(updateBorders, 50);
 }
 
-// -------------------------------------------------------------
-// 【前回の修正漏れ対応部分】 parseExcelData内の処理を更新
-// -------------------------------------------------------------
 function parseCategory(text, isRandom) {
     if (!text) return [];
     let items = text.toString().split(',');
@@ -381,7 +391,6 @@ function parseExcelData(data, idMap) {
         const bossCategoryData = row['ボス・乱入・部位破壊'] || row['ボス・部位破壊'];
 
         const drops = [
-            // ★ 今回の修正箇所：bossCategoryData を解析する際、第2引数を true にしてグループ化を適用
             { category: bossCategoryName, groups: parseCategory(bossCategoryData, true) },
             { category: "確定ドロップ", groups: parseCategory(row['確定ドロップ'], false) },
             { category: "確率ドロップ", groups: parseCategory(row['確率ドロップ'], false) },
@@ -407,3 +416,29 @@ function parseExcelData(data, idMap) {
     });
     return result;
 }
+
+// ★ 修正: 絶対的な画面上のY座標を使って、より確実に行の右端を判定する
+function updateBorders() {
+    const categories = document.querySelectorAll('.category-groups');
+    categories.forEach(cat => {
+        const groups = Array.from(cat.querySelectorAll('.drop-group'));
+        if (groups.length === 0) return;
+        
+        groups.forEach(g => g.classList.remove('no-border'));
+        groups[groups.length - 1].classList.add('no-border');
+        
+        let lastTop = groups[0].getBoundingClientRect().top;
+        for (let i = 1; i < groups.length; i++) {
+            const currentTop = groups[i].getBoundingClientRect().top;
+            // 5px以上のズレがあれば「新しい行に落ちた」とみなす
+            if (currentTop > lastTop + 5) {
+                groups[i - 1].classList.add('no-border');
+                lastTop = currentTop;
+            }
+        }
+    });
+}
+
+window.addEventListener('resize', () => {
+    requestAnimationFrame(updateBorders);
+});
