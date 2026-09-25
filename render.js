@@ -424,7 +424,6 @@ function parseExcelData(data, idMap) {
     return result;
 }
 
-// ★ 完全刷新：行ごとにグループ分けして判定するロジック
 function updateBorders() {
     const categories = document.querySelectorAll('.category-groups');
     categories.forEach(cat => {
@@ -433,13 +432,11 @@ function updateBorders() {
         const groups = Array.from(cat.querySelectorAll('.drop-group'));
         if (groups.length === 0) return;
         
-        // 全ての線を一旦リセットする
         groups.forEach(g => {
             g.classList.remove('no-border-right');
             g.classList.remove('no-border-bottom');
         });
         
-        // 「行」ごとに要素を仕分けする
         let rows = [];
         let currentRow = [groups[0]];
         let lastCenterY = groups[0].getBoundingClientRect().top + (groups[0].offsetHeight / 2);
@@ -447,7 +444,6 @@ function updateBorders() {
         for (let i = 1; i < groups.length; i++) {
             let currentCenterY = groups[i].getBoundingClientRect().top + (groups[i].offsetHeight / 2);
             
-            // Y座標が20px以上ズレていたら「新しい行（段）」と判定
             if (currentCenterY > lastCenterY + 20) {
                 rows.push(currentRow);
                 currentRow = [groups[i]];
@@ -456,14 +452,11 @@ function updateBorders() {
                 currentRow.push(groups[i]);
             }
         }
-        rows.push(currentRow); // 最後の行を追加
+        rows.push(currentRow);
         
-        // 仕分けた行のデータを使って線を消す
         rows.forEach((row, rowIndex) => {
-            // 1. 各行の一番右の要素は、右の線を消す
             row[row.length - 1].classList.add('no-border-right');
             
-            // 2. 一番下の行（最終行）のすべての要素は、下の線を消す
             if (rowIndex === rows.length - 1) {
                 row.forEach(g => g.classList.add('no-border-bottom'));
             }
