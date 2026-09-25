@@ -424,7 +424,7 @@ function parseExcelData(data, idMap) {
     return result;
 }
 
-// ★ 修正: 行ごとの右端にある縦線を消す処理だけに特化
+// ★ 行ごとの右端縦線と、一番下の横線を自動で消す処理
 function updateBorders() {
     const categories = document.querySelectorAll('.category-groups');
     categories.forEach(cat => {
@@ -433,24 +433,40 @@ function updateBorders() {
         const groups = Array.from(cat.querySelectorAll('.drop-group'));
         if (groups.length === 0) return;
         
-        // 全てのグループから透明化クラスを剥がす（線を復活させる）
+        // 全てのグループから透明化クラスを剥がして線をリセット
         groups.forEach(g => {
             g.classList.remove('no-border-right');
+            g.classList.remove('no-border-bottom');
         });
         
+        let rows = [];
+        let currentRow = [groups[0]];
         let lastCenterY = groups[0].getBoundingClientRect().top + (groups[0].offsetHeight / 2);
         
+        // 要素を行ごとに仕分ける
         for (let i = 1; i < groups.length; i++) {
             let currentCenterY = groups[i].getBoundingClientRect().top + (groups[i].offsetHeight / 2);
             
-            // 段が下がった（新しい行になった）ことを検知したら、その前の要素の右端の線を消す
-            if (currentCenterY > lastCenterY + 20) {
-                groups[i - 1].classList.add('no-border-right');
+            // Y座標が15px以上下がっていれば「新しい行」と判定
+            if (currentCenterY - lastCenterY > 15) {
+                rows.push(currentRow);
+                currentRow = [groups[i]];
                 lastCenterY = currentCenterY;
+            } else {
+                currentRow.push(groups[i]);
             }
         }
+        rows.push(currentRow);
         
-        // カテゴリー内の最後尾の要素も、常に右端の線を消す
-        groups[groups.length - 1].classList.add('no-border-right');
+        // 判定した行データをもとに、不要な線を消す
+        rows.forEach((row, rowIndex) => {
+            // 各行の一番右の要素は、縦線を消す
+            row[row.length - 1].classList.add('no-border-right');
+            
+            // 一番下の行（最終行）の要素は、横線と余白を消す
+            if (rowIndex === rows.length - 1) {
+                row.forEach(g => g.classList.add('no-border-bottom'));
+            }
+        });
     });
 }

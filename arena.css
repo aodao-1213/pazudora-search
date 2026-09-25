@@ -111,30 +111,51 @@
     padding-left: 8px;
 }
 
-/* ★ 修正: 無駄な下の線を廃止し、元の綺麗なスキマに戻す */
+/* ==============================================
+   ★ 美しいグリッド線の設定（行間の点線を復活）
+   ============================================== */
 .category-groups {
     display: flex;
     flex-wrap: wrap; 
-    row-gap: 12px; /* 行と行の間のスキマ（元通り） */
-    align-items: center; 
+    row-gap: 0; /* マージンで制御するためゼロ */
+    column-gap: 0; /* 点線を途切れさせないためゼロ */
+    align-items: stretch; /* 全要素の高さをピッタリ揃える */
 }
+
 .drop-group {
+    position: relative;
     display: inline-flex;
     flex-wrap: wrap; 
-    align-items: center;
-    gap: 4px;
+    align-items: center; /* アイコンを上下中央に */
+    gap: 4px; /* アイコンと文字の隙間 */
     
-    padding-right: 12px;
-    margin-right: 12px;
-    border-right: 1px dashed #bdc3c7; /* 縦の点線のみ */
+    /* 左右の区切り設定 */
+    padding-right: 24px; /* 隙間をすべて内側に持つ */
     
-    padding-bottom: 0;
-    margin-bottom: 0;
-    border-bottom: none; /* 下の線は作らない */
+    /* 上下の区切り（行間の点線）設定 */
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+    border-bottom: 1px dashed #bdc3c7;
 }
-/* JSで付与して縦線を透明化（サイズが変わらないように色だけ消す） */
-.drop-group.no-border-right {
-    border-right-color: transparent !important;
+
+/* 縦の点線（疑似要素を使って隙間のど真ん中に引く） */
+.drop-group::after {
+    content: '';
+    position: absolute;
+    right: 12px; /* 24pxの隙間の中央 */
+    top: 0;
+    bottom: 0; /* 下の点線と綺麗に交差する */
+    border-right: 1px dashed #bdc3c7;
+}
+
+/* ★ JSで制御する「線を消す」クラス */
+.drop-group.no-border-right::after {
+    display: none !important;
+}
+.drop-group.no-border-bottom {
+    border-bottom: none !important;
+    padding-bottom: 0 !important; /* 無駄な余白を消滅させる */
+    margin-bottom: 0 !important; /* 無駄な余白を消滅させる */
 }
 
 .group-note {
@@ -237,6 +258,14 @@
     }
     .group-note {
         font-size: 12px;
+    }
+    .drop-group {
+        padding-right: 16px;
+        padding-bottom: 8px;
+        margin-bottom: 8px;
+    }
+    .drop-group::after {
+        right: 8px;
     }
 }
 /* 注意書き（※）のぶら下がりインデント設定 */
