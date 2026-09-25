@@ -110,25 +110,28 @@
     border-left: 4px solid #3498db;
     padding-left: 8px;
 }
+
+/* ★ 今回の修正箇所：点線区切りの自動調整用 */
 .category-groups {
     display: flex;
     flex-wrap: wrap; 
-    gap: 12px;
+    row-gap: 12px;
+    column-gap: 0; 
 }
 .drop-group {
     display: inline-flex;
     flex-wrap: wrap; 
     align-items: center;
     gap: 4px;
-    /* ★ 修正: グループの右側に点線の区切りを追加 */
     padding-right: 12px;
+    margin-right: 12px;
     border-right: 1px dashed #bdc3c7;
 }
-.drop-group:last-child {
-    /* ★ 修正: 最後のグループは右側に点線を表示しない */
-    padding-right: 0;
-    border-right: none;
+.drop-group.no-border {
+    /* JSでクラスが付与されたら線を透明にして隠す（幅がズレないようにするため） */
+    border-right-color: transparent !important;
 }
+
 .group-note {
     font-size: 13px;
     font-weight: bold;
@@ -231,9 +234,7 @@
         font-size: 12px;
     }
 }
-/* ====================================================
-   注意書き（※）のぶら下がりインデント設定
-   ==================================================== */
+/* 注意書き（※）のぶら下がりインデント設定 */
 .dungeon-warning {
     margin-top: 15px;
     padding: 12px 15px;
