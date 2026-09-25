@@ -32,10 +32,6 @@
     padding: 2px 6px;
     border-radius: 4px;
 }
-
-/* ====================================================
-   ★ 目次（ToC）のスタイル
-   ==================================================== */
 .toc-details {
     margin-bottom: 25px;
     background-color: #fff;
@@ -84,9 +80,6 @@
     color: #3498db;
 }
 
-/* ====================================================
-   シリーズ・アイテムスタイル
-   ==================================================== */
 .series-group {
     margin-bottom: 25px;
     background: #fff;
@@ -127,6 +120,14 @@
     flex-wrap: wrap; 
     align-items: center;
     gap: 4px;
+    /* ★ 修正: グループの右側に点線の区切りを追加 */
+    padding-right: 12px;
+    border-right: 1px dashed #bdc3c7;
+}
+.drop-group:last-child {
+    /* ★ 修正: 最後のグループは右側に点線を表示しない */
+    padding-right: 0;
+    border-right: none;
 }
 .group-note {
     font-size: 13px;
@@ -245,8 +246,8 @@
     line-height: 1.7;
 }
 .warning-item {
-    padding-left: 2em; /* ※1などの文字数分を全体の左から下げる */
-    text-indent: -2em; /* 最初の行だけを左に飛び出させる */
+    padding-left: 2em; 
+    text-indent: -2em; 
     margin-bottom: 6px;
 }
 .warning-item:last-child {
