@@ -1,5 +1,21 @@
 const ITEMS_PER_PAGE = 20;
 
+let groupResizeObserver = null;
+
+function setupObserver() {
+    if (!groupResizeObserver) {
+        groupResizeObserver = new ResizeObserver(() => {
+            requestAnimationFrame(updateBorders);
+        });
+    } else {
+        groupResizeObserver.disconnect();
+    }
+    
+    document.querySelectorAll('.category-groups').forEach(el => {
+        groupResizeObserver.observe(el);
+    });
+}
+
 function displayAnnouncements() {
     const listUl = document.getElementById('announcementList');
     if (!listUl) return;
@@ -240,16 +256,7 @@ function displayArenaList() {
     }
     listDiv.innerHTML = html;
 
-    // ★ 修正: 画像読み込みの遅延に対応するため複数回実行
-    setTimeout(updateBorders, 50);
-    setTimeout(updateBorders, 300);
-    setTimeout(updateBorders, 1000);
-    
-    // 画像がロードされるたびにも線を再計算する
-    const images = listDiv.querySelectorAll('img');
-    images.forEach(img => {
-        img.addEventListener('load', updateBorders);
-    });
+    setupObserver();
 }
 
 function displayNoteExample() {
@@ -299,8 +306,8 @@ function displayNoteExample() {
         }
     });
     container.innerHTML = html;
-
-    setTimeout(updateBorders, 50);
+    
+    setupObserver();
 }
 
 function parseCategory(text, isRandom) {
@@ -417,28 +424,49 @@ function parseExcelData(data, idMap) {
     return result;
 }
 
-// ★ 修正: 絶対的な画面上のY座標を使って、より確実に行の右端を判定する
+// ★ 完全刷新：行ごとにグループ分けして判定するロジック
 function updateBorders() {
     const categories = document.querySelectorAll('.category-groups');
     categories.forEach(cat => {
+        if (cat.offsetParent === null) return;
+
         const groups = Array.from(cat.querySelectorAll('.drop-group'));
         if (groups.length === 0) return;
         
-        groups.forEach(g => g.classList.remove('no-border'));
-        groups[groups.length - 1].classList.add('no-border');
+        // 全ての線を一旦リセットする
+        groups.forEach(g => {
+            g.classList.remove('no-border-right');
+            g.classList.remove('no-border-bottom');
+        });
         
-        let lastTop = groups[0].getBoundingClientRect().top;
+        // 「行」ごとに要素を仕分けする
+        let rows = [];
+        let currentRow = [groups[0]];
+        let lastCenterY = groups[0].getBoundingClientRect().top + (groups[0].offsetHeight / 2);
+        
         for (let i = 1; i < groups.length; i++) {
-            const currentTop = groups[i].getBoundingClientRect().top;
-            // 5px以上のズレがあれば「新しい行に落ちた」とみなす
-            if (currentTop > lastTop + 5) {
-                groups[i - 1].classList.add('no-border');
-                lastTop = currentTop;
+            let currentCenterY = groups[i].getBoundingClientRect().top + (groups[i].offsetHeight / 2);
+            
+            // Y座標が20px以上ズレていたら「新しい行（段）」と判定
+            if (currentCenterY > lastCenterY + 20) {
+                rows.push(currentRow);
+                currentRow = [groups[i]];
+                lastCenterY = currentCenterY;
+            } else {
+                currentRow.push(groups[i]);
             }
         }
+        rows.push(currentRow); // 最後の行を追加
+        
+        // 仕分けた行のデータを使って線を消す
+        rows.forEach((row, rowIndex) => {
+            // 1. 各行の一番右の要素は、右の線を消す
+            row[row.length - 1].classList.add('no-border-right');
+            
+            // 2. 一番下の行（最終行）のすべての要素は、下の線を消す
+            if (rowIndex === rows.length - 1) {
+                row.forEach(g => g.classList.add('no-border-bottom'));
+            }
+        });
     });
 }
-
-window.addEventListener('resize', () => {
-    requestAnimationFrame(updateBorders);
-});
