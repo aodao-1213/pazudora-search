@@ -207,9 +207,7 @@ function displayArenaList() {
                          </details>`;
             }
             
-            // ★ 修正: 注意書きの「ぶら下がりインデント」表示への対応
             if (arena.warning) {
-                // 文中にある※1などの直前で強引に改行させる
                 let formattedWarning = arena.warning.replace(/([^\n(（>])\s*(※\d+)/g, '$1\n$2');
                 let lines = formattedWarning.split(/\n/);
                 
@@ -217,7 +215,6 @@ function displayArenaList() {
                 let currentNote = '';
                 
                 lines.forEach(line => {
-                    // エクセル上で入力されたスペースを取り除く（CSSで自動調整するため）
                     line = line.trim();
                     if (!line) return;
                     
@@ -228,7 +225,6 @@ function displayArenaList() {
                         if (currentNote) {
                             currentNote += `<br>${line}`;
                         } else {
-                            // 最初の行が※から始まらない場合
                             warningHtml += `<div class="warning-item" style="padding-left: 0; text-indent: 0;">${line}</div>`;
                         }
                     }
