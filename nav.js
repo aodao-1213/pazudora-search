@@ -1,21 +1,18 @@
 function updateScreenFromHash() {
-    // URLの末尾（#topなど）を取得。なければ 'top' とする
     const hash = window.location.hash.replace('#', '') || 'top';
     
-    // 存在するすべての画面のIDリスト
+    // ★ sectionSettingsTheme を追加
     const screens = [
         'sectionTop', 'sectionSearch', 'sectionArena', 'sectionNotice', 
         'sectionNoticeList', 'sectionHowTo', 'sectionNotes', 
-        'sectionSettings', 'sectionSettingsHistory'
+        'sectionSettings', 'sectionSettingsHistory', 'sectionSettingsTheme'
     ];
     
-    // 一旦すべての画面を非表示にする
     screens.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.add('hidden');
     });
     
-    // ハッシュに応じて対象の画面だけを表示する
     if (hash === 'top') document.getElementById('sectionTop').classList.remove('hidden');
     else if (hash === 'search') document.getElementById('sectionSearch').classList.remove('hidden');
     else if (hash === 'arena') document.getElementById('sectionArena').classList.remove('hidden');
@@ -29,8 +26,10 @@ function updateScreenFromHash() {
     else if (hash === 'settings') document.getElementById('sectionSettings')?.classList.remove('hidden');
     else if (hash === 'settingsHistory') {
         document.getElementById('sectionSettingsHistory')?.classList.remove('hidden');
-        // ★ 履歴画面が開かれた瞬間に、履歴リストを描画する
         if (typeof renderSettingsHistory === 'function') renderSettingsHistory();
+    }
+    else if (hash === 'settingsTheme') {
+        document.getElementById('sectionSettingsTheme')?.classList.remove('hidden');
     }
 }
 

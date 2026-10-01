@@ -102,3 +102,25 @@ function clearAllSearchHistory() {
         updateSearchHistoryUI(); // 検索ボックス側の表示も更新
     }
 }
+
+// ==========================================
+// ★ カラーテーマ設定機能
+// ==========================================
+
+function setTheme(theme) {
+    if (theme === 'dark') {
+        document.body.classList.add('dark-theme');
+        localStorage.setItem('padTheme', 'dark');
+    } else {
+        document.body.classList.remove('dark-theme');
+        localStorage.setItem('padTheme', 'light');
+    }
+}
+
+// ページが読み込まれた時に保存されたテーマを復元する
+window.addEventListener('DOMContentLoaded', () => {
+    const savedTheme = localStorage.getItem('padTheme');
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-theme');
+    }
+});

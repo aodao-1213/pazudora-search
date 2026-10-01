@@ -49,7 +49,6 @@
         </div>
     </div>
 
-    <!-- ★ 追加: 設定画面 -->
     <!-- ⚙️設定画面（メインメニュー） -->
     <div id="sectionSettings" class="hidden">
         <button class="back-button" onclick="showScreen('top')">← トップに戻る</button>
@@ -61,6 +60,17 @@
                 <div class="settings-item-left">
                     <span class="settings-item-icon">🔍</span>
                     <span class="settings-item-text">検索履歴の管理</span>
+                </div>
+                <div class="settings-item-right">
+                    <span class="settings-item-arrow">➤</span>
+                </div>
+            </div>
+
+            <!-- ★ 追加: カラー設定へのリンクメニュー -->
+            <div class="settings-menu-item" onclick="showScreen('settingsTheme')">
+                <div class="settings-item-left">
+                    <span class="settings-item-icon">🎨</span>
+                    <span class="settings-item-text">カラー設定</span>
                 </div>
                 <div class="settings-item-right">
                     <span class="settings-item-arrow">➤</span>
@@ -86,6 +96,25 @@
             <ul id="settingsHistoryList" style="list-style: none; padding: 0; margin: 0;">
                 <!-- ここにJavaScriptで履歴リストが自動生成されます -->
             </ul>
+        </div>
+    </div>
+
+    <!-- 🎨設定画面（カラー設定サブページ） -->
+    <div id="sectionSettingsTheme" class="hidden">
+        <button class="back-button" onclick="showScreen('settings')">← 設定に戻る</button>
+        <h2>🎨 カラー設定</h2>
+        
+        <div class="result-box note-box">
+            <p style="font-size: 13px; color: #7f8c8d; margin-top: 0;">ツールの外観（テーマカラー）を切り替えることができます。</p>
+            
+            <div style="display: flex; gap: 15px; margin-top: 20px;">
+                <button class="action-button" onclick="setTheme('light')" style="flex: 1; background-color: #f8f9fa; color: #2c3e50; border: 2px solid #bdc3c7;">
+                    ☀️ ライトモード
+                </button>
+                <button class="action-button" onclick="setTheme('dark')" style="flex: 1; background-color: #2c3e50; color: #fff; border: 2px solid #34495e;">
+                    🌙 ダークモード
+                </button>
+            </div>
         </div>
     </div>
 
