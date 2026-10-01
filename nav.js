@@ -1,41 +1,48 @@
 function updateScreenFromHash() {
+    // URLの末尾（#topなど）を取得。なければ 'top' とする
     const hash = window.location.hash.replace('#', '') || 'top';
     
-    document.getElementById('sectionTop').classList.add('hidden');
-    document.getElementById('sectionSearch').classList.add('hidden');
-    document.getElementById('sectionArena').classList.add('hidden');
+    // 存在するすべての画面のIDリスト
+    const screens = [
+        'sectionTop', 'sectionSearch', 'sectionArena', 'sectionNotice', 
+        'sectionNoticeList', 'sectionHowTo', 'sectionNotes', 
+        'sectionSettings', 'sectionSettingsHistory'
+    ];
     
-    const noticeSection = document.getElementById('sectionNotice');
-    if (noticeSection) noticeSection.classList.add('hidden');
+    // 一旦すべての画面を非表示にする
+    screens.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+    });
     
-    const noticeListSection = document.getElementById('sectionNoticeList');
-    if (noticeListSection) noticeListSection.classList.add('hidden');
-
-    const howtoSection = document.getElementById('sectionHowTo');
-    if (howtoSection) howtoSection.classList.add('hidden');
-
-    const notesSection = document.getElementById('sectionNotes');
-    if (notesSection) notesSection.classList.add('hidden');
-    
+    // ハッシュに応じて対象の画面だけを表示する
     if (hash === 'top') document.getElementById('sectionTop').classList.remove('hidden');
     else if (hash === 'search') document.getElementById('sectionSearch').classList.remove('hidden');
     else if (hash === 'arena') document.getElementById('sectionArena').classList.remove('hidden');
-    else if (hash === 'notice' && noticeSection) noticeSection.classList.remove('hidden');
-    else if (hash === 'howto' && howtoSection) howtoSection.classList.remove('hidden');
-    else if (hash === 'notes' && notesSection) notesSection.classList.remove('hidden');
-    else if (hash === 'noticeList' && noticeListSection) {
-        noticeListSection.classList.remove('hidden');
+    else if (hash === 'notice') document.getElementById('sectionNotice')?.classList.remove('hidden');
+    else if (hash === 'noticeList') {
+        document.getElementById('sectionNoticeList')?.classList.remove('hidden');
         if (typeof showNoticeList === 'function') showNoticeList(1);
+    }
+    else if (hash === 'howto') document.getElementById('sectionHowTo')?.classList.remove('hidden');
+    else if (hash === 'notes') document.getElementById('sectionNotes')?.classList.remove('hidden');
+    else if (hash === 'settings') document.getElementById('sectionSettings')?.classList.remove('hidden');
+    else if (hash === 'settingsHistory') {
+        document.getElementById('sectionSettingsHistory')?.classList.remove('hidden');
+        // ★ 履歴画面が開かれた瞬間に、履歴リストを描画する
+        if (typeof renderSettingsHistory === 'function') renderSettingsHistory();
     }
 }
 
+// ハッシュ（URL）が切り替わったときに画面を更新する
 window.addEventListener('hashchange', updateScreenFromHash);
 
+// 画面遷移用の関数（ハッシュを変更するだけで画面が切り替わる）
 function showScreen(screenName) {
     window.location.hash = screenName;
 }
 
-// ★ 追加: 目次からシリーズの大枠にジャンプする機能
+// 目次からシリーズの大枠にジャンプする機能
 function jumpToSeries(seriesId) {
     const target = document.getElementById(`series-${seriesId}`);
     if (target) {
@@ -99,37 +106,4 @@ function handleBadgeClick(event, itemName) {
     jumpToSearch(itemName);
 }
 
-function showScreen(screenName) {
-    const screens = [
-        'sectionTop',
-        'sectionHowTo',
-        'sectionNotes',
-        'sectionNoticeList',
-        'sectionNotice',
-        'sectionSearch',
-        'sectionArena',
-        'sectionSettings',
-        'sectionSettingsHistory' // ★ サブページを追加
-    ];
-
-    screens.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.classList.add('hidden');
-    });
-
-    let targetId = 'sectionTop';
-    if (screenName === 'howto') targetId = 'sectionHowTo';
-    else if (screenName === 'notes') targetId = 'sectionNotes';
-    else if (screenName === 'noticelist' || screenName === 'noticeList') targetId = 'sectionNoticeList';
-    else if (screenName === 'notice') targetId = 'sectionNotice';
-    else if (screenName === 'search') targetId = 'sectionSearch';
-    else if (screenName === 'arena') targetId = 'sectionArena';
-    else if (screenName === 'settings') targetId = 'sectionSettings';
-    else if (screenName === 'settingsHistory') targetId = 'sectionSettingsHistory'; // ★ サブページへの分岐を追加
-
-    const targetEl = document.getElementById(targetId);
-    if (targetEl) targetEl.classList.remove('hidden');
-
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
 window.addEventListener('DOMContentLoaded', updateScreenFromHash);

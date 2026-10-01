@@ -50,12 +50,31 @@
     </div>
 
     <!-- ★ 追加: 設定画面 -->
+    <!-- ⚙️設定画面（メインメニュー） -->
     <div id="sectionSettings" class="hidden">
         <button class="back-button" onclick="showScreen('top')">← トップに戻る</button>
         <h2>⚙️ 設定</h2>
         
+        <div class="settings-menu-container">
+            <!-- 履歴管理へのリンクメニュー -->
+            <div class="settings-menu-item" onclick="showScreen('settingsHistory')">
+                <div class="settings-item-left">
+                    <span class="settings-item-icon">🔍</span>
+                    <span class="settings-item-text">検索履歴の管理</span>
+                </div>
+                <div class="settings-item-right">
+                    <span class="settings-item-arrow">➤</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔍設定画面（検索履歴の管理サブページ） -->
+    <div id="sectionSettingsHistory" class="hidden">
+        <button class="back-button" onclick="showScreen('settings')">← 設定に戻る</button>
+        <h2>🔍 検索履歴の管理</h2>
+        
         <div class="result-box note-box">
-            <h3 class="note-heading">🔍 検索履歴の管理</h3>
             <p style="font-size: 13px; color: #7f8c8d; margin-top: 0;">過去の検索履歴を個別に削除したり、すべてリセットすることができます。</p>
             
             <div style="margin-bottom: 15px; text-align: right; border-bottom: 2px solid #ecf0f1; padding-bottom: 15px;">
