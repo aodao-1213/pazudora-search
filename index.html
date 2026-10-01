@@ -26,6 +26,8 @@
 <div class="container">
     <div id="sectionTop">
         <div class="top-header-actions">
+            <!-- ★ 追加: 設定ボタン（クリック時に履歴リストを描画する処理も呼ぶ） -->
+            <button class="header-link-btn" onclick="showScreen('settings'); if(typeof renderSettingsHistory === 'function') renderSettingsHistory();">⚙️ 設定</button>
             <button class="header-link-btn" onclick="showScreen('howto')">📖 使い方</button>
             <button class="header-link-btn" onclick="showScreen('notes')">⚠️ 注意書き</button>
         </div>
@@ -46,6 +48,28 @@
             </div>
         </div>
     </div>
+
+    <!-- ★ 追加: 設定画面 -->
+    <div id="sectionSettings" class="hidden">
+        <button class="back-button" onclick="showScreen('top')">← トップに戻る</button>
+        <h2>⚙️ 設定</h2>
+        
+        <div class="result-box note-box">
+            <h3 class="note-heading">🔍 検索履歴の管理</h3>
+            <p style="font-size: 13px; color: #7f8c8d; margin-top: 0;">過去の検索履歴を個別に削除したり、すべてリセットすることができます。</p>
+            
+            <div style="margin-bottom: 15px; text-align: right; border-bottom: 2px solid #ecf0f1; padding-bottom: 15px;">
+                <button class="action-button" style="background-color: #e74c3c; width: auto; padding: 8px 15px; font-size: 13px;" onclick="clearAllSearchHistory()">
+                    🗑️ すべての履歴を削除
+                </button>
+            </div>
+            
+            <ul id="settingsHistoryList" style="list-style: none; padding: 0; margin: 0;">
+                <!-- ここにJavaScriptで履歴リストが自動生成されます -->
+            </ul>
+        </div>
+    </div>
+
 
     <!-- 使い方画面 -->
     <div id="sectionHowTo" class="hidden">
