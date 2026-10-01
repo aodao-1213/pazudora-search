@@ -100,7 +100,6 @@ function handleBadgeClick(event, itemName) {
 }
 
 function showScreen(screenName) {
-    // 全ての画面（セクション）のIDリスト（設定画面を追加）
     const screens = [
         'sectionTop',
         'sectionHowTo',
@@ -109,18 +108,15 @@ function showScreen(screenName) {
         'sectionNotice',
         'sectionSearch',
         'sectionArena',
-        'sectionSettings' // ★ ここを追加しました
+        'sectionSettings',
+        'sectionSettingsHistory' // ★ サブページを追加
     ];
 
-    // 一旦すべての画面を非表示にする
     screens.forEach(id => {
         const el = document.getElementById(id);
-        if (el) {
-            el.classList.add('hidden');
-        }
+        if (el) el.classList.add('hidden');
     });
 
-    // 指定された画面だけを表示する
     let targetId = 'sectionTop';
     if (screenName === 'howto') targetId = 'sectionHowTo';
     else if (screenName === 'notes') targetId = 'sectionNotes';
@@ -128,15 +124,12 @@ function showScreen(screenName) {
     else if (screenName === 'notice') targetId = 'sectionNotice';
     else if (screenName === 'search') targetId = 'sectionSearch';
     else if (screenName === 'arena') targetId = 'sectionArena';
-    else if (screenName === 'settings') targetId = 'sectionSettings'; // ★ ここを追加しました
+    else if (screenName === 'settings') targetId = 'sectionSettings';
+    else if (screenName === 'settingsHistory') targetId = 'sectionSettingsHistory'; // ★ サブページへの分岐を追加
 
     const targetEl = document.getElementById(targetId);
-    if (targetEl) {
-        targetEl.classList.remove('hidden');
-    }
+    if (targetEl) targetEl.classList.remove('hidden');
 
-    // 画面の一番上にスクロール
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
-
 window.addEventListener('DOMContentLoaded', updateScreenFromHash);
