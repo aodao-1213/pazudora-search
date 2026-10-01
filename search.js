@@ -10,7 +10,7 @@ function searchMaterial() {
         return;
     }
 
-    saveSearchHistory(input);
+    // ※ここにあった saveSearchHistory(input); を下に移動しました
 
     let hasExactMaterialMatch = false;
     dungeonData.forEach(arena => {
@@ -45,10 +45,14 @@ function searchMaterial() {
         });
     });
 
+    // 何も見つからなかった場合はここで処理が終了し、履歴には保存されません
     if (dungeonHits.length === 0 && materialHits.length === 0) {
         resultDiv.innerHTML = `<p>「${input}」に一致するダンジョンや素材は見つかりませんでした。</p>`;
         return;
     }
+
+    // ★ 修正: 検索結果が1件以上あった場合のみ履歴に保存する
+    saveSearchHistory(input);
 
     let html = `<h3 style="margin-top: 0; margin-bottom: 25px; font-size: 18px; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 8px;">🔍 検索結果</h3>`;
 
@@ -72,7 +76,6 @@ function searchMaterial() {
         html += `<div>
                     <h4 style="color: #2c3e50; border-bottom: 2px solid #bdc3c7; padding-bottom: 8px; margin-top: 0; margin-bottom: 15px; font-size: 16px;">💎 ドロップ素材</h4>`;
 
-        // 素材の種類ごとにグループ化して整理する
         const groupedMaterials = {};
         materialHits.forEach(res => {
             if (!groupedMaterials[res.exactName]) {
