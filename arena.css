@@ -332,7 +332,6 @@
     font-size: 14px;
     font-weight: bold;
 }
-
 /* ====================================================
    ダークモード設定（完全版）
    ==================================================== */
@@ -348,18 +347,19 @@ body.dark-theme .container {
     box-shadow: 0 4px 12px rgba(0,0,0,0.5);
 }
 
-/* ボックス・カード要素 */
+/* ボックス・カード要素（ダンジョンの背景の白飛びを修正） */
 body.dark-theme .result-box,
 body.dark-theme .series-group,
+body.dark-theme .series-group .item, /* ←ここを追加：ダンジョンごとの白い背景を黒くする */
 body.dark-theme .toc-details,
 body.dark-theme .settings-menu-container,
 body.dark-theme .announcement-area {
     background-color: #242424 !important;
-    border-color: #333 !important;
+    border-color: #444 !important;
     color: #e0e0e0 !important;
 }
 
-/* テキストの基本色（白飛び防止） */
+/* テキストの基本色 */
 body.dark-theme h1, 
 body.dark-theme h2, 
 body.dark-theme h3, 
@@ -369,7 +369,48 @@ body.dark-theme span {
     color: inherit;
 }
 
-/* トップメニューの大きなボタン（ダークに馴染む色へ） */
+/* ダンジョン名の赤色（黒背景に映える少し明るめの赤に調整） */
+body.dark-theme .dungeon-name {
+    color: #ff6b6b !important;
+}
+
+/* 経験値・コインなどのバッジ表示（白飛びして読めない問題の修正） */
+body.dark-theme .remark-value {
+    background-color: #333 !important;
+    border-color: #555 !important;
+    color: #fff !important;
+}
+body.dark-theme .remark-label {
+    background-color: #1a252f !important;
+    border-color: #555 !important;
+    color: #fff !important;
+}
+
+/* ドロップ報酬のカテゴリー名（青色を少し明るく） */
+body.dark-theme .drop-category h4 {
+    color: #5dade2 !important;
+    border-left-color: #5dade2 !important;
+}
+
+/* ×3 などの補足テキスト */
+body.dark-theme .group-note {
+    color: #ccc !important;
+}
+
+/* 交換目安のアコーディオン */
+body.dark-theme .exchange-details {
+    background-color: #242424 !important;
+    border-color: #3498db !important;
+}
+body.dark-theme .exchange-summary {
+    background-color: #1a252f !important;
+    color: #5dade2 !important;
+}
+body.dark-theme .exchange-content {
+    border-top-color: #444 !important;
+}
+
+/* トップメニューの大きなボタン */
 body.dark-theme .top-button {
     background: linear-gradient(135deg, #2c3e50, #1a252f) !important;
     box-shadow: 0 4px 6px rgba(0,0,0,0.4) !important;
@@ -384,13 +425,15 @@ body.dark-theme .top-button:hover {
 body.dark-theme .header-link-btn,
 body.dark-theme .back-button {
     color: #5dade2 !important;
+    background-color: #333 !important;
+    border-color: #555 !important;
 }
 body.dark-theme .header-link-btn:hover,
 body.dark-theme .back-button:hover {
-    background-color: rgba(255, 255, 255, 0.05) !important;
+    background-color: #444 !important;
 }
 
-/* お知らせエリア（白背景を黒へ修正） */
+/* お知らせエリア */
 body.dark-theme .announcement-list {
     background-color: #242424 !important;
 }
@@ -412,20 +455,21 @@ body.dark-theme .view-all-link {
     color: #5dade2 !important;
 }
 
-/* ダンジョンリスト関連 */
+/* ダンジョンリスト関連の見出し */
 body.dark-theme .series-group h3 {
     background-color: #1a252f !important;
     color: #fff !important;
     border-bottom: 1px solid #333 !important;
 }
-
 body.dark-theme .toc-summary {
     background-color: #2a2a2a !important;
     color: #5dade2 !important;
 }
-
 body.dark-theme .toc-content {
-    border-top-color: #333 !important;
+    border-top-color: #444 !important;
+}
+body.dark-theme .toc-list a {
+    color: #5dade2 !important;
 }
 
 /* アイテム区切りの線 */
@@ -460,7 +504,7 @@ body.dark-theme input[type="text"]:focus {
 /* ドロップダウン履歴 */
 body.dark-theme .history-list li {
     background-color: #242424 !important;
-    border-bottom-color: #333 !important;
+    border-bottom-color: #444 !important;
 }
 body.dark-theme .history-list li:hover {
     background-color: #333 !important;
@@ -469,11 +513,12 @@ body.dark-theme .history-list li:hover {
 /* 素材アイコン周り（白浮き防止） */
 body.dark-theme .material-badge img {
     background-color: #2a2a2a !important;
+    border: 1px solid #444;
 }
 
 /* 設定メニュー */
 body.dark-theme .settings-menu-item {
-    border-bottom-color: #333 !important;
+    border-bottom-color: #444 !important;
     background-color: #242424 !important;
 }
 body.dark-theme .settings-menu-item:hover {
