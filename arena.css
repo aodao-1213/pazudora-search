@@ -334,28 +334,32 @@
 }
 
 /* ====================================================
-   ダークモード設定
+   ダークモード設定（完全版）
    ==================================================== */
 body.dark-theme {
     background-color: #121212 !important;
     color: #e0e0e0 !important;
 }
 
+/* コンテナ全般 */
 body.dark-theme .container {
     background-color: #1e1e1e !important;
     color: #e0e0e0 !important;
     box-shadow: 0 4px 12px rgba(0,0,0,0.5);
 }
 
+/* ボックス・カード要素 */
 body.dark-theme .result-box,
 body.dark-theme .series-group,
 body.dark-theme .toc-details,
-body.dark-theme .settings-menu-container {
+body.dark-theme .settings-menu-container,
+body.dark-theme .announcement-area {
     background-color: #242424 !important;
     border-color: #333 !important;
     color: #e0e0e0 !important;
 }
 
+/* テキストの基本色（白飛び防止） */
 body.dark-theme h1, 
 body.dark-theme h2, 
 body.dark-theme h3, 
@@ -365,42 +369,127 @@ body.dark-theme span {
     color: inherit;
 }
 
-body.dark-theme .series-group h3 {
-    background-color: #2c3e50 !important;
+/* トップメニューの大きなボタン（ダークに馴染む色へ） */
+body.dark-theme .top-button {
+    background: linear-gradient(135deg, #2c3e50, #1a252f) !important;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.4) !important;
     color: #fff !important;
+    border: 1px solid #444 !important;
+}
+body.dark-theme .top-button:hover {
+    background: linear-gradient(135deg, #34495e, #2c3e50) !important;
+}
+
+/* ヘッダーリンク・戻るボタン */
+body.dark-theme .header-link-btn,
+body.dark-theme .back-button {
+    color: #5dade2 !important;
+}
+body.dark-theme .header-link-btn:hover,
+body.dark-theme .back-button:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* お知らせエリア（白背景を黒へ修正） */
+body.dark-theme .announcement-list {
+    background-color: #242424 !important;
+}
+body.dark-theme .notice-item {
+    border-bottom-color: #444 !important;
+    background-color: transparent !important;
+}
+body.dark-theme .notice-item:hover {
+    background-color: #333 !important;
+}
+body.dark-theme .notice-date-badge {
+    background-color: #444 !important;
+    color: #bbb !important;
+}
+body.dark-theme .notice-title-link {
+    color: #e0e0e0 !important;
+}
+body.dark-theme .view-all-link {
+    color: #5dade2 !important;
+}
+
+/* ダンジョンリスト関連 */
+body.dark-theme .series-group h3 {
+    background-color: #1a252f !important;
+    color: #fff !important;
+    border-bottom: 1px solid #333 !important;
 }
 
 body.dark-theme .toc-summary {
     background-color: #2a2a2a !important;
-    color: #3498db !important;
+    color: #5dade2 !important;
 }
 
 body.dark-theme .toc-content {
     border-top-color: #333 !important;
 }
 
+/* アイテム区切りの線 */
+body.dark-theme .item,
+body.dark-theme .drop-group {
+    border-bottom-color: #444 !important;
+    border-right-color: #444 !important;
+}
+body.dark-theme .drop-group::after {
+    border-right-color: #444 !important;
+}
+
+/* 注意書き（警告枠） */
+body.dark-theme .dungeon-warning {
+    background-color: #2c1a1a !important;
+    border-color: #4a2a2a !important;
+    border-left-color: #e74c3c !important;
+    color: #e0e0e0 !important;
+}
+
+/* 検索入力欄 */
 body.dark-theme input[type="text"] {
-    background-color: #2a2a2a !important;
+    background-color: #121212 !important;
     color: #fff !important;
     border-color: #444 !important;
 }
+body.dark-theme input[type="text"]:focus {
+    border-color: #5dade2 !important;
+    background-color: #1e1e1e !important;
+}
 
+/* ドロップダウン履歴 */
+body.dark-theme .history-list li {
+    background-color: #242424 !important;
+    border-bottom-color: #333 !important;
+}
+body.dark-theme .history-list li:hover {
+    background-color: #333 !important;
+}
+
+/* 素材アイコン周り（白浮き防止） */
 body.dark-theme .material-badge img {
     background-color: #2a2a2a !important;
 }
 
+/* 設定メニュー */
 body.dark-theme .settings-menu-item {
     border-bottom-color: #333 !important;
+    background-color: #242424 !important;
 }
-
 body.dark-theme .settings-menu-item:hover {
-    background-color: #2a2a2a !important;
+    background-color: #333 !important;
 }
-
 body.dark-theme .settings-item-text {
     color: #e0e0e0 !important;
 }
-
 body.dark-theme .settings-item-arrow {
-    color: #aaa !important;
+    color: #888 !important;
+}
+
+/* リンク色全般の調整 */
+body.dark-theme a {
+    color: #5dade2 !important;
+}
+body.dark-theme a:hover {
+    color: #85c1e9 !important;
 }
