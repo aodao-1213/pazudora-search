@@ -38,11 +38,21 @@ function updateSearchHistoryUI() {
     let html = '<ul class="history-list">';
     history.forEach(item => {
         const safeItem = item.replace(/'/g, "\\'");
-        // クリックしたら検索ボックスに入力して即検索
-        html += `<li onclick="document.getElementById('searchInput').value='${safeItem}'; searchMaterial();">${item}</li>`;
+        // クリックしたら検索ボックスに入力するだけ（検索は「検索する」ボタンかEnterで行う）
+        html += `<li onclick="selectHistoryItem('${safeItem}')">${item}</li>`;
     });
     html += '</ul>';
     historyArea.innerHTML = html;
+}
+
+// 履歴から選んだワードを検索ボックスに入れて、履歴の一覧を閉じる
+function selectHistoryItem(keyword) {
+    const input = document.getElementById('searchInput');
+    input.value = keyword;
+    input.classList.remove('input-active');
+
+    const historyArea = document.getElementById('searchHistoryArea');
+    if (historyArea) historyArea.style.display = 'none';
 }
 
 // ==========================================
