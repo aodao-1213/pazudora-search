@@ -78,12 +78,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function dismissTooltips(event) {
         const isBadge = event.target.closest('.material-badge');
-        const isCondition = event.target.closest('.condition-tooltip-container');
-        
-        if (!isBadge && !isCondition) {
+
+        if (!isBadge) {
             const activeEl = document.activeElement;
-            
-            if (activeEl && (activeEl.classList.contains('material-badge') || activeEl.classList.contains('condition-tooltip-container'))) {
+
+            if (activeEl && activeEl.classList.contains('material-badge')) {
                 activeEl.blur();
             }
 
