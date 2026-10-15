@@ -20,6 +20,10 @@ function exchangeCardHtml(ex) {
     const rateHtml = ex.rate ? `<span class="exchange-rate">${ex.rate}</span>` : '';
     const rateNoteHtml = ex.rateNote ? `<p class="exchange-rate-note">${ex.rateNote}</p>` : '';
     const materialsHtml = ex.materials.map(m => materialBadgeHtml(m.name, m.count)).join('');
+    // 条件列が「進化」の時はドット進化などの素材なので見出しを変える（それ以外は「すべて」「いずれか」などを見出しの後ろに付ける）
+    const needLabel = ex.condition === '進化'
+        ? '進化に必要なモンスター'
+        : `交換に必要なモンスター<span class="exchange-condition">（${ex.condition}）</span>`;
 
     return `<div class="exchange-card">
                 <div class="exchange-head">
@@ -31,7 +35,7 @@ function exchangeCardHtml(ex) {
                 </div>
                 ${rateNoteHtml}
                 <div class="exchange-need">
-                    <div class="exchange-need-label">交換に必要なモンスター<span class="exchange-condition">（${ex.condition}）</span></div>
+                    <div class="exchange-need-label">${needLabel}</div>
                     <div class="exchange-materials">${materialsHtml}</div>
                 </div>
             </div>`;

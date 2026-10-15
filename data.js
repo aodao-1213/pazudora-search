@@ -114,11 +114,12 @@ function parseExchangeData(rows) {
         const dungeon = row['ダンジョン'] ? String(row['ダンジョン']).trim() : '';
         if (!target || !dungeon) return;
 
-        // 「約550周,(※〜)」のように「,」の後ろは補足として分けて表示する
+        // 「約550周,(※〜)」や「約65周(※〜)」のように、「,」か「(※」から後ろは補足として分けて表示する
         const rawRate = row['必要周回数'] ? String(row['必要周回数']).trim() : '';
-        const commaIndex = rawRate.indexOf(',');
-        const rate = commaIndex >= 0 ? rawRate.slice(0, commaIndex).trim() : rawRate;
-        let rateNote = commaIndex >= 0 ? rawRate.slice(commaIndex + 1).trim() : '';
+        const splitCandidates = [rawRate.indexOf(','), rawRate.indexOf('(※')].filter(i => i >= 0);
+        const splitIndex = splitCandidates.length > 0 ? Math.min(...splitCandidates) : -1;
+        const rate = splitIndex >= 0 ? rawRate.slice(0, splitIndex).trim() : rawRate;
+        let rateNote = splitIndex >= 0 ? rawRate.slice(splitIndex).replace(/^,/, '').trim() : '';
         if (rateNote.startsWith('(') && rateNote.endsWith(')')) rateNote = rateNote.slice(1, -1);
 
         // 必要モンスターはドロップ列と同じ「名前(×数)」の書き方なので parseCategory を使い回す
