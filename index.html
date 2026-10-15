@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>パズドラ 闘技場報酬＆素材検索ツール</title>
+    <!-- 見出し用のゲーム風フォント（読み込めない環境では通常のゴシック体で表示される） -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="base.css">
     <link rel="stylesheet" href="search.css">
     <link rel="stylesheet" href="arena.css">
@@ -12,12 +16,12 @@
 <body>
 
 <!-- メンテナンス画面（普段は非表示） -->
-<div id="maintenanceScreen" class="hidden" style="text-align: center; padding: 80px 20px; font-family: sans-serif;">
-    <h2 style="color: #2c3e50; border: none; margin-bottom: 30px;">🛠 ただいまメンテナンス中です</h2>
-    
-    <div style="background: #f8f9fa; border: 2px solid #bdc3c7; border-radius: 8px; padding: 20px; display: inline-block; max-width: 90%;">
-        <p style="color: #34495e; font-weight: bold; margin: 0 0 10px 0; font-size: 15px;">【メンテナンス予定期間】</p>
-        <p id="maintenancePeriodText" style="color: #333; font-weight: bold; font-size: 15px; margin: 0;">
+<div id="maintenanceScreen" class="hidden maintenance-screen">
+    <h2>🛠 ただいまメンテナンス中です</h2>
+
+    <div class="maintenance-card">
+        <p class="maintenance-label">【メンテナンス予定期間】</p>
+        <p id="maintenancePeriodText">
             未定
         </p>
     </div>
@@ -32,18 +36,33 @@
             <button class="header-link-btn" onclick="showScreen('notes')">⚠️ 注意書き</button>
         </div>
 
-        <h1>パズドラ 検索＆報酬ツール</h1>
-        <p style="text-align: center; margin-bottom: 30px;">利用したい機能を選んでください</p>
-        
-       <div class="top-menu">
-            <button class="top-button" onclick="showScreen('search')">🔍 素材・ダンジョン検索</button>
-            <button class="top-button" onclick="showScreen('arena')">🎁 報酬リスト</button>
+        <header class="hero">
+            <p class="hero-eyebrow">ARENA REWARD &amp; SEARCH</p>
+            <h1>パズドラ 検索＆報酬ツール</h1>
+            <p class="hero-sub">利用したい機能を選んでください</p>
+        </header>
+
+        <div class="top-menu">
+            <button class="top-button" onclick="showScreen('search')">
+                <span class="top-button-icon">🔍</span>
+                <span class="top-button-text">
+                    <span class="top-button-title">素材・ダンジョン検索</span>
+                    <span class="top-button-desc">素材名やダンジョン名から、どこで手に入るかを探す</span>
+                </span>
+            </button>
+            <button class="top-button" onclick="showScreen('arena')">
+                <span class="top-button-icon">🎁</span>
+                <span class="top-button-text">
+                    <span class="top-button-title">報酬リスト</span>
+                    <span class="top-button-desc">闘技場シリーズのドロップ報酬を一覧で見る</span>
+                </span>
+            </button>
         </div>
 
         <div class="announcement-area">
-            <h3>📢 お知らせ (Announcement)</h3>
+            <h3>📢 お知らせ</h3>
             <ul id="announcementList" class="announcement-list"></ul>
-            <div style="text-align: right; padding: 10px 15px;">
+            <div class="announcement-footer">
                 <a href="#noticeList" class="view-all-link">すべて表示する &gt;</a>
             </div>
         </div>
@@ -85,15 +104,15 @@
         <h2>🔍 検索履歴の管理</h2>
         
         <div class="result-box note-box">
-            <p style="font-size: 13px; color: #7f8c8d; margin-top: 0;">過去の検索履歴を個別に削除したり、すべてリセットすることができます。</p>
-            
-            <div style="margin-bottom: 15px; text-align: right; border-bottom: 2px solid #ecf0f1; padding-bottom: 15px;">
-                <button class="action-button" style="background-color: #e74c3c; width: auto; padding: 8px 15px; font-size: 13px;" onclick="clearAllSearchHistory()">
+            <p class="muted-text">過去の検索履歴を個別に削除したり、すべてリセットすることができます。</p>
+
+            <div class="settings-history-toolbar">
+                <button class="action-button danger-button" onclick="clearAllSearchHistory()">
                     🗑️ すべての履歴を削除
                 </button>
             </div>
-            
-            <ul id="settingsHistoryList" style="list-style: none; padding: 0; margin: 0;">
+
+            <ul id="settingsHistoryList" class="history-list-plain">
                 <!-- ここにJavaScriptで履歴リストが自動生成されます -->
             </ul>
         </div>
@@ -105,14 +124,16 @@
         <h2>🎨 カラー設定</h2>
         
         <div class="result-box note-box">
-            <p style="font-size: 13px; color: #7f8c8d; margin-top: 0;">ツールの外観（テーマカラー）を切り替えることができます。</p>
-            
-            <div style="display: flex; gap: 15px; margin-top: 20px;">
-                <button class="action-button" onclick="setTheme('light')" style="flex: 1; background-color: #f8f9fa; color: #2c3e50; border: 2px solid #bdc3c7;">
-                    ☀️ ライトモード
+            <p class="muted-text">ツールの外観（テーマカラー）を切り替えることができます。</p>
+
+            <div class="theme-options">
+                <button class="theme-option" data-theme-option="dark" onclick="setTheme('dark')">
+                    <span class="theme-swatch theme-swatch-dark"></span>
+                    <span>🌙 黒メイン</span>
                 </button>
-                <button class="action-button" onclick="setTheme('dark')" style="flex: 1; background-color: #2c3e50; color: #fff; border: 2px solid #34495e;">
-                    🌙 ダークモード
+                <button class="theme-option" data-theme-option="light" onclick="setTheme('light')">
+                    <span class="theme-swatch theme-swatch-light"></span>
+                    <span>☀️ 白メイン</span>
                 </button>
             </div>
         </div>
@@ -131,46 +152,46 @@
             <ul class="note-list">
                 <li><strong>① キーワードを入力</strong><br>「希石」や「たまドラ」、「億兆」などの一部の文字を入力し、「検索する」ボタンを押します（Enterキーでも検索できます）。過去の検索履歴からも選べます。</li>
                 <li><strong>② 検索結果の見方</strong><br>結果は「🏰 ダンジョン」と「💎 ドロップ素材」に分かれて表示されます。</li>
-                <li><strong>③ ダンジョンへのジャンプ</strong><br>表示されたダンジョン名（青字の下線）をタップすると、報酬リストの該当箇所へ一瞬でジャンプし、画面中央に大きくハイライト表示されます。</li>
+                <li><strong>③ ダンジョンへのジャンプ</strong><br>表示されたダンジョン名（右端に ➤ が付いた行）をタップすると、報酬リストの該当箇所へ一瞬でジャンプし、画面中央に大きくハイライト表示されます。</li>
             </ul>
 
             <!-- ★ 使用例の開閉ボタン（文章は元に戻し、最後に配置） -->
-            <details class="exchange-details" style="margin-top: 20px;">
+            <details class="exchange-details howto-details">
                 <summary class="exchange-summary">🔽 検索機能の使用例</summary>
-                <div class="exchange-content" style="padding: 15px; border-top: 1px solid #bdc3c7;">
-                    <p style="margin-top: 0;">例として、ダンジョン「未知の新星/混沌の億兆龍」を「億兆」というワードで検索する。</p>
-                    
-                    <div style="margin-top: 20px;">
-                        <strong style="font-size: 16px; border-bottom: 2px solid #3498db; padding-bottom: 2px; color: #2c3e50;">① キーワードを入力</strong>
-                        <p style="margin-top: 8px;">検索ボックスに「億兆」と入力する。</p>
-                        <div style="text-align: center; margin: 10px 0;">
-                            <img src="images/howto_1.png" alt="検索ボックス入力" style="max-width: 100%; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <div class="exchange-content howto-example">
+                    <p class="howto-lead">例として、ダンジョン「未知の新星/混沌の億兆龍」を「億兆」というワードで検索する。</p>
+
+                    <div class="howto-step">
+                        <strong class="howto-step-title">① キーワードを入力</strong>
+                        <p>検索ボックスに「億兆」と入力する。</p>
+                        <div class="howto-image">
+                            <img src="images/howto_1.png" alt="検索ボックス入力">
                         </div>
-                        
+
                         <p>入力の際、検索履歴から楽に入力を済ませれます。</p>
-                        <div style="text-align: center; margin: 10px 0;">
-                            <img src="images/howto_2.png" alt="検索履歴" style="max-width: 100%; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <div class="howto-image">
+                            <img src="images/howto_2.png" alt="検索履歴">
                         </div>
-                        
+
                         <p>入力を終えたら、検索ボタンを押す。Enter(改行)でも検索できます。</p>
-                        <div style="text-align: center; margin: 10px 0;">
-                            <img src="images/howto_3.png" alt="検索ボタン" style="max-width: 100%; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <div class="howto-image">
+                            <img src="images/howto_3.png" alt="検索ボタン">
                         </div>
                     </div>
 
-                    <div style="margin-top: 25px;">
-                        <strong style="font-size: 16px; border-bottom: 2px solid #3498db; padding-bottom: 2px; color: #2c3e50;">② 検索結果の見方</strong>
-                        <p style="margin-top: 8px;">「🏰 ダンジョン」には、「混沌の億兆龍」や「裏混沌の億兆龍」など4種類のダンジョンが表示されています。一方、「💎 ドロップ素材」には、「煌窮の億兆龍・アグリゲート」などの素材が表示されます。</p>
-                        <div style="text-align: center; margin: 10px 0;">
-                            <img src="images/howto_4.png" alt="検索結果" style="max-width: 100%; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <div class="howto-step">
+                        <strong class="howto-step-title">② 検索結果の見方</strong>
+                        <p>「🏰 ダンジョン」には、「混沌の億兆龍」や「裏混沌の億兆龍」など4種類のダンジョンが表示されています。一方、「💎 ドロップ素材」には、「煌窮の億兆龍・アグリゲート」などの素材が表示されます。</p>
+                        <div class="howto-image">
+                            <img src="images/howto_4.png" alt="検索結果">
                         </div>
                     </div>
 
-                    <div style="margin-top: 25px;">
-                        <strong style="font-size: 16px; border-bottom: 2px solid #3498db; padding-bottom: 2px; color: #2c3e50;">③ ダンジョンへのジャンプ</strong>
-                        <p style="margin-top: 8px;">青文字で記されている「未知の新星/混沌の億兆龍」をクリックすると、該当ダンジョンの報酬リストに飛ぶことができます。</p>
-                        <div style="text-align: center; margin: 10px 0;">
-                            <img src="images/howto_5.png" alt="ダンジョンへのジャンプ" style="max-width: 100%; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                    <div class="howto-step">
+                        <strong class="howto-step-title">③ ダンジョンへのジャンプ</strong>
+                        <p>「未知の新星 / 混沌の億兆龍」の行をクリックすると、該当ダンジョンの報酬リストに飛ぶことができます。</p>
+                        <div class="howto-image">
+                            <img src="images/howto_5.png" alt="ダンジョンへのジャンプ">
                         </div>
                     </div>
                 </div>
@@ -192,10 +213,7 @@
         <div class="result-box note-box">
             <h3 class="note-heading">3. ダンジョン情報の見方</h3>
             <div class="dark-example-box">
-                <p style="margin-top: 0; color: #f1c40f !important; font-weight: bold;">【表示されるアイコンや条件の例】</p>
-                <p>・<strong>スタミナ / バトル数</strong>：挑戦に必要なスタミナと階層です。</p>
-                <p>・<strong>陽加護 / 陰加護アイコン</strong>：ダンジョンに付与されている属性補正です。</p>
-                <p>・<strong>【超重力】 / 【超高度】</strong>：ダンジョン特有の制限効果です（文字にカーソルやタップを合わせると詳細な倍率が見られます）。</p>
+                <p class="example-title">【表示される情報の例】</p>
                 <p style="margin-bottom: 0;">・<strong>ボス・乱入・部位破壊</strong>：ボスの本体やパーツがどこでドロップするかを記載しています。</p>
             </div>
         </div>
@@ -242,7 +260,7 @@
             </div>
 
             <!-- ドロップリスト自動生成枠 -->
-            <div id="noteExampleDrop" style="border: 2px solid #17202a; border-top: none; border-radius: 0 0 8px 8px; padding: 15px; background: #fdfdfe;">
+            <div id="noteExampleDrop" class="note-example-drop">
             </div>
         </div>
 
@@ -282,7 +300,7 @@
             <div id="searchHistoryArea" class="history-dropdown"></div>
         </div>
         <button class="action-button" onclick="searchMaterial()">検索する</button>
-        <div id="searchResult" class="result-box">ここに検索結果が表示されます。</div>
+        <div id="searchResult" class="result-box"><p class="search-placeholder">ここに検索結果が表示されます。</p></div>
     </div>
 
     <!-- 報酬リスト画面 -->
