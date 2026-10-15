@@ -1,21 +1,5 @@
 const ITEMS_PER_PAGE = 20;
 
-let groupResizeObserver = null;
-
-function setupObserver() {
-    if (!groupResizeObserver) {
-        groupResizeObserver = new ResizeObserver(() => {
-            requestAnimationFrame(updateBorders);
-        });
-    } else {
-        groupResizeObserver.disconnect();
-    }
-    
-    document.querySelectorAll('.category-groups').forEach(el => {
-        groupResizeObserver.observe(el);
-    });
-}
-
 function displayAnnouncements() {
     const listUl = document.getElementById('announcementList');
     if (!listUl) return;
@@ -132,46 +116,20 @@ function displayArenaList() {
         
         dungeons.forEach(arena => {
             const safeId = encodeURIComponent(arena.name);
-            const battleHtml = arena.battles ? `<span class="stamina-badge">バトル: ${arena.battles}</span>` : '';
-            
-            let titleExtra = "";
-            if (arena.yinYang) {
-                if (arena.yinYang.includes('陰')) {
-                    titleExtra += `<img src="images/陰加護.png" alt="陰" class="yinyang-icon">`;
-                } else if (arena.yinYang.includes('陽')) {
-                    titleExtra += `<img src="images/陽加護.png" alt="陽" class="yinyang-icon">`;
-                }
-            }
-            if (arena.gravity) titleExtra += `<span class="dungeon-condition">【超重力 ${arena.gravity}】</span>`;
-            if (arena.altitude) titleExtra += `<span class="dungeon-condition">【超高度 ${arena.altitude}】</span>`;
-            if (arena.effectName) {
-                if (arena.effectDetail) {
-                    titleExtra += `<span class="dungeon-condition condition-tooltip-container" tabindex="0">
-                                       ${arena.effectName}
-                                       <span class="custom-tooltip">${arena.effectDetail}</span>
-                                   </span>`;
-                } else {
-                    titleExtra += `<span class="dungeon-condition">${arena.effectName}</span>`;
-                }
-            }
-            
+
             html += `<div class="item" id="dungeon-${safeId}">
                         <div class="item-title">
                             <span class="dungeon-name">${arena.name}</span>
-                            ${titleExtra} 
-                            <span class="stamina-badge">スタミナ: ${arena.stamina}</span> 
-                            ${battleHtml}
                         </div>`;
-            
+
+            // 経験値・コインなどは「経験値 1億 ／ コイン 30億 ／ …」の1行テキストにまとめる
             if (arena.remarks && arena.remarks.length > 0) {
-                html += `<div class="dungeon-remarks">`;
-                arena.remarks.forEach(rem => {
-                    html += `<div class="remark-item">
-                                <span class="remark-label">${rem.label}</span>
-                                <span class="remark-value">${rem.value}</span>
-                             </div>`;
+                const stats = arena.remarks.map(rem => {
+                    // 「+ポイント +2,970」のように + が重複しないよう、ラベル側に + がある時は値の + を外す
+                    const value = rem.label.startsWith('+') ? rem.value.replace(/^\+/, '') : rem.value;
+                    return `<span class="stat-item"><span class="stat-label">${rem.label}</span> <span class="stat-value">${value}</span></span>`;
                 });
-                html += `</div>`;
+                html += `<div class="dungeon-stats">${stats.join('<span class="stat-sep">／</span>')}</div>`;
             }
 
             arena.drops.forEach(dropCategory => {
@@ -255,8 +213,6 @@ function displayArenaList() {
         html += `</div>`;
     }
     listDiv.innerHTML = html;
-
-    setupObserver();
 }
 
 function displayNoteExample() {
@@ -306,8 +262,6 @@ function displayNoteExample() {
         }
     });
     container.innerHTML = html;
-    
-    setupObserver();
 }
 
 function parseCategory(text, isRandom) {
@@ -422,51 +376,4 @@ function parseExcelData(data, idMap) {
         result.push({ series, name, stamina, battles, remarks, exchangeRate, drops, allRewards, warning, yinYang, gravity, altitude, effectName, effectDetail });
     });
     return result;
-}
-
-// ★ 行ごとの右端縦線と、一番下の横線を自動で消す処理
-function updateBorders() {
-    const categories = document.querySelectorAll('.category-groups');
-    categories.forEach(cat => {
-        if (cat.offsetParent === null) return;
-
-        const groups = Array.from(cat.querySelectorAll('.drop-group'));
-        if (groups.length === 0) return;
-        
-        // 全てのグループから透明化クラスを剥がして線をリセット
-        groups.forEach(g => {
-            g.classList.remove('no-border-right');
-            g.classList.remove('no-border-bottom');
-        });
-        
-        let rows = [];
-        let currentRow = [groups[0]];
-        let lastCenterY = groups[0].getBoundingClientRect().top + (groups[0].offsetHeight / 2);
-        
-        // 要素を行ごとに仕分ける
-        for (let i = 1; i < groups.length; i++) {
-            let currentCenterY = groups[i].getBoundingClientRect().top + (groups[i].offsetHeight / 2);
-            
-            // Y座標が15px以上下がっていれば「新しい行」と判定
-            if (currentCenterY - lastCenterY > 15) {
-                rows.push(currentRow);
-                currentRow = [groups[i]];
-                lastCenterY = currentCenterY;
-            } else {
-                currentRow.push(groups[i]);
-            }
-        }
-        rows.push(currentRow);
-        
-        // 判定した行データをもとに、不要な線を消す
-        rows.forEach((row, rowIndex) => {
-            // 各行の一番右の要素は、縦線を消す
-            row[row.length - 1].classList.add('no-border-right');
-            
-            // 一番下の行（最終行）の要素は、横線と余白を消す
-            if (rowIndex === rows.length - 1) {
-                row.forEach(g => g.classList.add('no-border-bottom'));
-            }
-        });
-    });
 }

@@ -1,31 +1,20 @@
-.dungeon-remarks {
-    margin-top: 8px;
-    margin-bottom: 10px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
+/* 経験値・コインなどの1行テキスト */
+.dungeon-stats {
+    margin-bottom: 4px;
+    font-size: 12px;
+    line-height: 1.7;
+    color: #7f8c8d;
 }
-.remark-item {
-    display: inline-flex;
-    align-items: center;
-    background: #fff;
-    border: 1px solid #bdc3c7;
-    border-radius: 4px;
-    overflow: hidden;
-    font-size: 13px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+.stat-item {
+    white-space: nowrap; /* 折り返しは項目の切れ目でだけ起こす */
 }
-.remark-label {
-    background-color: #34495e;
-    color: #fff;
-    padding: 4px 8px;
-    font-weight: bold;
-}
-.remark-value {
-    padding: 4px 10px;
+.stat-value {
     color: #2c3e50;
     font-weight: bold;
-    background-color: #ecf0f1;
+}
+.stat-sep {
+    margin: 0 6px;
+    color: #bdc3c7;
 }
 .dungeon-warning {
     margin-top: 15px;
@@ -38,10 +27,9 @@
     border-radius: 4px;
     line-height: 1.5;
 }
+/* 0%/100%を省略して、要素自身の背景色（カード色）から光って戻るようにする */
 @keyframes flashOrange {
-    0%   { background-color: transparent; }
     50%  { background-color: rgba(255, 165, 0, 0.4); }
-    100% { background-color: transparent; }
 }
 .flash-highlight {
     animation: flashOrange 1.2s ease-in-out 3;
@@ -95,35 +83,4 @@
 }
 .exchange-list li {
     margin-bottom: 4px;
-}
-
-.dungeon-condition {
-    font-size: 13px;
-    color: #8e44ad; 
-    font-weight: bold;
-    vertical-align: middle;
-}
-.condition-tooltip-container {
-    position: relative;
-    cursor: help; 
-    display: inline-block;
-}
-.yinyang-icon {
-    height: 1.3em;
-    vertical-align: text-bottom;
-    display: inline-block;
-}
-
-@media (max-width: 600px) {
-    .remark-label {
-        padding: 3px 6px;
-        font-size: 11px;
-    }
-    .remark-value {
-        padding: 3px 8px;
-        font-size: 12px;
-    }
-    .dungeon-condition {
-        font-size: 11px;
-    }
 }

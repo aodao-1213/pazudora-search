@@ -226,6 +226,16 @@ h2 {
     color: #bdc3c7;
 }
 
+/* スマホでは外側の余白を詰めて表示幅を確保する */
+@media (max-width: 600px) {
+    body {
+        padding: 8px;
+    }
+    .container {
+        padding: 12px;
+    }
+}
+
 /* スマホ閲覧時は縦に並べて綺麗に見せる */
 @media (max-width: 500px) {
     .credit-separator {
