@@ -1,38 +1,36 @@
-.result-box {
-    margin-top: 15px;
-    padding: 15px;
-    background: #fff;
-    border: 1px solid #e0e0e0;
-    border-radius: 4px;
+/* ====================================================
+   報酬リスト画面
+   ==================================================== */
+
+/* シリーズごとのパネルが並ぶので、外側の枠は付けない */
+#arenaList.result-box {
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
 }
-.item-title {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 8px;
-}
-.dungeon-name {
-    font-weight: bold;
-    color: #e74c3c;
-    font-size: 18px;
-}
+
+/* ---------- 目次 ---------- */
 .toc-details {
-    margin-bottom: 25px;
-    background-color: #fff;
-    border: 2px solid #3498db;
-    border-radius: 8px;
+    margin-bottom: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
     overflow: hidden;
 }
 .toc-summary {
-    padding: 12px 15px;
+    padding: 14px 18px;
     font-size: 15px;
     font-weight: bold;
-    color: #2c3e50;
-    background-color: #ebf5fb;
+    color: var(--text);
     cursor: pointer;
     list-style: none;
     user-select: none;
+    transition: background-color 0.2s;
+}
+.toc-summary:hover {
+    background-color: var(--surface-2);
 }
 .toc-summary::-webkit-details-marker {
     display: none;
@@ -40,111 +38,198 @@
 .toc-summary::before {
     content: "▶";
     display: inline-block;
-    margin-right: 8px;
-    color: #3498db;
+    margin-right: 10px;
+    font-size: 12px;
+    color: var(--gold-bright);
     transition: transform 0.2s ease;
 }
 .toc-details[open] .toc-summary::before {
     transform: rotate(90deg);
 }
 .toc-content {
-    padding: 15px;
-    border-top: 1px solid #bdc3c7;
+    padding: 14px 18px 18px;
+    border-top: 1px solid var(--border);
 }
+/* シリーズ名はタグ状に並べて、すぐ飛べるようにする */
 .toc-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
     margin: 0;
-    padding-left: 20px;
-    line-height: 1.8;
+    padding: 0;
+    list-style: none;
 }
 .toc-list a {
-    color: #2980b9;
-    text-decoration: underline;
+    display: inline-block;
+    padding: 6px 14px;
+    font-size: 13px;
     font-weight: bold;
+    color: var(--text);
+    text-decoration: none;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    transition: border-color 0.2s, background-color 0.2s;
 }
 .toc-list a:hover {
-    color: #3498db;
+    color: var(--text);
+    border-color: var(--gold-bright);
+    background: var(--surface-3);
 }
 
+/* ---------- シリーズ（闘技場ごとのまとまり） ---------- */
 .series-group {
-    margin-bottom: 25px;
-    background: #fff;
-    border-radius: 8px;
-    border: 1px solid #bdc3c7;
+    margin-bottom: 28px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    scroll-margin-top: 12px;
 }
 .series-group h3 {
-    background-color: #34495e;
-    color: white;
+    position: relative;
     margin: 0;
-    padding: 12px 15px;
-    font-size: 20px; 
-    font-weight: bold;
-    border-radius: 7px 7px 0 0; 
+    padding: 14px 18px 14px 40px;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 20px;
+    letter-spacing: 0.04em;
+    color: #ffe08a;
+    background: var(--header-grad);
+    border-bottom: 1px solid rgba(255, 214, 107, 0.35);
 }
-/* ダンジョン1つ分をカードにして、ダンジョン間の境目をはっきりさせる */
-.series-group .item {
-    margin: 12px;
-    padding: 15px;
-    background: #f7f9fb;
-    border: 1px solid #d5dde6;
-    border-radius: 8px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+/* 見出し左の宝石風マーク */
+.series-group h3::before {
+    content: "";
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    width: 10px;
+    height: 10px;
+    background: var(--gold-grad);
+    transform: translateY(-50%) rotate(45deg);
+    box-shadow: 0 0 10px rgba(255, 207, 92, 0.8);
 }
-.drop-category {
-    margin-top: 12px;
-    padding-top: 8px;
-}
-.drop-category h4 {
-    margin: 0 0 8px 0;
-    font-size: 14px;
-    color: #2980b9;
-    border-left: 4px solid #3498db;
-    padding-left: 8px;
+/* ダンジョンのカードを並べる部分（PCでは2列） */
+.series-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+    padding: 14px;
 }
 
+/* ---------- ダンジョン1つ分のカード ---------- */
+.series-group .item {
+    position: relative;
+    padding: 16px 16px 16px 18px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    transition: border-color 0.2s;
+}
+/* カード左端の金色ライン */
+.series-group .item::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 14px;
+    bottom: 14px;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: var(--gold-grad);
+}
+.series-group .item:hover {
+    border-color: var(--border-strong);
+}
+.item-title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+}
+.dungeon-name {
+    font-weight: bold;
+    color: var(--dungeon-name);
+    font-size: 18px;
+    letter-spacing: 0.02em;
+}
+
+/* ---------- ドロップ欄 ---------- */
+.drop-category {
+    margin-top: 14px;
+}
+/* カテゴリー名は小さなラベルにして、ダンジョン名より目立たせない */
+.drop-category h4 {
+    display: inline-block;
+    margin: 0 0 8px 0;
+    padding: 2px 10px;
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--purple);
+    background: var(--purple-soft);
+    border-radius: 999px;
+}
 /* グループ同士は線を引かず、余白（gap）だけで区切る */
 .category-groups {
     display: flex;
     flex-wrap: wrap;
     gap: 14px 24px; /* グループ内のアイコン間隔(4px)よりはっきり広くする */
 }
-
 .drop-group {
     display: inline-flex;
     flex-wrap: wrap;
     align-items: center; /* アイコンを上下中央に */
     gap: 4px; /* アイコンと文字の隙間 */
 }
-
 .group-note {
     font-size: 13px;
     font-weight: bold;
-    color: #2c3e50;
+    color: var(--text-sub);
     margin-left: 2px;
     line-height: 1.5;
     white-space: normal;
     word-break: keep-all;
 }
+
+/* ---------- 素材アイコン ---------- */
 .material-badge {
     position: relative;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 45px;
-    height: 45px;
+    width: 46px;
+    height: 46px;
     flex-shrink: 0;
+    border-radius: 8px;
+    transition: transform 0.15s;
 }
 .material-badge img {
     width: 100%;
     height: 100%;
     object-fit: contain;
-    border-radius: 6px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-    background-color: #fff;
+    border-radius: 8px;
+    background-color: var(--icon-bg);
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+    transition: box-shadow 0.15s, border-color 0.15s;
+}
+.material-badge:hover {
+    transform: translateY(-2px);
+}
+.material-badge:hover img,
+.material-badge:focus img {
+    border-color: var(--gold-bright);
+    box-shadow: var(--glow);
+}
+.material-badge:focus {
+    outline: none;
 }
 .fallback-text {
     font-size: 11px;
-    color: #e74c3c;
+    color: var(--danger);
     font-weight: bold;
     margin-top: 4px;
     text-align: center;
@@ -152,26 +237,30 @@
     word-wrap: break-word;
     width: 100%;
 }
+
+/* ---------- 素材名の吹き出し（どちらのテーマでも暗い吹き出し） ---------- */
 .custom-tooltip {
     visibility: hidden;
     opacity: 0;
     position: absolute;
-    bottom: 115%;
+    bottom: 120%;
     left: 50%;
     transform: translateX(-50%);
-    background-color: rgba(0, 0, 0, 0.85);
+    background-color: #0d0e1a;
     color: #fff;
     text-align: center;
     padding: 6px 10px;
-    border-radius: 6px;
+    border: 1px solid rgba(255, 214, 107, 0.6);
+    border-radius: 8px;
     font-size: 12px;
+    font-weight: bold;
     z-index: 100;
     transition: opacity 0.2s, visibility 0.2s;
     pointer-events: none;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
     white-space: normal;
     word-break: keep-all;
-    min-width: 140px; 
+    min-width: 140px;
 }
 .custom-tooltip::after {
     content: "";
@@ -181,7 +270,7 @@
     margin-left: -5px;
     border-width: 5px;
     border-style: solid;
-    border-color: rgba(0, 0, 0, 0.85) transparent transparent transparent;
+    border-color: rgba(255, 214, 107, 0.6) transparent transparent transparent;
 }
 .material-badge:hover .custom-tooltip,
 .material-badge:focus .custom-tooltip {
@@ -189,24 +278,49 @@
     opacity: 1;
 }
 
+/* ====================================================
+   PC：カードを2列に並べる（アイコンが多いダンジョンは1行まるごと使う）
+   ==================================================== */
+@media (min-width: 900px) {
+    .series-body {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        padding: 16px;
+    }
+    .series-group .item-wide {
+        grid-column: 1 / -1;
+    }
+}
+
+/* ====================================================
+   スマホ
+   ==================================================== */
 @media (max-width: 600px) {
-    .item-title {
-        gap: 4px;
-    }
-    .series-group .item {
-        margin: 8px;
-        padding: 12px 10px;
-    }
-    .dungeon-name {
-        font-size: 15px;
+    .series-group {
+        margin-bottom: 20px;
     }
     .series-group h3 {
         font-size: 17px;
-        padding: 10px 10px;
+        padding: 12px 14px 12px 34px;
+    }
+    .series-group h3::before {
+        left: 14px;
+        width: 8px;
+        height: 8px;
+    }
+    .series-body {
+        gap: 10px;
+        padding: 10px;
+    }
+    .series-group .item {
+        padding: 12px 12px 12px 14px;
+    }
+    .dungeon-name {
+        font-size: 16px;
     }
     .material-badge {
-        width: 38px;
-        height: 38px;
+        width: 40px;
+        height: 40px;
     }
     .group-note {
         font-size: 12px;
@@ -214,278 +328,10 @@
     .category-groups {
         gap: 12px 18px;
     }
-    /* 報酬リストの外枠をなくして、枠の入れ子を減らし表示幅を広げる */
-    #arenaList.result-box {
-        padding: 0;
-        border: none;
-        background: transparent;
+    .toc-summary {
+        padding: 12px 14px;
     }
-    body.dark-theme #arenaList.result-box {
-        background-color: transparent !important;
+    .toc-content {
+        padding: 12px 14px 14px;
     }
-}
-/* 注意書き（※）のぶら下がりインデント設定 */
-.dungeon-warning {
-    margin-top: 15px;
-    padding: 12px 15px;
-    background-color: #fff9fa;
-    border: 1px solid #fadbd8;
-    border-left: 4px solid #e74c3c;
-    border-radius: 4px;
-    font-size: 13px;
-    color: #2c3e50;
-    line-height: 1.7;
-}
-.warning-item {
-    padding-left: 2em; 
-    text-indent: -2em; 
-    margin-bottom: 6px;
-}
-.warning-item:last-child {
-    margin-bottom: 0;
-}
-
-/* ====================================================
-   設定画面のChrome風メニューUI
-   ==================================================== */
-.settings-menu-container {
-    background-color: #fff;
-    border: 1px solid #dadce0;
-    border-radius: 8px;
-    overflow: hidden;
-    margin-top: 15px;
-}
-.settings-menu-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 20px;
-    cursor: pointer;
-    border-bottom: 1px solid #dadce0;
-    transition: background-color 0.2s ease;
-}
-.settings-menu-item:last-child {
-    border-bottom: none;
-}
-.settings-menu-item:hover {
-    background-color: #f1f3f4;
-}
-.settings-item-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-.settings-item-icon {
-    font-size: 18px;
-}
-.settings-item-text {
-    font-size: 15px;
-    font-weight: bold;
-    color: #202124;
-}
-.settings-item-arrow {
-    color: #5f6368;
-    font-size: 14px;
-    font-weight: bold;
-}
-/* ====================================================
-   ダークモード設定（完全版）
-   ==================================================== */
-body.dark-theme {
-    background-color: #121212 !important;
-    color: #e0e0e0 !important;
-}
-
-/* コンテナ全般 */
-body.dark-theme .container {
-    background-color: #1e1e1e !important;
-    color: #e0e0e0 !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-}
-
-/* ボックス・カード要素（ダンジョンの背景の白飛びを修正） */
-body.dark-theme .result-box,
-body.dark-theme .series-group,
-body.dark-theme .toc-details,
-body.dark-theme .settings-menu-container,
-body.dark-theme .announcement-area {
-    background-color: #242424 !important;
-    border-color: #444 !important;
-    color: #e0e0e0 !important;
-}
-
-/* ダンジョンのカード（!importantを付けるとジャンプ時の点滅アニメーションが効かなくなるので付けない） */
-body.dark-theme .series-group .item {
-    background-color: #2e2e2e;
-    border-color: #444;
-    color: #e0e0e0;
-}
-
-/* テキストの基本色 */
-body.dark-theme h1, 
-body.dark-theme h2, 
-body.dark-theme h3, 
-body.dark-theme h4, 
-body.dark-theme p, 
-body.dark-theme span {
-    color: inherit;
-}
-
-/* ダンジョン名の赤色（黒背景に映える少し明るめの赤に調整） */
-body.dark-theme .dungeon-name {
-    color: #ff6b6b !important;
-}
-
-/* 経験値・コインなどの1行テキスト */
-body.dark-theme .dungeon-stats {
-    color: #999 !important;
-}
-body.dark-theme .stat-value {
-    color: #e0e0e0 !important;
-}
-body.dark-theme .stat-sep {
-    color: #555 !important;
-}
-
-/* ドロップ報酬のカテゴリー名（青色を少し明るく） */
-body.dark-theme .drop-category h4 {
-    color: #5dade2 !important;
-    border-left-color: #5dade2 !important;
-}
-
-/* ×3 などの補足テキスト */
-body.dark-theme .group-note {
-    color: #ccc !important;
-}
-
-/* 交換目安のアコーディオン */
-body.dark-theme .exchange-details {
-    background-color: #242424 !important;
-    border-color: #3498db !important;
-}
-body.dark-theme .exchange-summary {
-    background-color: #1a252f !important;
-    color: #5dade2 !important;
-}
-body.dark-theme .exchange-content {
-    border-top-color: #444 !important;
-}
-
-/* トップメニューの大きなボタン */
-body.dark-theme .top-button {
-    background: linear-gradient(135deg, #2c3e50, #1a252f) !important;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.4) !important;
-    color: #fff !important;
-    border: 1px solid #444 !important;
-}
-body.dark-theme .top-button:hover {
-    background: linear-gradient(135deg, #34495e, #2c3e50) !important;
-}
-
-/* ヘッダーリンク・戻るボタン */
-body.dark-theme .header-link-btn,
-body.dark-theme .back-button {
-    color: #5dade2 !important;
-    background-color: #333 !important;
-    border-color: #555 !important;
-}
-body.dark-theme .header-link-btn:hover,
-body.dark-theme .back-button:hover {
-    background-color: #444 !important;
-}
-
-/* お知らせエリア */
-body.dark-theme .announcement-list {
-    background-color: #242424 !important;
-}
-body.dark-theme .notice-item {
-    border-bottom-color: #444 !important;
-    background-color: transparent !important;
-}
-body.dark-theme .notice-item:hover {
-    background-color: #333 !important;
-}
-body.dark-theme .notice-date-badge {
-    background-color: #444 !important;
-    color: #bbb !important;
-}
-body.dark-theme .notice-title-link {
-    color: #e0e0e0 !important;
-}
-body.dark-theme .view-all-link {
-    color: #5dade2 !important;
-}
-
-/* ダンジョンリスト関連の見出し */
-body.dark-theme .series-group h3 {
-    background-color: #1a252f !important;
-    color: #fff !important;
-    border-bottom: 1px solid #333 !important;
-}
-body.dark-theme .toc-summary {
-    background-color: #2a2a2a !important;
-    color: #5dade2 !important;
-}
-body.dark-theme .toc-content {
-    border-top-color: #444 !important;
-}
-body.dark-theme .toc-list a {
-    color: #5dade2 !important;
-}
-
-/* 注意書き（警告枠） */
-body.dark-theme .dungeon-warning {
-    background-color: #2c1a1a !important;
-    border-color: #4a2a2a !important;
-    border-left-color: #e74c3c !important;
-    color: #e0e0e0 !important;
-}
-
-/* 検索入力欄 */
-body.dark-theme input[type="text"] {
-    background-color: #121212 !important;
-    color: #fff !important;
-    border-color: #444 !important;
-}
-body.dark-theme input[type="text"]:focus {
-    border-color: #5dade2 !important;
-    background-color: #1e1e1e !important;
-}
-
-/* ドロップダウン履歴 */
-body.dark-theme .history-list li {
-    background-color: #242424 !important;
-    border-bottom-color: #444 !important;
-}
-body.dark-theme .history-list li:hover {
-    background-color: #333 !important;
-}
-
-/* 素材アイコン周り（白浮き防止） */
-body.dark-theme .material-badge img {
-    background-color: #2a2a2a !important;
-    border: 1px solid #444;
-}
-
-/* 設定メニュー */
-body.dark-theme .settings-menu-item {
-    border-bottom-color: #444 !important;
-    background-color: #242424 !important;
-}
-body.dark-theme .settings-menu-item:hover {
-    background-color: #333 !important;
-}
-body.dark-theme .settings-item-text {
-    color: #e0e0e0 !important;
-}
-body.dark-theme .settings-item-arrow {
-    color: #888 !important;
-}
-
-/* リンク色全般の調整 */
-body.dark-theme a {
-    color: #5dade2 !important;
-}
-body.dark-theme a:hover {
-    color: #85c1e9 !important;
 }

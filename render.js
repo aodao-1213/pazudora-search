@@ -112,12 +112,14 @@ function displayArenaList() {
 
     for (const [seriesName, dungeons] of Object.entries(groupedData)) {
         const safeSeriesId = encodeURIComponent(seriesName);
-        html += `<div class="series-group" id="series-${safeSeriesId}"><h3>${seriesName}</h3>`;
-        
+        html += `<div class="series-group" id="series-${safeSeriesId}"><h3>${seriesName}</h3><div class="series-body">`;
+
         dungeons.forEach(arena => {
             const safeId = encodeURIComponent(arena.name);
+            // アイコンが多いダンジョンは、PCの2列表示でも1行まるごと使う
+            const isWide = arena.allRewards.length > 16;
 
-            html += `<div class="item" id="dungeon-${safeId}">
+            html += `<div class="item${isWide ? ' item-wide' : ''}" id="dungeon-${safeId}">
                         <div class="item-title">
                             <span class="dungeon-name">${arena.name}</span>
                         </div>`;
@@ -169,7 +171,7 @@ function displayArenaList() {
             
             if (arena.exchangeRate) {
                 const rates = arena.exchangeRate.split(',');
-                html += `<details class="exchange-details" style="margin-top: 15px;">
+                html += `<details class="exchange-details">
                             <summary class="exchange-summary">🔄 素材の交換目安を見る</summary>
                             <div class="exchange-content">
                                 <ul class="exchange-list">`;
@@ -210,7 +212,7 @@ function displayArenaList() {
 
             html += `</div>`;
         });
-        html += `</div>`;
+        html += `</div></div>`;
     }
     listDiv.innerHTML = html;
 }
@@ -221,15 +223,15 @@ function displayNoteExample() {
 
     const targetDungeon = dungeonData.find(d => d.name === '大樹の霊王');
     if (!targetDungeon) {
-        container.innerHTML = "<p style='color: #e74c3c; font-weight: bold;'>大樹の霊王のデータが見つかりません。</p>";
+        container.innerHTML = "<p class='search-message is-error'>大樹の霊王のデータが見つかりません。</p>";
         return;
     }
 
-    let html = `<h4 style="margin: 0 0 10px 0; color: #e74c3c; border-bottom: 1px dashed #bdc3c7; padding-bottom: 5px;">【例】大樹の霊王のドロップ</h4>`;
-    
+    let html = `<h4 class="note-example-title">【例】大樹の霊王のドロップ</h4>`;
+
     targetDungeon.drops.forEach(dropCategory => {
         if (dropCategory.groups.length > 0) {
-            html += `<div class="drop-category" style="margin-top: 5px; padding-top: 5px;">
+            html += `<div class="drop-category">
                         <h4>${dropCategory.category}</h4>
                         <div class="category-groups">`;
             

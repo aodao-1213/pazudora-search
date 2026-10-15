@@ -3,84 +3,106 @@
     margin-bottom: 4px;
     font-size: 12px;
     line-height: 1.7;
-    color: #7f8c8d;
+    color: var(--text-muted);
 }
 .stat-item {
     white-space: nowrap; /* 折り返しは項目の切れ目でだけ起こす */
 }
 .stat-value {
-    color: #2c3e50;
+    color: var(--text);
     font-weight: bold;
+    font-variant-numeric: tabular-nums;
 }
 .stat-sep {
     margin: 0 6px;
-    color: #bdc3c7;
+    color: var(--border-strong);
 }
-.dungeon-warning {
-    margin-top: 15px;
-    padding: 10px 12px;
-    font-size: 13px;
-    color: #555;
-    background-color: #fdfdfe;
-    border: 1px solid #e0e6ed;
-    border-left: 4px solid #95a5a6;
-    border-radius: 4px;
-    line-height: 1.5;
-}
-/* 0%/100%を省略して、要素自身の背景色（カード色）から光って戻るようにする */
+
+/* ジャンプ時の点滅
+   0%/100%を省略して、要素自身の背景色（カード色）から光って戻るようにする */
 @keyframes flashOrange {
-    50%  { background-color: rgba(255, 165, 0, 0.4); }
+    50% {
+        background-color: rgba(255, 190, 60, 0.35);
+        box-shadow: 0 0 0 2px var(--gold-bright), 0 0 24px rgba(255, 190, 60, 0.5);
+    }
 }
 .flash-highlight {
     animation: flashOrange 1.2s ease-in-out 3;
 }
+
+/* 交換目安などの折りたたみ */
 .exchange-details {
-    margin-top: 15px;
-    background-color: #f8f9fa;
-    border: 1px solid #dcdde1;
-    border-radius: 6px;
+    margin-top: 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
     overflow: hidden;
 }
 .exchange-summary {
-    padding: 10px 15px;
+    padding: 10px 14px;
     font-size: 13px;
     font-weight: bold;
-    color: #2c3e50;
+    color: var(--text-sub);
     cursor: pointer;
     list-style: none;
     position: relative;
     user-select: none;
-    transition: background-color 0.2s;
+    transition: background-color 0.2s, color 0.2s;
 }
 .exchange-summary:hover {
-    background-color: #e2e8f0;
+    color: var(--text);
+    background-color: var(--surface-3);
 }
 .exchange-summary::-webkit-details-marker {
-    display: none; 
+    display: none;
 }
 .exchange-summary::before {
     content: "▶";
     display: inline-block;
     margin-right: 8px;
-    color: #3498db;
+    font-size: 11px;
+    color: var(--gold-bright);
     transition: transform 0.2s ease;
 }
 .exchange-details[open] .exchange-summary::before {
     transform: rotate(90deg);
 }
 .exchange-content {
-    padding: 0 15px 12px 15px;
-    border-top: 1px dashed #dcdde1;
-    margin-top: 5px;
-    padding-top: 10px;
+    padding: 10px 14px 12px;
+    border-top: 1px solid var(--border);
 }
 .exchange-list {
     margin: 0;
     padding-left: 20px;
     font-size: 13px;
-    color: #2c3e50;
-    line-height: 1.6;
+    color: var(--text-sub);
+    line-height: 1.7;
 }
 .exchange-list li {
     margin-bottom: 4px;
+}
+.exchange-list li::marker {
+    color: var(--gold-bright);
+}
+
+/* 注意書き（※）枠 */
+.dungeon-warning {
+    margin-top: 14px;
+    padding: 10px 14px;
+    background-color: var(--danger-soft);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--danger);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    color: var(--text-sub);
+    line-height: 1.7;
+}
+/* ※のぶら下がりインデント */
+.warning-item {
+    padding-left: 2em;
+    text-indent: -2em;
+    margin-bottom: 6px;
+}
+.warning-item:last-child {
+    margin-bottom: 0;
 }

@@ -31,16 +31,15 @@ function updateSearchHistoryUI() {
     
     const history = getSearchHistory();
     if (history.length === 0) {
-        historyArea.innerHTML = '<div style="padding: 10px; color: #7f8c8d; text-align: center; font-size: 13px;">履歴はありません</div>';
+        historyArea.innerHTML = '<div class="history-empty">履歴はありません</div>';
         return;
     }
 
-    let html = '<ul class="history-list" style="list-style: none; padding: 0; margin: 0;">';
+    let html = '<ul class="history-list">';
     history.forEach(item => {
         const safeItem = item.replace(/'/g, "\\'");
         // クリックしたら検索ボックスに入力して即検索
-        html += `<li style="padding: 10px; border-bottom: 1px solid #ecf0f1; cursor: pointer;" 
-                     onclick="document.getElementById('searchInput').value='${safeItem}'; searchMaterial();">${item}</li>`;
+        html += `<li onclick="document.getElementById('searchInput').value='${safeItem}'; searchMaterial();">${item}</li>`;
     });
     html += '</ul>';
     historyArea.innerHTML = html;
@@ -57,18 +56,15 @@ function renderSettingsHistory() {
 
     const history = getSearchHistory();
     if (history.length === 0) {
-        listEl.innerHTML = '<li style="text-align: center; color: #7f8c8d; padding: 20px 0;">検索履歴はありません。</li>';
+        listEl.innerHTML = '<li class="settings-history-empty">検索履歴はありません。</li>';
         return;
     }
 
     let html = '';
     history.forEach((item, index) => {
-        const safeItem = item.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-        html += `<li style="display: flex; justify-content: space-between; align-items: center; padding: 12px 5px; border-bottom: 1px dashed #bdc3c7;">
-                    <span style="font-size: 15px; color: #2c3e50; font-weight: bold;">${item}</span>
-                    <button onclick="deleteHistoryItem(${index})" style="background: #95a5a6; color: white; border: none; border-radius: 4px; padding: 6px 12px; cursor: pointer; font-size: 12px; font-weight: bold; transition: background 0.2s;">
-                        ✕ 削除
-                    </button>
+        html += `<li class="settings-history-item">
+                    <span class="settings-history-word">${item}</span>
+                    <button class="history-delete-btn" onclick="deleteHistoryItem(${index})">✕ 削除</button>
                  </li>`;
     });
     listEl.innerHTML = html;
@@ -115,6 +111,15 @@ function setTheme(theme) {
         document.body.classList.remove('dark-theme');
         localStorage.setItem('padTheme', 'light');
     }
+    updateThemeButtons();
+}
+
+// カラー設定画面で、今使っているテーマのカードに「使用中」を付ける
+function updateThemeButtons() {
+    const current = document.body.classList.contains('dark-theme') ? 'dark' : 'light';
+    document.querySelectorAll('[data-theme-option]').forEach(btn => {
+        btn.classList.toggle('is-active', btn.dataset.themeOption === current);
+    });
 }
 
 // ページが読み込まれた時に保存されたテーマを復元する
@@ -123,4 +128,5 @@ window.addEventListener('DOMContentLoaded', () => {
     if (savedTheme === 'dark') {
         document.body.classList.add('dark-theme');
     }
+    updateThemeButtons();
 });

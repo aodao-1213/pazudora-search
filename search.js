@@ -6,7 +6,7 @@ function searchMaterial() {
     if (historyArea) historyArea.style.display = 'none';
     
     if (!input) {
-        resultDiv.innerHTML = "<p style='color: #e74c3c; font-weight: bold;'>キーワードを入力してください。</p>";
+        resultDiv.innerHTML = "<p class='search-message is-error'>キーワードを入力してください。</p>";
         return;
     }
 
@@ -47,25 +47,25 @@ function searchMaterial() {
 
     // 何も見つからなかった場合はここで処理が終了し、履歴には保存されません
     if (dungeonHits.length === 0 && materialHits.length === 0) {
-        resultDiv.innerHTML = `<p>「${input}」に一致するダンジョンや素材は見つかりませんでした。</p>`;
+        resultDiv.innerHTML = `<p class="search-message">「${input}」に一致するダンジョンや素材は見つかりませんでした。</p>`;
         return;
     }
 
     // ★ 修正: 検索結果が1件以上あった場合のみ履歴に保存する
     saveSearchHistory(input);
 
-    let html = `<h3 style="margin-top: 0; margin-bottom: 25px; font-size: 18px; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 8px;">🔍 検索結果</h3>`;
+    let html = `<h3 class="search-heading">🔍 検索結果</h3>`;
 
     if (dungeonHits.length > 0) {
-        html += `<div style="margin-bottom: 30px;">
-                    <h4 style="color: #2c3e50; border-bottom: 2px solid #bdc3c7; padding-bottom: 8px; margin-top: 0; margin-bottom: 15px; font-size: 16px;">🏰 ダンジョン</h4>
-                    <ul class="search-result-list" style="margin: 0; padding-left: 20px;">`;
-        
+        html += `<div class="search-section">
+                    <h4 class="search-section-title">🏰 ダンジョン</h4>
+                    <ul class="search-result-list">`;
+
         dungeonHits.forEach(arena => {
             const safeDungeon = arena.name.replace(/'/g, "\\'");
-            html += `<li style="margin-bottom: 8px;">
-                        <a href="javascript:void(0);" onclick="jumpToDungeon('${safeDungeon}')" style="text-decoration: underline; color: #3498db; font-weight: bold; cursor: pointer; font-size: 15px;">
-                            ${arena.series} / ${arena.name}
+            html += `<li>
+                        <a href="javascript:void(0);" class="search-link" onclick="jumpToDungeon('${safeDungeon}')">
+                            <span class="search-link-main"><span class="search-link-series">${arena.series} /</span> ${arena.name}</span>
                         </a>
                      </li>`;
         });
@@ -73,8 +73,8 @@ function searchMaterial() {
     }
 
     if (materialHits.length > 0) {
-        html += `<div>
-                    <h4 style="color: #2c3e50; border-bottom: 2px solid #bdc3c7; padding-bottom: 8px; margin-top: 0; margin-bottom: 15px; font-size: 16px;">💎 ドロップ素材</h4>`;
+        html += `<div class="search-section">
+                    <h4 class="search-section-title">💎 ドロップ素材</h4>`;
 
         const groupedMaterials = {};
         materialHits.forEach(res => {
@@ -88,29 +88,29 @@ function searchMaterial() {
         });
 
         for (const [matName, matData] of Object.entries(groupedMaterials)) {
-            let idDisplay = matData.id ? `No.${matData.id} ` : "";
+            let idDisplay = matData.id ? `<span class="search-result-id">No.${matData.id}</span>` : "";
             const imageFileName = matData.id ? matData.id : encodeURIComponent(matName);
 
-            html += `<div style="margin-bottom: 25px;">
-                        <div class="search-result-header" style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
-                            <div class="result-image-wrapper" style="width: 45px; height: 45px; flex-shrink: 0;">
-                                <img src="images/${imageFileName}.png" alt="${matName}" style="width: 100%; height: 100%; object-fit: contain; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.15); background-color: #fff;"
+            html += `<div class="search-material">
+                        <div class="search-result-header">
+                            <div class="result-image-wrapper">
+                                <img src="images/${imageFileName}.png" alt="${matName}"
                                      onerror="this.onerror=null; this.src='images/question.png'; this.nextElementSibling.style.display='block';">
-                                <span class="fallback-text" style="display:none; font-size: 10px; color: #e74c3c; font-weight: bold; text-align: center; word-wrap: break-word; line-height: 1.2;">${matName}</span>
+                                <span class="fallback-text" style="display:none;">${matName}</span>
                             </div>
-                            <h5 style="margin: 0; font-size: 15px; font-weight: bold; color: #2c3e50;">${idDisplay}${matName}</h5>
+                            <h5 class="search-result-name">${idDisplay}${matName}</h5>
                         </div>
-                        <ul class="search-result-list" style="margin: 0; padding-left: 20px;">`;
+                        <ul class="search-result-list">`;
 
             matData.hits.forEach(res => {
                 const safeDungeon = res.dungeon.replace(/'/g, "\\'");
-                let noteHtml = res.note ? ` <span class="search-note" style="color: #e67e22; font-size: 12px; margin-left: 5px; font-weight: bold;">${res.note}</span>` : '';
-                
-                html += `<li style="margin-bottom: 10px;">
-                            <a href="javascript:void(0);" class="dungeon-link" onclick="jumpToDungeon('${safeDungeon}')" style="text-decoration: underline; color: #3498db; font-weight: bold; cursor: pointer; font-size: 14px;">
-                                ${res.series} / ${res.dungeon}
-                            </a> 
-                            <span class="search-category" style="color: #27ae60; font-size: 13px; margin-left: 5px; font-weight: bold;">[${res.category}]</span>${noteHtml}
+                let noteHtml = res.note ? `<span class="search-note">${res.note}</span>` : '';
+
+                html += `<li>
+                            <a href="javascript:void(0);" class="search-link dungeon-link" onclick="jumpToDungeon('${safeDungeon}')">
+                                <span class="search-link-main"><span class="search-link-series">${res.series} /</span> ${res.dungeon}</span>
+                                <span class="search-category">${res.category}</span>${noteHtml}
+                            </a>
                          </li>`;
             });
 
