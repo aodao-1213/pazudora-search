@@ -1,5 +1,42 @@
 const ITEMS_PER_PAGE = 20;
 
+// 素材アイコン1つ分のHTML（タップで検索・吹き出しで名前表示）。countText があればアイコン右下に「×50」のように重ねる
+function materialBadgeHtml(itemName, countText = '') {
+    const safeJSName = itemName.replace(/'/g, "\\'");
+    const imageFileName = globalIdMap[itemName] ? globalIdMap[itemName] : encodeURIComponent(itemName);
+    const countHtml = countText ? `<span class="badge-count">${countText}</span>` : '';
+
+    return `<div class="material-badge" tabindex="0" onclick="handleBadgeClick(event, '${safeJSName}')">
+                <img src="images/${imageFileName}.png" alt="${itemName}"
+                     onerror="this.onerror=null; this.src='images/question.png'; this.nextElementSibling.style.display='block';">
+                <span class="fallback-text" style="display:none;">${itemName}</span>
+                ${countHtml}
+                <span class="custom-tooltip">${itemName}</span>
+            </div>`;
+}
+
+// 交換先1体分のカード（ゲームの交換画面風：交換先 → 交換に必要なモンスター×数）
+function exchangeCardHtml(ex) {
+    const rateHtml = ex.rate ? `<span class="exchange-rate">${ex.rate}</span>` : '';
+    const rateNoteHtml = ex.rateNote ? `<p class="exchange-rate-note">${ex.rateNote}</p>` : '';
+    const materialsHtml = ex.materials.map(m => materialBadgeHtml(m.name, m.count)).join('');
+
+    return `<div class="exchange-card">
+                <div class="exchange-head">
+                    ${materialBadgeHtml(ex.target)}
+                    <div class="exchange-head-text">
+                        <div class="exchange-target-name">${ex.target}</div>
+                        ${rateHtml}
+                    </div>
+                </div>
+                ${rateNoteHtml}
+                <div class="exchange-need">
+                    <div class="exchange-need-label">交換に必要なモンスター<span class="exchange-condition">（${ex.condition}）</span></div>
+                    <div class="exchange-materials">${materialsHtml}</div>
+                </div>
+            </div>`;
+}
+
 function displayAnnouncements() {
     const listUl = document.getElementById('announcementList');
     if (!listUl) return;
@@ -144,15 +181,7 @@ function displayArenaList() {
                         html += `<div class="drop-group">`;
                         
                         group.items.forEach(itemName => {
-                            const safeJSName = itemName.replace(/'/g, "\\'");
-                            const imageFileName = globalIdMap[itemName] ? globalIdMap[itemName] : encodeURIComponent(itemName);
-                            
-                            html += `<div class="material-badge" tabindex="0" onclick="handleBadgeClick(event, '${safeJSName}')">
-                                        <img src="images/${imageFileName}.png" alt="${itemName}" 
-                                             onerror="this.onerror=null; this.src='images/question.png'; this.nextElementSibling.style.display='block';">
-                                        <span class="fallback-text" style="display:none;">${itemName}</span>
-                                        <span class="custom-tooltip">${itemName}</span>
-                                     </div>`;
+                            html += materialBadgeHtml(itemName);
                         });
 
                         if (group.note) {
@@ -169,7 +198,16 @@ function displayArenaList() {
                 }
             });
             
-            if (arena.exchangeRate) {
+            if (arena.exchanges && arena.exchanges.length > 0) {
+                // 「交換」シートにデータがあるダンジョンは、ゲームの交換画面のような表示にする
+                html += `<details class="exchange-details">
+                            <summary class="exchange-summary">🔄 素材の交換目安を見る</summary>
+                            <div class="exchange-content exchange-cards">
+                                ${arena.exchanges.map(exchangeCardHtml).join('')}
+                            </div>
+                         </details>`;
+            } else if (arena.exchangeRate) {
+                // まだ「交換」シートに移していないダンジョンは、従来の「交換可能なレート」列を文字で表示
                 const rates = arena.exchangeRate.split(',');
                 html += `<details class="exchange-details">
                             <summary class="exchange-summary">🔄 素材の交換目安を見る</summary>
@@ -239,15 +277,7 @@ function displayNoteExample() {
                 html += `<div class="drop-group">`;
                 
                 group.items.forEach(itemName => {
-                    const safeJSName = itemName.replace(/'/g, "\\'");
-                    const imageFileName = globalIdMap[itemName] ? globalIdMap[itemName] : encodeURIComponent(itemName);
-                    
-                    html += `<div class="material-badge" tabindex="0" onclick="handleBadgeClick(event, '${safeJSName}')">
-                                <img src="images/${imageFileName}.png" alt="${itemName}" 
-                                     onerror="this.onerror=null; this.src='images/question.png'; this.nextElementSibling.style.display='block';">
-                                <span class="fallback-text" style="display:none;">${itemName}</span>
-                                <span class="custom-tooltip">${itemName}</span>
-                             </div>`;
+                    html += materialBadgeHtml(itemName);
                 });
 
                 if (group.note) {

@@ -25,13 +25,17 @@ async function loadExcel() {
         
         const workbook = XLSX.read(arrayBuffer, { type: 'array' });
         maintenanceData = []; // 一旦リセット
-        
+
+        // シートは「名前」で探す（Excel側でシートの並び順を変えても読み込みがずれないように）
+        // ダンジョン一覧だけは従来どおり1枚目のシートを使う
+        const getSheet = (name) => workbook.Sheets[name] || null;
+
         const sheet1 = workbook.Sheets[workbook.SheetNames[0]];
         const jsonData = XLSX.utils.sheet_to_json(sheet1);
-        
+
         let idMap = {};
-        if (workbook.SheetNames.length > 1) {
-            const sheet2 = workbook.Sheets[workbook.SheetNames[1]];
+        const sheet2 = getSheet('素材名と図鑑番号の対応');
+        if (sheet2) {
             const idData = XLSX.utils.sheet_to_json(sheet2, { header: "A", defval: "" });
             
             idData.forEach(row => {
@@ -46,9 +50,9 @@ async function loadExcel() {
         globalIdMap = idMap;
 
         announcementData = [];
-        if (workbook.SheetNames.length > 2) {
-            const sheet3 = workbook.Sheets[workbook.SheetNames[2]];
-            const noticeData = XLSX.utils.sheet_to_json(sheet3, { raw: true });
+        const noticeSheet = getSheet('お知らせ');
+        if (noticeSheet) {
+            const noticeData = XLSX.utils.sheet_to_json(noticeSheet, { raw: true });
             
             noticeData.forEach((row, index) => {
                 const date = formatExcelDate(row['日付']);
@@ -62,9 +66,9 @@ async function loadExcel() {
             announcementData.reverse(); 
         }
 
-        if (workbook.SheetNames.length > 3) {
-            const sheet4 = workbook.Sheets[workbook.SheetNames[3]];
-            const mainteData = XLSX.utils.sheet_to_json(sheet4, { raw: false, header: "A", defval: "" });
+        const mainteSheet = getSheet('メンテ期間');
+        if (mainteSheet) {
+            const mainteData = XLSX.utils.sheet_to_json(mainteSheet, { raw: false, header: "A", defval: "" });
             
             for (let i = 1; i < mainteData.length; i++) { 
                 const row = mainteData[i];
@@ -88,10 +92,45 @@ async function loadExcel() {
         }
         
         dungeonData = parseExcelData(jsonData, idMap);
+
+        // 「交換」シートの内容を、対応するダンジョンにくっつける
+        const exchangeSheet = getSheet('交換');
+        const exchangeMap = exchangeSheet ? parseExchangeData(XLSX.utils.sheet_to_json(exchangeSheet)) : {};
+        dungeonData.forEach(d => {
+            d.exchanges = exchangeMap[d.name] || [];
+        });
     } catch (error) {
         console.error('Excelの読み込みに失敗:', error);
         document.getElementById('arenaList').innerHTML = "データの読み込みに失敗しました。";
     }
+}
+
+// 「交換」シート → { ダンジョン名: [交換先ごとのデータ, ...] }
+// 列：交換先 / ダンジョン / 必要周回数 / 必要モンスター / 条件
+function parseExchangeData(rows) {
+    const map = {};
+    rows.forEach(row => {
+        const target = row['交換先'] ? String(row['交換先']).trim() : '';
+        const dungeon = row['ダンジョン'] ? String(row['ダンジョン']).trim() : '';
+        if (!target || !dungeon) return;
+
+        // 「約550周,(※〜)」のように「,」の後ろは補足として分けて表示する
+        const rawRate = row['必要周回数'] ? String(row['必要周回数']).trim() : '';
+        const commaIndex = rawRate.indexOf(',');
+        const rate = commaIndex >= 0 ? rawRate.slice(0, commaIndex).trim() : rawRate;
+        let rateNote = commaIndex >= 0 ? rawRate.slice(commaIndex + 1).trim() : '';
+        if (rateNote.startsWith('(') && rateNote.endsWith(')')) rateNote = rateNote.slice(1, -1);
+
+        // 必要モンスターはドロップ列と同じ「名前(×数)」の書き方なので parseCategory を使い回す
+        const materials = parseCategory(row['必要モンスター'], false)
+            .map(g => ({ name: g.items[0], count: g.note }));
+
+        const condition = row['条件'] ? String(row['条件']).trim() : 'すべて';
+
+        if (!map[dungeon]) map[dungeon] = [];
+        map[dungeon].push({ target, rate, rateNote, materials, condition });
+    });
+    return map;
 }
 
 function parseCategory(text, isRandom) {

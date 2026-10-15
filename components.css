@@ -36,9 +36,10 @@
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
-    overflow: hidden;
+    /* overflow: hidden にすると中のアイコンの吹き出しが切れるので付けない */
 }
 .exchange-summary {
+    border-radius: calc(var(--radius-sm) - 1px);
     padding: 10px 14px;
     font-size: 13px;
     font-weight: bold;
@@ -64,6 +65,9 @@
     color: var(--gold-bright);
     transition: transform 0.2s ease;
 }
+.exchange-details[open] .exchange-summary {
+    border-radius: calc(var(--radius-sm) - 1px) calc(var(--radius-sm) - 1px) 0 0;
+}
 .exchange-details[open] .exchange-summary::before {
     transform: rotate(90deg);
 }
@@ -83,6 +87,91 @@
 }
 .exchange-list li::marker {
     color: var(--gold-bright);
+}
+
+/* ---------- 交換カード（「交換」シートのデータ） ---------- */
+.exchange-cards {
+    display: grid;
+    gap: 10px;
+    padding: 12px;
+}
+.exchange-card {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+}
+/* 交換先：シリーズ見出しと同じ紫の帯に金文字 */
+.exchange-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    background: var(--header-grad);
+    border-bottom: 1px solid rgba(255, 214, 107, 0.35);
+    border-radius: calc(var(--radius-sm) - 1px) calc(var(--radius-sm) - 1px) 0 0;
+}
+.exchange-head .material-badge {
+    width: 52px;
+    height: 52px;
+}
+.exchange-head-text {
+    min-width: 0;
+}
+.exchange-target-name {
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 1.4;
+    color: #ffe08a;
+}
+.exchange-rate {
+    display: inline-block;
+    margin-top: 4px;
+    padding: 1px 10px;
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--gold-text-on);
+    background: var(--gold-grad);
+    border-radius: 999px;
+}
+.exchange-rate-note {
+    margin: 0;
+    padding: 8px 12px 0;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--text-muted);
+}
+.exchange-need {
+    padding: 10px 12px 12px;
+}
+.exchange-need-label {
+    margin-bottom: 8px;
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--text-sub);
+}
+.exchange-condition {
+    color: var(--gold);
+}
+.exchange-materials {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+/* アイコン右下に重ねる「×50」（ゲームの交換画面風） */
+.badge-count {
+    position: absolute;
+    right: 2px;
+    bottom: 0;
+    font-size: 13px;
+    font-weight: 900;
+    line-height: 1;
+    color: #ffe14d;
+    text-shadow:
+        1px 1px 0 #1a1300, -1px 1px 0 #1a1300,
+        1px -1px 0 #1a1300, -1px -1px 0 #1a1300,
+        0 2px 3px rgba(0, 0, 0, 0.6);
+    pointer-events: none;
 }
 
 /* 注意書き（※）枠 */
