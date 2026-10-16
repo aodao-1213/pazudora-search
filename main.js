@@ -96,4 +96,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('click', dismissTooltips);
     document.addEventListener('touchstart', dismissTooltips, { passive: true });
+
+    // 素材名の吹き出しが画面の端からはみ出さないよう、出す時に位置を調整する
+    // （左右は画面内に収まるだけ横にずらし、上に余裕が無ければアイコンの下側に出す）
+    window.placeTooltip = function placeTooltip(badge) {
+        const tip = badge.querySelector('.custom-tooltip');
+        if (!tip) return;
+        const margin = 8;
+        tip.style.setProperty('--tip-shift', '0px');
+        tip.classList.remove('is-below');
+
+        const rect = tip.getBoundingClientRect();
+        let shift = 0;
+        if (rect.left < margin) shift = margin - rect.left;
+        else if (rect.right > window.innerWidth - margin) shift = (window.innerWidth - margin) - rect.right;
+        tip.style.setProperty('--tip-shift', `${Math.round(shift)}px`);
+
+        if (rect.top < margin) tip.classList.add('is-below');
+    };
+
+    const onBadgeShow = (event) => {
+        const badge = event.target.closest && event.target.closest('.material-badge');
+        if (badge) window.placeTooltip(badge);
+    };
+    // PCはマウスを乗せた時、スマホはタップした時（pointerdown / focusin）に位置を調整する
+    document.addEventListener('mouseover', onBadgeShow);
+    document.addEventListener('pointerdown', onBadgeShow);
+    document.addEventListener('focusin', onBadgeShow);
 });

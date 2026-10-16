@@ -318,7 +318,8 @@
     position: absolute;
     bottom: 120%;
     left: 50%;
-    transform: translateX(-50%);
+    /* --tip-shift：画面からはみ出す時に main.js が入れる横のずらし量（px） */
+    transform: translateX(calc(-50% + var(--tip-shift, 0px)));
     background-color: #0d0e1a;
     color: #fff;
     text-align: center;
@@ -327,23 +328,38 @@
     border-radius: 8px;
     font-size: 12px;
     font-weight: bold;
+    line-height: 1.5;
     z-index: 100;
     transition: opacity 0.2s, visibility 0.2s;
     pointer-events: none;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+    /* 名前の長さに合わせた幅にして、画面幅を超える長い名前は折り返す */
+    width: max-content;
+    min-width: 100px;
+    max-width: min(240px, calc(100vw - 16px));
     white-space: normal;
-    word-break: keep-all;
-    min-width: 140px;
+    overflow-wrap: anywhere;
 }
 .custom-tooltip::after {
     content: "";
     position: absolute;
     top: 100%;
-    left: 50%;
+    /* 吹き出しをずらしても、三角はアイコンの真上を指すように逆向きにずらす */
+    left: calc(50% - var(--tip-shift, 0px));
     margin-left: -5px;
     border-width: 5px;
     border-style: solid;
     border-color: rgba(255, 214, 107, 0.6) transparent transparent transparent;
+}
+/* 画面の上に余裕が無い時は、アイコンの下側に出す */
+.custom-tooltip.is-below {
+    bottom: auto;
+    top: 120%;
+}
+.custom-tooltip.is-below::after {
+    top: auto;
+    bottom: 100%;
+    border-color: transparent transparent rgba(255, 214, 107, 0.6) transparent;
 }
 .material-badge:hover .custom-tooltip,
 .material-badge:focus .custom-tooltip {

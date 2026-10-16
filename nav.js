@@ -126,7 +126,9 @@ function handleBadgeClick(event, itemName) {
             });
             
             badge.dataset.tapped = "true";
-            badge.focus(); 
+            badge.focus();
+            // 吹き出しが画面からはみ出さないよう位置を調整（main.js）
+            if (typeof window.placeTooltip === 'function') window.placeTooltip(badge);
             
             setTimeout(() => { badge.dataset.tapped = "false"; }, 3000);
             return; 
