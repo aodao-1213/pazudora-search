@@ -7,8 +7,12 @@ let maintenanceData = [];
 // （JSONが無い時だけ、従来どおり dangeon.xlsx の「メンテ期間」「お知らせ」シートを使う）
 const SETTINGS_FILES = {
     maintenance: 'maintenance.json',
-    announcements: 'announcements.json'
+    announcements: 'announcements.json',
+    backgrounds: 'backgrounds.json'
 };
+
+// 背景画像ごとの表示位置 { 画像ファイル名: { x, y, zoom } }（backgrounds.json。無ければ既定の位置で表示）
+let bgFocusData = {};
 const settingsLoaded = { maintenance: false, announcements: false };
 
 // 「2026/10/20 10:00」「2026-10-20T10:00」「未定」などの文字列 → メンテ期間1件分
@@ -43,10 +47,15 @@ async function fetchJsonFile(path) {
 
 // maintenance.json / announcements.json を読み込む
 async function loadSiteSettings() {
-    const [maintenance, announcements] = await Promise.all([
+    const [maintenance, announcements, backgrounds] = await Promise.all([
         fetchJsonFile(SETTINGS_FILES.maintenance),
-        fetchJsonFile(SETTINGS_FILES.announcements)
+        fetchJsonFile(SETTINGS_FILES.announcements),
+        fetchJsonFile(SETTINGS_FILES.backgrounds)
     ]);
+
+    if (backgrounds && backgrounds.images && typeof backgrounds.images === 'object') {
+        bgFocusData = backgrounds.images;
+    }
 
     if (maintenance && Array.isArray(maintenance.periods)) {
         maintenanceData = maintenance.periods

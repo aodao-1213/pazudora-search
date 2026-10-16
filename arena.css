@@ -87,23 +87,27 @@
     right: 0;
     bottom: 0;
     width: 62%;
-    background-image: var(--tile-bg, none);
-    /* 少し拡大して、アイコン画像の外枠（属性色のフチ）が見えないようにする */
-    background-size: 130% auto;
-    background-position: center 30%;
+    overflow: hidden;
     opacity: 0.9;
     -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.55) 35%, #000 75%);
     mask-image: linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.55) 35%, #000 75%);
     pointer-events: none;
 }
+/* 画像は枠いっぱいに切り抜いて表示。中心位置と拡大率は画像ごとに render.js が style で指定する
+   （backgrounds.json の x / y / zoom。管理画面の「背景の表示位置」で調整できる） */
+.tile-bg-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 30%;
+}
 .arena-tile:hover .tile-bg {
     opacity: 1;
 }
-/* images_1 の大きいイラストは拡大せず、広めに見せる */
+/* images_1 の大きいイラストは広めに見せる */
 .is-art .tile-bg {
     width: 72%;
-    background-size: cover;
-    background-position: center 30%;
 }
 .tile-body {
     position: relative; /* 背景画像より手前に出す */

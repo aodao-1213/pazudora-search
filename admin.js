@@ -14,6 +14,9 @@ const adminState = {
     periods: [],        // [{ start: '2026/10/20 10:00' or '未定', end: ... }]
     announcements: [],  // [{ id, date: '2026/10/20', title, body }]
     editingId: null,    // お知らせを編集中ならその id
+    bgFocus: {},        // 背景の表示位置 { 画像ファイル名: { x, y, zoom } }
+    bgDungeon: '',      // 背景の位置を調整中のダンジョン名
+    bgDirty: false,     // 背景の位置に保存していない変更があるか
     loaded: false
 };
 
@@ -147,6 +150,7 @@ async function renderAdmin() {
     if (!adminState.loaded) await loadAdminData();
     renderMaintenanceEditor();
     renderAnnouncementEditor();
+    renderBgEditor();
 }
 
 // 編集するデータを読み込む。トークンがあれば GitHub から最新を、無ければ今サイトに出ている内容を使う
@@ -154,6 +158,8 @@ async function loadAdminData() {
     const fromSite = () => {
         adminState.periods = maintenanceData.map(m => ({ start: m.startStr, end: m.endStr }));
         adminState.announcements = announcementData.map(n => ({ ...n }));
+        adminState.bgFocus = JSON.parse(JSON.stringify(bgFocusData || {}));
+        adminState.bgDirty = false;
     };
 
     if (!getAdminToken()) {
@@ -164,13 +170,15 @@ async function loadAdminData() {
     }
 
     try {
-        const [mainte, notices] = await Promise.all([
+        const [mainte, notices, backgrounds] = await Promise.all([
             readJsonFromGitHub(SETTINGS_FILES.maintenance),
-            readJsonFromGitHub(SETTINGS_FILES.announcements)
+            readJsonFromGitHub(SETTINGS_FILES.announcements),
+            readJsonFromGitHub(SETTINGS_FILES.backgrounds)
         ]);
         fromSite();
         if (mainte.data && Array.isArray(mainte.data.periods)) adminState.periods = mainte.data.periods.map(p => ({ start: p.start, end: p.end }));
         if (notices.data && Array.isArray(notices.data.items)) adminState.announcements = notices.data.items.map(n => ({ ...n }));
+        if (backgrounds.data && backgrounds.data.images) adminState.bgFocus = backgrounds.data.images;
         adminState.loaded = true;
     } catch (e) {
         fromSite();
@@ -439,6 +447,144 @@ async function deleteAnnouncement(id) {
     const target = adminState.announcements.find(n => n.id === id);
     if (!target || !confirm(`お知らせ「${target.title}」を削除しますか？`)) return;
     await saveAnnouncements(adminState.announcements.filter(n => n.id !== id), '削除しました。');
+}
+
+// ---------- 背景の表示位置 ----------
+// ダンジョンを選んで、画像の「見せたい場所（顔など）」をクリックすると、そこを中心に切り抜いて表示する。
+// 設定は画像ファイルごとなので、同じ画像を使うステージ一覧のカードなどにもまとめて反映される。
+
+function bgFocusFor(bg) {
+    const saved = adminState.bgFocus[bg.key];
+    return saved ? { ...bgFocus(bg), ...saved } : bgFocus({ ...bg, key: '__default__' });
+}
+
+function renderBgEditor() {
+    const select = document.getElementById('adminBgSelect');
+    if (!select) return;
+
+    const grouped = groupDungeonsBySeries();
+    const withBg = Object.values(grouped).flat().filter(d => dungeonBg(d).url);
+    if (withBg.length === 0) {
+        select.innerHTML = '<option>（背景が設定されたダンジョンがありません）</option>';
+        return;
+    }
+    if (!withBg.some(d => d.name === adminState.bgDungeon)) adminState.bgDungeon = withBg[0].name;
+
+    select.innerHTML = Object.entries(grouped).map(([series, dungeons]) => {
+        const options = dungeons.filter(d => dungeonBg(d).url).map(d => {
+            const mark = adminState.bgFocus[dungeonBg(d).key] ? ' ✓' : '';
+            return `<option value="${escapeHtml(d.name)}"${d.name === adminState.bgDungeon ? ' selected' : ''}>${escapeHtml(d.name)}${mark}</option>`;
+        }).join('');
+        return options ? `<optgroup label="${escapeHtml(series)}">${options}</optgroup>` : '';
+    }).join('');
+
+    renderBgPicker();
+}
+
+// 選んだダンジョンの画像・目印・拡大率・プレビューを描き直す
+function renderBgPicker() {
+    const arena = dungeonData.find(d => d.name === adminState.bgDungeon);
+    if (!arena) return;
+    const bg = dungeonBg(arena);
+    const focus = bgFocusFor(bg);
+
+    const img = document.getElementById('adminBgImage');
+    if (img.getAttribute('src') !== encodeURI(bg.url)) img.src = encodeURI(bg.url);
+    const marker = document.getElementById('adminBgMarker');
+    marker.style.left = `${focus.x}%`;
+    marker.style.top = `${focus.y}%`;
+
+    const zoomPercent = Math.round(focus.zoom * 100);
+    document.getElementById('adminBgZoom').value = zoomPercent;
+    document.getElementById('adminBgZoomValue').textContent = `${zoomPercent}%`;
+    document.getElementById('adminBgPosValue').textContent = `横 ${focus.x}% ／ 縦 ${focus.y}%`;
+
+    // 同じ画像を使っている場所（ステージ一覧のカードにも使われるか）
+    const sharedNames = dungeonData.filter(d => d !== arena && dungeonBg(d).key === bg.key).map(d => d.name);
+    const usedAsStage = Object.entries(groupDungeonsBySeries())
+        .filter(([, ds]) => { const first = ds.find(d => d.bgMonster); return first && dungeonBg(first).key === bg.key; })
+        .map(([s]) => s);
+    const notes = [];
+    if (usedAsStage.length) notes.push(`ステージ「${usedAsStage.join('」「')}」のカード`);
+    if (sharedNames.length) notes.push(`ダンジョン「${sharedNames.join('」「')}」`);
+    document.getElementById('adminBgShared').textContent = notes.length
+        ? `この画像（${bg.key}）は ${notes.join('、')} でも使われていて、まとめて変わります。`
+        : `画像：${bg.key}`;
+
+    // プレビュー（実際のカードと同じ見た目で表示）
+    const stats = dungeonStatsHtml(arena);
+    document.getElementById('adminBgPreview').innerHTML = `
+        <p class="admin-label">ダンジョン一覧のカード（スマホの幅）</p>
+        <div class="admin-bg-preview-tile">
+            <div class="arena-tile${tileBgClass(bg)}">
+                ${tileBgHtml(bg, focus)}
+                <span class="tile-body"><span class="tile-title">${escapeHtml(arena.name)}</span>${stats}</span>
+                <span class="tile-arrow" aria-hidden="true">➤</span>
+            </div>
+        </div>
+        <p class="admin-label">報酬画面の上の帯</p>
+        <div class="dungeon-hero${tileBgClass(bg)}">
+            ${tileBgHtml(bg, focus)}
+            <div class="tile-body"><h3 class="dungeon-name">${escapeHtml(arena.name)}</h3>${stats}</div>
+        </div>`;
+}
+
+function selectBgDungeon() {
+    adminState.bgDungeon = document.getElementById('adminBgSelect').value;
+    renderBgPicker();
+}
+
+function updateCurrentBgFocus(changes) {
+    const arena = dungeonData.find(d => d.name === adminState.bgDungeon);
+    if (!arena) return;
+    const bg = dungeonBg(arena);
+    adminState.bgFocus[bg.key] = { ...bgFocusFor(bg), ...changes };
+    adminState.bgDirty = true;
+    renderBgPicker();
+    showAdminMessage('adminBgMessage', 'まだ保存していません。調整が終わったら「保存」を押してください。', 'info');
+}
+
+// 画像をクリックした場所を中心にする
+function pickBgFocus(event) {
+    const img = event.currentTarget;
+    const rect = img.getBoundingClientRect();
+    const x = Math.round(Math.min(100, Math.max(0, (event.clientX - rect.left) / rect.width * 100)));
+    const y = Math.round(Math.min(100, Math.max(0, (event.clientY - rect.top) / rect.height * 100)));
+    updateCurrentBgFocus({ x, y });
+}
+
+function changeBgZoom() {
+    const zoom = Number(document.getElementById('adminBgZoom').value) / 100;
+    updateCurrentBgFocus({ zoom });
+}
+
+function resetBgFocus() {
+    const arena = dungeonData.find(d => d.name === adminState.bgDungeon);
+    if (!arena) return;
+    delete adminState.bgFocus[dungeonBg(arena).key];
+    adminState.bgDirty = true;
+    renderBgEditor();
+    showAdminMessage('adminBgMessage', '初期位置に戻しました（まだ保存していません）。', 'info');
+}
+
+async function saveBgFocus() {
+    if (!requireToken('adminBgMessage')) return;
+    setAdminBusy(true);
+    showAdminMessage('adminBgMessage', 'GitHub に保存しています…', 'info');
+    try {
+        // キー順をそろえて保存（差分が見やすいように）
+        const images = {};
+        Object.keys(adminState.bgFocus).sort().forEach(k => { images[k] = adminState.bgFocus[k]; });
+        await writeJsonToGitHub(SETTINGS_FILES.backgrounds, { images }, '背景の表示位置を更新（管理画面から）');
+        bgFocusData = JSON.parse(JSON.stringify(images));
+        adminState.bgDirty = false;
+        renderBgEditor();
+        showAdminMessage('adminBgMessage', '保存しました。公開サイトへの反映には 1〜2 分かかります。', 'ok');
+    } catch (e) {
+        showAdminMessage('adminBgMessage', e.message, 'error');
+    } finally {
+        setAdminBusy(false);
+    }
 }
 
 // 「管理」ボタンと編集欄は、トークンを登録したブラウザ（＝管理者の端末）でだけ表示する。

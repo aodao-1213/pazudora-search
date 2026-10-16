@@ -9,11 +9,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap" rel="stylesheet">
     <!-- ?v= はバージョン番号。css/js を更新した時に番号を変えると、ブラウザに残った古いファイルではなく新しいファイルが読まれる -->
-    <link rel="stylesheet" href="base.css?v=20261017">
-    <link rel="stylesheet" href="search.css?v=20261017">
-    <link rel="stylesheet" href="arena.css?v=20261017">
-    <link rel="stylesheet" href="components.css?v=20261017">
-    <link rel="stylesheet" href="admin.css?v=20261017">
+    <link rel="stylesheet" href="base.css?v=20261017b">
+    <link rel="stylesheet" href="search.css?v=20261017b">
+    <link rel="stylesheet" href="arena.css?v=20261017b">
+    <link rel="stylesheet" href="components.css?v=20261017b">
+    <link rel="stylesheet" href="admin.css?v=20261017b">
 </head>
 <body>
 
@@ -86,6 +86,21 @@
                 </div>
                 <div class="settings-item-right">
                     <span class="settings-item-arrow">➤</span>
+                </div>
+            </div>
+
+            <!-- ジャンプ時の点滅のオン／オフ（押すたびに切り替わる。処理は history.js） -->
+            <div class="settings-menu-item" onclick="toggleFlashSetting()">
+                <div class="settings-item-left">
+                    <span class="settings-item-icon">✨</span>
+                    <span class="settings-item-texts">
+                        <span class="settings-item-text">ジャンプ時の点滅</span>
+                        <span class="settings-item-sub">検索から報酬リストに移った時、ダンジョンを黄色く点滅させる</span>
+                    </span>
+                </div>
+                <div class="settings-item-right">
+                    <span id="flashToggleLabel" class="toggle-label">オン</span>
+                    <span id="flashToggle" class="toggle-switch is-on" role="switch" aria-checked="true" aria-label="ジャンプ時の点滅"></span>
                 </div>
             </div>
 
@@ -375,6 +390,32 @@
             <h4 class="admin-subheading">掲載中のお知らせ</h4>
             <ul id="adminNoticeList" class="admin-notice-list"></ul>
         </section>
+
+        <!-- 背景の表示位置（トークン登録済みのブラウザだけ表示） -->
+        <section class="result-box admin-panel admin-editor" hidden>
+            <h3 class="note-heading">背景の表示位置</h3>
+            <p class="muted-text">ダンジョンを選び、下の画像で「見せたい場所（顔など）」をクリックしてください。その場所がカードの真ん中あたりに来るように切り抜きます（画像の端に近い場所は、はみ出さない範囲で寄せます）。拡大率も変えられます。</p>
+            <label class="admin-field">
+                <span class="admin-label">ダンジョン（✓ は調整済み）</span>
+                <select id="adminBgSelect" class="admin-input" onchange="selectBgDungeon()"></select>
+            </label>
+            <p id="adminBgShared" class="admin-bg-shared"></p>
+            <div class="admin-bg-picker">
+                <img id="adminBgImage" alt="背景画像" onclick="pickBgFocus(event)">
+                <span id="adminBgMarker" class="admin-bg-marker" aria-hidden="true"></span>
+            </div>
+            <p class="admin-bg-pos">見せたい場所：<span id="adminBgPosValue"></span></p>
+            <label class="admin-field">
+                <span class="admin-label">拡大率：<span id="adminBgZoomValue">100%</span></span>
+                <input type="range" id="adminBgZoom" class="admin-range" min="100" max="250" step="5" value="100" oninput="changeBgZoom()">
+            </label>
+            <div id="adminBgPreview" class="admin-bg-preview"></div>
+            <div class="admin-row">
+                <button type="button" class="admin-btn" onclick="resetBgFocus()">この画像を初期位置に戻す</button>
+                <button type="button" class="admin-btn admin-btn-primary" onclick="saveBgFocus()">保存</button>
+            </div>
+            <p id="adminBgMessage" class="admin-message" hidden></p>
+        </section>
     </div>
 
     <!-- [ステージ一覧] → [ダンジョン一覧] → [報酬] の3段階。中身は render.js の displayArenaList() が作る -->
@@ -394,12 +435,12 @@
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <!-- ?v= はバージョン番号（上の css と同じ。更新したら番号を変える） -->
-<script src="data.js?v=20261017"></script>
-<script src="history.js?v=20261017"></script>
-<script src="search.js?v=20261017"></script>
-<script src="nav.js?v=20261017"></script>
-<script src="render.js?v=20261017"></script>
-<script src="admin.js?v=20261017"></script>
-<script src="main.js?v=20261017"></script>
+<script src="data.js?v=20261017b"></script>
+<script src="history.js?v=20261017b"></script>
+<script src="search.js?v=20261017b"></script>
+<script src="nav.js?v=20261017b"></script>
+<script src="render.js?v=20261017b"></script>
+<script src="admin.js?v=20261017b"></script>
+<script src="main.js?v=20261017b"></script>
 </body>
 </html>

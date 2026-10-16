@@ -110,6 +110,33 @@ function clearAllSearchHistory() {
 }
 
 // ==========================================
+// ★ ジャンプ時の点滅（検索 → 報酬リストに移った時にカードを黄色く光らせるか）
+// ==========================================
+const FLASH_KEY = 'padFlashHighlight';
+
+function isFlashEnabled() {
+    try { return localStorage.getItem(FLASH_KEY) !== 'off'; } catch (e) { return true; } // 初期設定はオン
+}
+
+function toggleFlashSetting() {
+    const next = !isFlashEnabled();
+    try { localStorage.setItem(FLASH_KEY, next ? 'on' : 'off'); } catch (e) { /* 保存できない環境では何もしない */ }
+    updateFlashToggleUI();
+}
+
+function updateFlashToggleUI() {
+    const toggle = document.getElementById('flashToggle');
+    if (!toggle) return;
+    const on = isFlashEnabled();
+    toggle.classList.toggle('is-on', on);
+    toggle.setAttribute('aria-checked', on ? 'true' : 'false');
+    const label = document.getElementById('flashToggleLabel');
+    if (label) label.textContent = on ? 'オン' : 'オフ';
+}
+
+window.addEventListener('DOMContentLoaded', updateFlashToggleUI);
+
+// ==========================================
 // ★ カラーテーマ設定機能
 // ==========================================
 

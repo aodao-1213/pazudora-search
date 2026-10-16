@@ -185,21 +185,41 @@ const BG_IMAGE_DIR = 'images_bg';
 // ・「/」を含む場合はそのままのパス
 function dungeonBg(arena) {
     const value = arena && arena.bgMonster;
-    if (!value) return { url: '', isArt: false };
-    if (globalIdMap[value]) return { url: `images/${globalIdMap[value]}.png`, isArt: false };
-    if (value.includes('/')) return { url: value, isArt: true };
-    const baseName = value.replace(/\.(png|jpe?g|webp|gif)$/i, '');
-    return { url: `${BG_IMAGE_DIR}/${baseName}.jpg`, isArt: true };
+    if (!value) return { url: '', isArt: false, key: '' };
+    let url, isArt;
+    if (globalIdMap[value]) { url = `images/${globalIdMap[value]}.png`; isArt = false; }
+    else if (value.includes('/')) { url = value; isArt = true; }
+    else { url = `${BG_IMAGE_DIR}/${value.replace(/\.(png|jpe?g|webp|gif)$/i, '')}.jpg`; isArt = true; }
+    // 表示位置の設定（backgrounds.json）は画像ファイル名（拡張子なし）で引く
+    const key = url.split('/').pop().replace(/\.\w+$/, '');
+    return { url, isArt, key };
 }
 
-// 背景画像の指定（class名とstyle属性）。画像がなければ何も付けない
-function tileBgAttrs(bg) {
-    if (!bg.url) return { cls: '', style: '' };
-    const safeUrl = encodeURI(bg.url).replace(/'/g, '%27');
+// 画像ごとの「見せたい場所」{ x, y, zoom }（x, y は画像の中の位置を %、zoom は拡大率）
+// backgrounds.json に無い画像は「横中央・上から40%」、アイコン画像は外枠が見えないよう少し拡大
+function bgFocus(bg) {
+    const saved = (bgFocusData && bgFocusData[bg.key]) || {};
     return {
-        cls: bg.isArt ? ' has-bg is-art' : ' has-bg',
-        style: ` style='--tile-bg: url("${safeUrl}")'`
+        x: Number.isFinite(saved.x) ? saved.x : 50,
+        y: Number.isFinite(saved.y) ? saved.y : 40,
+        zoom: Number.isFinite(saved.zoom) ? saved.zoom : (bg.isArt ? 1 : 1.3)
     };
+}
+
+// カードの背景画像（右側に敷いて、左の文字側に向かって消えていく）。画像がなければ何も出さない
+function tileBgHtml(bg, focusOverride) {
+    if (!bg.url) return '';
+    const f = focusOverride || bgFocus(bg); // focusOverride は管理画面のプレビュー用
+    // 横長のカードでは画像の縦およそ6割が見える。「見せたい場所」がカードの真ん中あたりに来るよう、
+    // 切り抜く位置（object-position の縦）をずらす。端の方の場所でも必ず枠の中に入るよう 0〜100% に収める
+    const posY = Math.round(Math.min(100, Math.max(0, (f.y - 30) / 40 * 100)));
+    const style = `object-position:${f.x}% ${posY}%;transform-origin:${f.x}% ${f.y}%;transform:scale(${f.zoom})`;
+    return `<span class="tile-bg" aria-hidden="true"><img class="tile-bg-img" src="${encodeURI(bg.url)}" alt="" loading="lazy" decoding="async" style="${style}"></span>`;
+}
+
+function tileBgClass(bg) {
+    if (!bg.url) return '';
+    return bg.isArt ? ' has-bg is-art' : ' has-bg';
 }
 
 // 経験値・コインなどの1行テキスト（「経験値 1億 ／ コイン 30億 ／ …」）
@@ -215,9 +235,8 @@ function dungeonStatsHtml(arena) {
 
 // ステージ・ダンジョン一覧の1枚分（背景にモンスター画像を敷いたカード）
 function arenaTileHtml(href, title, subHtml, bg) {
-    const attrs = tileBgAttrs(bg);
-    return `<a class="arena-tile${attrs.cls}" href="#${href}"${attrs.style}>
-                <span class="tile-bg" aria-hidden="true"></span>
+    return `<a class="arena-tile${tileBgClass(bg)}" href="#${href}">
+                ${tileBgHtml(bg)}
                 <span class="tile-body">
                     <span class="tile-title">${title}</span>
                     ${subHtml}
@@ -318,11 +337,11 @@ function dungeonListHtml(dungeons) {
 // [3] ダンジョン1つ分の報酬
 function dungeonDetailHtml(arena, dungeons) {
     const safeId = encodeURIComponent(arena.name);
-    const attrs = tileBgAttrs(dungeonBg(arena));
+    const bg = dungeonBg(arena);
 
     let html = `<div class="dungeon-detail" id="dungeon-${safeId}">
-                    <div class="dungeon-hero${attrs.cls}"${attrs.style}>
-                        <span class="tile-bg" aria-hidden="true"></span>
+                    <div class="dungeon-hero${tileBgClass(bg)}">
+                        ${tileBgHtml(bg)}
                         <div class="tile-body">
                             <h3 class="dungeon-name">${arena.name}</h3>
                             ${dungeonStatsHtml(arena)}

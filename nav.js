@@ -87,6 +87,9 @@ function jumpToDungeon(dungeonName) {
     const arena = dungeonData.find(d => d.name === dungeonName);
     showScreen(arena ? arenaHash(arena.series, arena.name) : 'arena');
 
+    // 設定で「ジャンプ時の点滅」をオフにしている時は光らせない
+    if (typeof isFlashEnabled === 'function' && !isFlashEnabled()) return;
+
     setTimeout(() => {
         const safeId = encodeURIComponent(dungeonName);
         const target = document.getElementById(`dungeon-${safeId}`);

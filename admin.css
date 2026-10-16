@@ -211,6 +211,66 @@ body.dark-theme .admin-status.is-ok {
     font-size: 12px;
 }
 
+/* 背景の表示位置 */
+.admin-bg-shared {
+    font-size: 13px;
+    color: var(--text-sub);
+}
+.admin-bg-picker {
+    position: relative;
+    display: inline-block;
+    max-width: 100%;
+    line-height: 0;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    border: 1px solid var(--border);
+    cursor: crosshair;
+}
+.admin-bg-picker img {
+    max-width: 100%;
+    max-height: 360px;
+}
+/* クリックした「中心」の目印（金色の照準） */
+.admin-bg-marker {
+    position: absolute;
+    width: 28px;
+    height: 28px;
+    margin: -14px 0 0 -14px;
+    border: 3px solid var(--gold-bright);
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.6), 0 0 12px rgba(255, 207, 92, 0.8);
+    pointer-events: none;
+}
+.admin-bg-marker::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 4px;
+    height: 4px;
+    margin: -2px 0 0 -2px;
+    background: var(--gold-bright);
+    border-radius: 50%;
+}
+.admin-bg-pos {
+    margin-top: 6px;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+.admin-range {
+    width: 100%;
+    accent-color: var(--gold-bright);
+}
+.admin-bg-preview {
+    margin-bottom: 16px;
+}
+.admin-bg-preview .admin-label {
+    margin: 12px 0 6px;
+}
+.admin-bg-preview-tile {
+    max-width: 360px;
+}
+
 /* トークンの作り方 */
 .admin-help {
     margin-top: 4px;
