@@ -11,7 +11,7 @@ function updateScreenFromHash() {
     const screens = [
         'sectionTop', 'sectionSearch', 'sectionArena', 'sectionNotice',
         'sectionNoticeList', 'sectionHowTo', 'sectionNotes',
-        'sectionSettings', 'sectionSettingsHistory', 'sectionSettingsTheme'
+        'sectionSettings', 'sectionSettingsHistory', 'sectionSettingsTheme', 'sectionAdmin'
     ];
 
     screens.forEach(id => {
@@ -61,6 +61,11 @@ function updateScreenFromHash() {
     else if (hash === 'settingsTheme') {
         show('sectionSettingsTheme');
         setPageTitle('カラー設定');
+    }
+    else if (hash === 'admin') {
+        show('sectionAdmin');
+        setPageTitle('管理画面');
+        if (typeof renderAdmin === 'function') renderAdmin();
     }
     else {
         // #top と、知らないURL（打ち間違いなど）はトップ画面を出す（真っ白な画面にしない）

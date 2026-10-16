@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="search.css">
     <link rel="stylesheet" href="arena.css">
     <link rel="stylesheet" href="components.css">
+    <link rel="stylesheet" href="admin.css">
 </head>
 <body>
 
@@ -31,6 +32,8 @@
     <div id="sectionTop">
         <div class="top-header-actions">
             <!-- ★ 追加: 設定ボタン（クリック時に履歴リストを描画する処理も呼ぶ） -->
+            <!-- ?admin=… で開いた時だけ表示（admin.js） -->
+            <button id="adminLinkBtn" class="header-link-btn hidden" onclick="showScreen('admin')">🛠 管理</button>
             <button class="header-link-btn" onclick="showScreen('settings')">⚙️ 設定</button>
             <button class="header-link-btn" onclick="showScreen('howto')">📖 使い方</button>
             <button class="header-link-btn" onclick="showScreen('notes')">⚠️ 注意書き</button>
@@ -296,6 +299,82 @@
     </div>
 
     <!-- 報酬リスト画面 -->
+    <!-- 🛠 管理画面（メンテ期間・お知らせを編集して GitHub に保存する。処理は admin.js） -->
+    <div id="sectionAdmin" class="hidden">
+        <button class="back-button" onclick="showScreen('top')">← トップに戻る</button>
+        <h2>🛠 管理画面</h2>
+
+        <!-- GitHub 接続 -->
+        <section class="result-box admin-panel">
+            <h3 class="note-heading">GitHub 接続</h3>
+            <p class="muted-text">保存ボタンを押すと、GitHub の設定ファイルを直接書き換えます。そのための「アクセストークン」を、このブラウザに1回だけ登録してください。</p>
+            <p>状態：<span id="adminTokenStatus" class="admin-status"></span></p>
+            <div class="admin-row">
+                <input type="password" id="adminTokenInput" class="admin-input admin-grow" placeholder="github_pat_… を貼り付け" autocomplete="off">
+                <button type="button" class="admin-btn admin-btn-primary" onclick="saveAdminToken()">登録</button>
+            </div>
+            <div class="admin-row">
+                <button type="button" class="admin-btn" onclick="testAdminToken()">接続を確認</button>
+                <button type="button" class="admin-btn admin-btn-danger" onclick="removeAdminToken()">このブラウザから削除</button>
+            </div>
+            <p id="adminTokenMessage" class="admin-message" hidden></p>
+            <details class="exchange-details admin-help">
+                <summary class="exchange-summary">トークンの作り方</summary>
+                <div class="exchange-content">
+                    <ol class="admin-steps">
+                        <li>GitHub 右上のアイコン →「Settings」→ 左下の「Developer settings」を開く</li>
+                        <li>「Personal access tokens」→「Fine-grained tokens」→「Generate new token」</li>
+                        <li>Token name：わかりやすい名前（例：パズドラ管理画面）／ Expiration：有効期限（例：1年）</li>
+                        <li>Repository access：「Only select repositories」で <strong>pazudora-search</strong> だけを選ぶ</li>
+                        <li>Permissions →「Repository permissions」→「Contents」を <strong>Read and write</strong> にする</li>
+                        <li>「Generate token」を押し、表示された <code>github_pat_…</code> をコピーして上の欄に貼り付け、「登録」を押す</li>
+                    </ol>
+                    <p class="muted-text">トークンはこのブラウザの中にだけ保存されます。別のパソコンやスマホで使う時は、そこでも登録してください。他人と共用のパソコンでは登録しないでください。漏れたかもしれない時は、GitHub の同じ画面からトークンを削除すれば無効になります。</p>
+                </div>
+            </details>
+        </section>
+
+        <!-- メンテナンス期間 -->
+        <section class="result-box admin-panel">
+            <h3 class="note-heading">メンテナンス期間</h3>
+            <p id="adminMaintenanceStatus" class="admin-status"></p>
+            <p class="muted-text">期間中は、一般の人にはメンテナンス画面が表示されます（<code>?admin=…</code> 付きで開けば、メンテ中でもサイトを確認できます）。</p>
+            <div id="adminPeriodList"></div>
+            <div class="admin-row">
+                <button type="button" class="admin-btn" onclick="addMaintenancePeriod()">＋ 期間を追加</button>
+                <button type="button" class="admin-btn admin-btn-primary" onclick="saveMaintenance()">保存</button>
+            </div>
+            <p id="adminMaintenanceMessage" class="admin-message" hidden></p>
+        </section>
+
+        <!-- お知らせ -->
+        <section class="result-box admin-panel">
+            <h3 class="note-heading">お知らせ</h3>
+            <div id="adminNoticeForm" class="admin-notice-form">
+                <h4 id="adminNoticeFormTitle" class="admin-subheading">新しいお知らせ</h4>
+                <label class="admin-field">
+                    <span class="admin-label">日付</span>
+                    <input type="date" id="adminNoticeDate" class="admin-input">
+                </label>
+                <label class="admin-field">
+                    <span class="admin-label">タイトル</span>
+                    <input type="text" id="adminNoticeTitle" class="admin-input" placeholder="例：新ダンジョンを追加しました">
+                </label>
+                <label class="admin-field">
+                    <span class="admin-label">本文</span>
+                    <textarea id="adminNoticeBody" class="admin-input admin-textarea" rows="5" placeholder="改行はそのまま表示されます"></textarea>
+                </label>
+                <div class="admin-row">
+                    <button type="button" id="adminNoticeSubmit" class="admin-btn admin-btn-primary" onclick="submitAnnouncement()">追加して保存</button>
+                    <button type="button" id="adminNoticeCancel" class="admin-btn" onclick="cancelEditAnnouncement()" hidden>編集をやめる</button>
+                </div>
+                <p id="adminNoticeMessage" class="admin-message" hidden></p>
+            </div>
+            <h4 class="admin-subheading">掲載中のお知らせ</h4>
+            <ul id="adminNoticeList" class="admin-notice-list"></ul>
+        </section>
+    </div>
+
     <!-- [ステージ一覧] → [ダンジョン一覧] → [報酬] の3段階。中身は render.js の displayArenaList() が作る -->
     <div id="sectionArena" class="hidden">
         <button id="arenaBackButton" class="back-button" onclick="arenaBack()">← トップに戻る</button>
@@ -317,6 +396,7 @@
 <script src="search.js"></script>
 <script src="nav.js"></script>
 <script src="render.js"></script>
+<script src="admin.js"></script>
 <script src="main.js"></script>
 </body>
 </html>

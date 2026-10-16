@@ -1,0 +1,242 @@
+/* ====================================================
+   管理画面（#admin）
+   ==================================================== */
+#sectionAdmin {
+    max-width: 860px;
+    margin: 0 auto;
+}
+.admin-panel {
+    margin-bottom: 20px;
+}
+.admin-panel p {
+    margin: 0 0 12px;
+}
+.admin-subheading {
+    margin: 0 0 12px;
+    font-size: 15px;
+    color: var(--text);
+}
+.admin-notice-form + .admin-subheading {
+    margin-top: 24px;
+}
+
+/* 入力欄・ボタン */
+.admin-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.admin-grow {
+    flex: 1;
+    min-width: 200px;
+}
+.admin-input {
+    padding: 10px 12px;
+    font-size: 15px;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--input-bg);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.admin-input:focus {
+    border-color: var(--gold-bright);
+    box-shadow: var(--glow);
+}
+.admin-input:disabled {
+    opacity: 0.45;
+}
+.admin-textarea {
+    width: 100%;
+    resize: vertical;
+    line-height: 1.6;
+}
+.admin-btn {
+    padding: 9px 16px;
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--text-sub);
+    background: var(--surface-2);
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+}
+.admin-btn:hover:not(:disabled) {
+    color: var(--text);
+    border-color: var(--gold-bright);
+}
+.admin-btn:disabled {
+    opacity: 0.5;
+    cursor: wait;
+}
+.admin-btn-primary {
+    color: var(--gold-text-on);
+    background: var(--gold-grad);
+    border-color: transparent;
+}
+.admin-btn-primary:hover:not(:disabled) {
+    color: var(--gold-text-on);
+    filter: brightness(1.05);
+}
+.admin-btn-danger:hover:not(:disabled) {
+    color: var(--danger);
+    border-color: var(--danger);
+}
+.admin-label {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--text-sub);
+}
+.admin-field {
+    display: block;
+    margin-bottom: 12px;
+}
+.admin-field .admin-input {
+    width: 100%;
+}
+.admin-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 8px;
+    font-size: 13px;
+    color: var(--text-sub);
+    cursor: pointer;
+}
+
+/* 状態表示・結果メッセージ */
+.admin-status {
+    display: inline-block;
+    padding: 3px 12px;
+    font-size: 13px;
+    font-weight: bold;
+    border-radius: 999px;
+}
+.admin-status.is-ok {
+    color: #1f8f5f;
+    background: rgba(31, 143, 95, 0.12);
+}
+.admin-status.is-warn {
+    color: var(--danger);
+    background: var(--danger-soft);
+}
+body.dark-theme .admin-status.is-ok {
+    color: #5fd8a2;
+}
+.admin-message {
+    padding: 10px 14px;
+    font-size: 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+}
+.admin-message.is-ok {
+    color: var(--text);
+    background: rgba(31, 143, 95, 0.10);
+    border-left: 3px solid #1f8f5f;
+}
+.admin-message.is-error {
+    color: var(--text);
+    background: var(--danger-soft);
+    border-left: 3px solid var(--danger);
+}
+.admin-message.is-info {
+    color: var(--text-sub);
+    background: var(--surface-2);
+    border-left: 3px solid var(--gold-bright);
+}
+.admin-empty {
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+/* メンテ期間の1行 */
+.admin-period {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 12px 20px;
+    margin-bottom: 12px;
+    padding: 12px 14px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+}
+.admin-period-field {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.admin-period-field .admin-label {
+    width: 100%;
+}
+
+/* お知らせ一覧 */
+.admin-notice-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.admin-notice-item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    padding: 10px 4px;
+    border-bottom: 1px solid var(--border);
+}
+.admin-notice-item:last-child {
+    border-bottom: none;
+}
+.admin-notice-item.is-editing {
+    background: rgba(242, 177, 52, 0.10);
+}
+.admin-notice-title {
+    flex: 1;
+    min-width: 140px;
+    font-weight: bold;
+    color: var(--text);
+}
+.admin-notice-actions {
+    display: flex;
+    gap: 6px;
+}
+.admin-notice-actions .admin-btn {
+    padding: 5px 12px;
+    font-size: 12px;
+}
+
+/* トークンの作り方 */
+.admin-help {
+    margin-top: 4px;
+}
+.admin-steps {
+    margin: 0 0 10px;
+    padding-left: 20px;
+    font-size: 13px;
+    line-height: 1.8;
+    color: var(--text-sub);
+}
+.admin-panel code {
+    padding: 1px 6px;
+    font-size: 12px;
+    background: var(--surface-3);
+    border-radius: 4px;
+}
+
+@media (max-width: 600px) {
+    .admin-period {
+        padding: 10px;
+    }
+    .admin-period-field {
+        width: 100%;
+    }
+    .admin-period-field .admin-input {
+        flex: 1;
+    }
+}

@@ -1,7 +1,67 @@
 let dungeonData = [];
-let announcementData = []; 
-let globalIdMap = {}; 
-let maintenanceData = []; 
+let announcementData = [];
+let globalIdMap = {};
+let maintenanceData = [];
+
+// メンテ期間・お知らせは管理画面から書き換える JSON ファイルで管理する
+// （JSONが無い時だけ、従来どおり dangeon.xlsx の「メンテ期間」「お知らせ」シートを使う）
+const SETTINGS_FILES = {
+    maintenance: 'maintenance.json',
+    announcements: 'announcements.json'
+};
+const settingsLoaded = { maintenance: false, announcements: false };
+
+// 「2026/10/20 10:00」「2026-10-20T10:00」「未定」などの文字列 → メンテ期間1件分
+function toMaintenancePeriod(startStr, endStr) {
+    startStr = String(startStr || '未定').trim();
+    endStr = String(endStr || '未定').trim();
+    const toTime = (s, fallback) => s === '未定' ? fallback : new Date(s.replace(/-/g, '/').replace('T', ' ')).getTime();
+    const start = toTime(startStr, 0);
+    const end = toTime(endStr, 9999999999999);
+    if (isNaN(start) || isNaN(end)) return null;
+    return { start, end, startStr, endStr };
+}
+
+// お知らせを新しい順（日付が新しい順、同じ日付なら後から追加した順）に並べる
+function sortAnnouncements(items) {
+    return items.slice().sort((a, b) => {
+        const byDate = String(b.date).localeCompare(String(a.date));
+        return byDate !== 0 ? byDate : (b.id - a.id);
+    });
+}
+
+async function fetchJsonFile(path) {
+    try {
+        // 管理画面で書き換えた直後でも最新を読むよう、キャッシュを使わない
+        const response = await fetch(`${path}?t=${Date.now()}`, { cache: 'no-store' });
+        if (!response.ok) return null;
+        return await response.json();
+    } catch (e) {
+        return null;
+    }
+}
+
+// maintenance.json / announcements.json を読み込む
+async function loadSiteSettings() {
+    const [maintenance, announcements] = await Promise.all([
+        fetchJsonFile(SETTINGS_FILES.maintenance),
+        fetchJsonFile(SETTINGS_FILES.announcements)
+    ]);
+
+    if (maintenance && Array.isArray(maintenance.periods)) {
+        maintenanceData = maintenance.periods
+            .map(p => toMaintenancePeriod(p.start, p.end))
+            .filter(Boolean);
+        settingsLoaded.maintenance = true;
+    }
+
+    if (announcements && Array.isArray(announcements.items)) {
+        announcementData = sortAnnouncements(announcements.items
+            .filter(n => n && n.title)
+            .map(n => ({ id: Number(n.id), date: String(n.date || ''), title: String(n.title), body: String(n.body || '') })));
+        settingsLoaded.announcements = true;
+    }
+}
 
 function formatExcelDate(dateVal) {
     if (!dateVal) return '';
@@ -24,7 +84,6 @@ async function loadExcel() {
         const arrayBuffer = await response.arrayBuffer();
         
         const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-        maintenanceData = []; // 一旦リセット
 
         // シートは「名前」で探す（Excel側でシートの並び順を変えても読み込みがずれないように）
         // ダンジョン一覧だけは従来どおり1枚目のシートを使う
@@ -49,9 +108,10 @@ async function loadExcel() {
         }
         globalIdMap = idMap;
 
-        announcementData = [];
-        const noticeSheet = getSheet('お知らせ');
+        // お知らせ：announcements.json が無い時だけ Excel のシートを使う
+        const noticeSheet = settingsLoaded.announcements ? null : getSheet('お知らせ');
         if (noticeSheet) {
+            announcementData = [];
             const noticeData = XLSX.utils.sheet_to_json(noticeSheet, { raw: true });
             
             noticeData.forEach((row, index) => {
@@ -66,27 +126,17 @@ async function loadExcel() {
             announcementData.reverse(); 
         }
 
-        const mainteSheet = getSheet('メンテ期間');
+        // メンテ期間：maintenance.json が無い時だけ Excel のシートを使う
+        const mainteSheet = settingsLoaded.maintenance ? null : getSheet('メンテ期間');
         if (mainteSheet) {
+            maintenanceData = [];
             const mainteData = XLSX.utils.sheet_to_json(mainteSheet, { raw: false, header: "A", defval: "" });
-            
-            for (let i = 1; i < mainteData.length; i++) { 
+
+            for (let i = 1; i < mainteData.length; i++) {
                 const row = mainteData[i];
                 if (row.B || row.C) {
-                    const startStr = String(row.B || "未定").trim();
-                    const endStr = String(row.C || "未定").trim();
-                    
-                    const startDate = startStr === "未定" ? 0 : new Date(startStr.replace(/-/g, '/')).getTime();
-                    const endDate = endStr === "未定" ? 9999999999999 : new Date(endStr.replace(/-/g, '/')).getTime();
-                    
-                    if (!isNaN(startDate) && !isNaN(endDate)) {
-                        maintenanceData.push({ 
-                            start: startDate, 
-                            end: endDate,
-                            startStr: startStr,
-                            endStr: endStr
-                        });
-                    }
+                    const period = toMaintenancePeriod(row.B, row.C);
+                    if (period) maintenanceData.push(period);
                 }
             }
         }
