@@ -32,7 +32,7 @@
     <div id="sectionTop">
         <div class="top-header-actions">
             <!-- ★ 追加: 設定ボタン（クリック時に履歴リストを描画する処理も呼ぶ） -->
-            <!-- ?admin=… で開いた時だけ表示（admin.js） -->
+            <!-- 管理画面のトークンを登録したブラウザでだけ表示（admin.js） -->
             <button id="adminLinkBtn" class="header-link-btn hidden" onclick="showScreen('admin')">🛠 管理</button>
             <button class="header-link-btn" onclick="showScreen('settings')">⚙️ 設定</button>
             <button class="header-link-btn" onclick="showScreen('howto')">📖 使い方</button>
@@ -318,6 +318,7 @@
                 <button type="button" class="admin-btn admin-btn-danger" onclick="removeAdminToken()">このブラウザから削除</button>
             </div>
             <p id="adminTokenMessage" class="admin-message" hidden></p>
+            <p id="adminLockedNote" class="admin-message is-info">トークンを登録したブラウザでだけ、メンテナンス期間・お知らせの編集欄と、トップの「🛠 管理」ボタンが表示されます。</p>
             <details class="exchange-details admin-help">
                 <summary class="exchange-summary">トークンの作り方</summary>
                 <div class="exchange-content">
@@ -334,8 +335,8 @@
             </details>
         </section>
 
-        <!-- メンテナンス期間 -->
-        <section class="result-box admin-panel">
+        <!-- メンテナンス期間（トークン登録済みのブラウザだけ表示） -->
+        <section class="result-box admin-panel admin-editor" hidden>
             <h3 class="note-heading">メンテナンス期間</h3>
             <p id="adminMaintenanceStatus" class="admin-status"></p>
             <p class="muted-text">期間中は、一般の人にはメンテナンス画面が表示されます（<code>?admin=…</code> 付きで開けば、メンテ中でもサイトを確認できます）。</p>
@@ -347,8 +348,8 @@
             <p id="adminMaintenanceMessage" class="admin-message" hidden></p>
         </section>
 
-        <!-- お知らせ -->
-        <section class="result-box admin-panel">
+        <!-- お知らせ（トークン登録済みのブラウザだけ表示） -->
+        <section class="result-box admin-panel admin-editor" hidden>
             <h3 class="note-heading">お知らせ</h3>
             <div id="adminNoticeForm" class="admin-notice-form">
                 <h4 id="adminNoticeFormTitle" class="admin-subheading">新しいお知らせ</h4>

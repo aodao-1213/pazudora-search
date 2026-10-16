@@ -143,6 +143,7 @@ async function writeJsonToGitHub(path, data, message) {
 // #admin を開いた時に呼ばれる
 async function renderAdmin() {
     renderTokenStatus();
+    updateAdminVisibility();
     if (!adminState.loaded) await loadAdminData();
     renderMaintenanceEditor();
     renderAnnouncementEditor();
@@ -227,6 +228,7 @@ function removeAdminToken() {
     if (!confirm('このブラウザに保存したトークンを削除しますか？\n（GitHub 側のトークンは消えません）')) return;
     setAdminToken('');
     renderTokenStatus();
+    updateAdminVisibility();
     showAdminMessage('adminTokenMessage', 'トークンを削除しました。', 'info');
 }
 
@@ -439,9 +441,14 @@ async function deleteAnnouncement(id) {
     await saveAnnouncements(adminState.announcements.filter(n => n.id !== id), '削除しました。');
 }
 
-// ?admin=… で開いた時だけ、トップに「管理」ボタンを出す
-window.addEventListener('DOMContentLoaded', () => {
-    if (typeof isAdminMode === 'function' && isAdminMode()) {
-        document.getElementById('adminLinkBtn')?.classList.remove('hidden');
-    }
-});
+// 「管理」ボタンと編集欄は、トークンを登録したブラウザ（＝管理者の端末）でだけ表示する。
+// ?admin=… はチェックしてもらう人にも共有しているので、それだけでは管理画面を出さない。
+function updateAdminVisibility() {
+    const hasToken = !!getAdminToken();
+    document.getElementById('adminLinkBtn')?.classList.toggle('hidden', !hasToken);
+    document.querySelectorAll('.admin-editor').forEach(el => { el.hidden = !hasToken; });
+    const locked = document.getElementById('adminLockedNote');
+    if (locked) locked.hidden = hasToken;
+}
+
+window.addEventListener('DOMContentLoaded', updateAdminVisibility);
