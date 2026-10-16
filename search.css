@@ -87,11 +87,70 @@ input[type="text"]:focus {
     font-weight: bold;
 }
 .search-heading {
-    margin: 0 0 20px;
+    margin: 0 0 8px;
     padding-left: 12px;
     font-size: 18px;
     color: var(--text);
     border-left: 4px solid var(--gold-bright);
+}
+/* 件数のまとめ（🏰 ダンジョン 4件 ／ 💎 素材 12種類（38件）） */
+.search-summary {
+    margin: 0 0 14px;
+    font-size: 13px;
+    font-weight: bold;
+    color: var(--text-sub);
+}
+.search-summary-sep {
+    margin: 0 8px;
+    color: var(--border-strong);
+}
+/* カテゴリで絞り込むチップ */
+.search-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 20px;
+}
+.search-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: bold;
+    color: var(--text-sub);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: border-color 0.2s, background-color 0.2s, color 0.2s;
+}
+.search-chip:hover {
+    color: var(--text);
+    border-color: var(--gold-bright);
+}
+.search-chip.is-active {
+    color: var(--gold-text-on);
+    background: var(--gold-grad);
+    border-color: transparent;
+}
+.search-chip-count {
+    min-width: 18px;
+    padding: 0 6px;
+    font-size: 11px;
+    line-height: 18px;
+    text-align: center;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.08);
+}
+.search-chip.is-active .search-chip-count {
+    background: rgba(0, 0, 0, 0.15);
+}
+.search-section-hint {
+    margin-left: 6px;
+    font-size: 12px;
+    font-weight: normal;
+    color: var(--text-muted);
 }
 .search-section {
     margin-bottom: 28px;
@@ -150,17 +209,50 @@ input[type="text"]:focus {
     color: var(--text-muted);
     font-weight: normal;
 }
+/* 素材ごとのまとまり（多い時は折りたたみ。名前の行を押すと開く） */
 .search-material {
-    margin-bottom: 22px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--border);
 }
 .search-material:last-child {
     margin-bottom: 0;
+    border-bottom: none;
+}
+.search-material[open] {
+    padding-bottom: 12px;
 }
 .search-result-header {
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-bottom: 10px;
+    padding: 4px 0 10px;
+    cursor: pointer;
+    list-style: none;
+}
+.search-result-header::-webkit-details-marker {
+    display: none;
+}
+/* 開いているかどうかの ▶ */
+.search-result-header::after {
+    content: "▶";
+    margin-left: 4px;
+    font-size: 11px;
+    color: var(--gold-bright);
+    transition: transform 0.2s ease;
+}
+.search-material[open] > .search-result-header::after {
+    transform: rotate(90deg);
+}
+.search-hit-count {
+    margin-left: auto;
+    flex-shrink: 0;
+    padding: 2px 10px;
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--text-sub);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 999px;
 }
 .result-image-wrapper {
     width: 48px;
@@ -199,6 +291,11 @@ input[type="text"]:focus {
     background: var(--purple-soft);
     border-radius: 999px;
 }
+/* 交換・進化の結果はドロップと区別できるよう金色にする */
+.search-category.is-exchange {
+    color: var(--gold);
+    background: rgba(242, 177, 52, 0.14);
+}
 .search-note {
     flex-shrink: 0;
     font-size: 12px;
@@ -207,6 +304,13 @@ input[type="text"]:focus {
 }
 .search-link-main {
     min-width: 0;
+}
+/* 「交換に使う」の時の交換先（→ 紅蓮機王・ヴォルガント） */
+.search-for-target {
+    flex-basis: 100%;
+    font-size: 12px;
+    font-weight: normal;
+    color: var(--text-sub);
 }
 
 /* ====================================================

@@ -9,11 +9,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap" rel="stylesheet">
     <!-- ?v= はバージョン番号。css/js を更新した時に番号を変えると、ブラウザに残った古いファイルではなく新しいファイルが読まれる -->
-    <link rel="stylesheet" href="base.css?v=20261018c">
-    <link rel="stylesheet" href="search.css?v=20261018c">
-    <link rel="stylesheet" href="arena.css?v=20261018c">
-    <link rel="stylesheet" href="components.css?v=20261018c">
-    <link rel="stylesheet" href="admin.css?v=20261018c">
+    <link rel="stylesheet" href="base.css?v=20261018d">
+    <link rel="stylesheet" href="search.css?v=20261018d">
+    <link rel="stylesheet" href="arena.css?v=20261018d">
+    <link rel="stylesheet" href="components.css?v=20261018d">
+    <link rel="stylesheet" href="admin.css?v=20261018d">
 </head>
 <body>
 
@@ -44,6 +44,8 @@
             <p class="hero-eyebrow">ARENA REWARD &amp; SEARCH</p>
             <h1>パズドラ 検索＆報酬ツール</h1>
             <p class="hero-sub">利用したい機能を選んでください</p>
+            <!-- データの最終更新日（main.js の displayDataUpdated() が入れる） -->
+            <p class="data-updated" hidden></p>
         </header>
 
         <div class="top-menu">
@@ -495,6 +497,7 @@
         <button id="arenaBackButton" class="back-button" onclick="arenaBack()">← トップに戻る</button>
         <nav id="arenaBreadcrumb" class="breadcrumb" aria-label="現在の場所"></nav>
         <h2 id="arenaTitle">闘技場シリーズ 報酬リスト</h2>
+        <p class="data-updated" hidden></p>
         <div id="arenaList" class="result-box"></div>
     </div>
 
@@ -507,12 +510,12 @@
 
 <!-- Excel 読み込み用の部品（SheetJS）は、data.json が無い時と管理画面で Excel を選んだ時だけ data.js が読み込む -->
 <!-- ?v= はバージョン番号（上の css と同じ。更新したら番号を変える） -->
-<script src="data.js?v=20261018c"></script>
-<script src="history.js?v=20261018c"></script>
-<script src="search.js?v=20261018c"></script>
-<script src="nav.js?v=20261018c"></script>
-<script src="render.js?v=20261018c"></script>
-<script src="admin.js?v=20261018c"></script>
-<script src="main.js?v=20261018c"></script>
+<script src="data.js?v=20261018d"></script>
+<script src="history.js?v=20261018d"></script>
+<script src="search.js?v=20261018d"></script>
+<script src="nav.js?v=20261018d"></script>
+<script src="render.js?v=20261018d"></script>
+<script src="admin.js?v=20261018d"></script>
+<script src="main.js?v=20261018d"></script>
 </body>
 </html>

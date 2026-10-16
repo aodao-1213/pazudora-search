@@ -31,6 +31,18 @@ function showMaintenanceIfNeeded() {
     return true;
 }
 
+// データの最終更新日（data.json を作った日）をトップ画面と報酬リストに出す
+function displayDataUpdated() {
+    const date = dataGeneratedAt ? new Date(dataGeneratedAt) : null;
+    const valid = date && !isNaN(date.getTime());
+    const pad = (n) => String(n).padStart(2, '0');
+    const text = valid ? `📅 データ更新：${date.getFullYear()}/${pad(date.getMonth() + 1)}/${pad(date.getDate())}` : '';
+    document.querySelectorAll('.data-updated').forEach(el => {
+        el.textContent = text;
+        el.hidden = !valid;
+    });
+}
+
 window.onload = async function() {
     // メンテ期間・お知らせ（JSON）を先に読む。メンテ中ならダンジョンのデータは読み込まずにメンテ画面を出す
     await loadSiteSettings();
@@ -38,6 +50,7 @@ window.onload = async function() {
 
     // ダンジョンのデータ（data.json。無ければ dangeon.xlsx）
     await loadSiteData();
+    displayDataUpdated();
 
     if (typeof displayAnnouncements === 'function') displayAnnouncements();
     if (typeof displayNoteExample === 'function') displayNoteExample();

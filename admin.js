@@ -758,6 +758,7 @@ async function saveExcelFile() {
 
         // このページの表示もすぐ新しいデータに切り替える
         applyCompiledData(compiled);
+        if (typeof displayDataUpdated === 'function') displayDataUpdated();
         if (typeof displayNoteExample === 'function') displayNoteExample();
         renderBgEditor();
         renderBgUploadList();

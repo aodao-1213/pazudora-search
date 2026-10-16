@@ -157,6 +157,8 @@ async function loadExcel() {
         const response = await fetch('dangeon.xlsx?t=' + new Date().getTime());
         const workbook = XLSX.read(await response.arrayBuffer(), { type: 'array' });
         applyCompiledData(compileWorkbook(workbook));
+        // この場合の日時は「今読んだ時刻」でデータの更新日ではないので、更新日は出さない
+        dataGeneratedAt = '';
     } catch (error) {
         console.error('Excelの読み込みに失敗:', error);
         document.getElementById('arenaList').innerHTML = "データの読み込みに失敗しました。";

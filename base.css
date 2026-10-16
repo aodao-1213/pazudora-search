@@ -254,6 +254,24 @@ h2::after {
     color: var(--text-muted);
     font-size: 14px;
 }
+/* データの最終更新日（📅 データ更新：2026/10/16） */
+.data-updated {
+    display: inline-block;
+    margin: 12px 0 0;
+    padding: 3px 12px;
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--text-sub);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+}
+.data-updated[hidden] {
+    display: none;
+}
+#sectionArena .data-updated {
+    margin: 0 0 14px;
+}
 .top-menu {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));

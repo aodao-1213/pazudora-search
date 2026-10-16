@@ -83,26 +83,34 @@ function showScreen(screenName) {
 }
 
 // 検索結果などから、そのダンジョンの報酬画面を直接開いて光らせる
-function jumpToDungeon(dungeonName) {
+// options.openExchange：交換の検索結果から来た時は「素材の交換目安を見る」も開いて、そこまでスクロールする
+function jumpToDungeon(dungeonName, options = {}) {
     const arena = dungeonData.find(d => d.name === dungeonName);
     showScreen(arena ? arenaHash(arena.series, arena.name) : 'arena');
-
-    // 設定で「ジャンプ時の点滅」をオフにしている時は光らせない
-    if (typeof isFlashEnabled === 'function' && !isFlashEnabled()) return;
 
     setTimeout(() => {
         const safeId = encodeURIComponent(dungeonName);
         const target = document.getElementById(`dungeon-${safeId}`);
-        if (target) {
-            target.classList.remove('flash-highlight');
-            setTimeout(() => {
-                target.classList.add('flash-highlight');
-            }, 10);
+        if (!target) return;
 
-            setTimeout(() => {
-                target.classList.remove('flash-highlight');
-            }, 4000);
+        if (options.openExchange) {
+            const exchange = target.querySelector('.exchange-details');
+            if (exchange) {
+                exchange.open = true;
+                exchange.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
         }
+
+        // 設定で「ジャンプ時の点滅」をオフにしている時は光らせない
+        if (typeof isFlashEnabled === 'function' && !isFlashEnabled()) return;
+
+        target.classList.remove('flash-highlight');
+        setTimeout(() => {
+            target.classList.add('flash-highlight');
+        }, 10);
+        setTimeout(() => {
+            target.classList.remove('flash-highlight');
+        }, 4000);
     }, 200);
 }
 
