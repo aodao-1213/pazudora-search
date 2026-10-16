@@ -15,7 +15,12 @@ function updateScreenFromHash() {
     
     if (hash === 'top') document.getElementById('sectionTop').classList.remove('hidden');
     else if (hash === 'search') document.getElementById('sectionSearch').classList.remove('hidden');
-    else if (hash === 'arena') document.getElementById('sectionArena').classList.remove('hidden');
+    else if (hash === 'arena' || hash.startsWith('arena/')) {
+        // 報酬リストは #arena / #arena/ステージ名 / #arena/ステージ名/ダンジョン名 の3段階
+        document.getElementById('sectionArena').classList.remove('hidden');
+        if (typeof displayArenaList === 'function') displayArenaList();
+        window.scrollTo(0, 0);
+    }
     else if (hash === 'notice') document.getElementById('sectionNotice')?.classList.remove('hidden');
     else if (hash === 'noticeList') {
         document.getElementById('sectionNoticeList')?.classList.remove('hidden');
@@ -41,29 +46,15 @@ function showScreen(screenName) {
     window.location.hash = screenName;
 }
 
-// 目次からシリーズの大枠にジャンプする機能
-function jumpToSeries(seriesId) {
-    const target = document.getElementById(`series-${seriesId}`);
-    if (target) {
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        
-        // 目次が開いている場合、見やすさのために閉じる
-        const tocDetails = document.querySelector('.toc-details');
-        if (tocDetails) {
-            tocDetails.removeAttribute('open');
-        }
-    }
-}
-
+// 検索結果などから、そのダンジョンの報酬画面を直接開いて光らせる
 function jumpToDungeon(dungeonName) {
-    showScreen('arena');
-    
+    const arena = dungeonData.find(d => d.name === dungeonName);
+    showScreen(arena ? arenaHash(arena.series, arena.name) : 'arena');
+
     setTimeout(() => {
         const safeId = encodeURIComponent(dungeonName);
         const target = document.getElementById(`dungeon-${safeId}`);
         if (target) {
-            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            
             target.classList.remove('flash-highlight');
             setTimeout(() => {
                 target.classList.add('flash-highlight');

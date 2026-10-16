@@ -1,164 +1,220 @@
 /* ====================================================
-   報酬リスト画面
+   報酬リスト画面：[ステージ一覧] → [ダンジョン一覧] → [報酬]
    ==================================================== */
 
-/* シリーズごとのパネルが並ぶので、外側の枠は付けない */
+/* 中身はカードやパネルが並ぶので、外側の枠は付けない */
 #arenaList.result-box {
+    margin-top: 0;
     padding: 0;
     background: transparent;
     border: none;
     box-shadow: none;
 }
 
-/* ---------- 目次 ---------- */
-.toc-details {
-    margin-bottom: 24px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    overflow: hidden;
-}
-.toc-summary {
-    padding: 14px 18px;
-    font-size: 15px;
-    font-weight: bold;
-    color: var(--text);
-    cursor: pointer;
-    list-style: none;
-    user-select: none;
-    transition: background-color 0.2s;
-}
-.toc-summary:hover {
-    background-color: var(--surface-2);
-}
-.toc-summary::-webkit-details-marker {
-    display: none;
-}
-.toc-summary::before {
-    content: "▶";
-    display: inline-block;
-    margin-right: 10px;
-    font-size: 12px;
-    color: var(--gold-bright);
-    transition: transform 0.2s ease;
-}
-.toc-details[open] .toc-summary::before {
-    transform: rotate(90deg);
-}
-.toc-content {
-    padding: 14px 18px 18px;
-    border-top: 1px solid var(--border);
-}
-/* シリーズ名はタグ状に並べて、すぐ飛べるようにする */
-.toc-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-.toc-list a {
-    display: inline-block;
-    padding: 6px 14px;
-    font-size: 13px;
-    font-weight: bold;
-    color: var(--text);
-    text-decoration: none;
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    transition: border-color 0.2s, background-color 0.2s;
-}
-.toc-list a:hover {
-    color: var(--text);
-    border-color: var(--gold-bright);
-    background: var(--surface-3);
-}
-
-/* ---------- シリーズ（闘技場ごとのまとまり） ---------- */
-.series-group {
-    margin-bottom: 28px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    overflow: hidden;
-    scroll-margin-top: 12px;
-}
-.series-group h3 {
-    position: relative;
-    margin: 0;
-    padding: 14px 18px 14px 40px;
-    font-family: var(--font-display);
-    font-weight: 400;
-    font-size: 20px;
-    letter-spacing: 0.04em;
-    color: #ffe08a;
-    background: var(--header-grad);
-    border-bottom: 1px solid rgba(255, 214, 107, 0.35);
-}
-/* 見出し左の宝石風マーク */
-.series-group h3::before {
-    content: "";
-    position: absolute;
-    left: 18px;
-    top: 50%;
-    width: 10px;
-    height: 10px;
-    background: var(--gold-grad);
-    transform: translateY(-50%) rotate(45deg);
-    box-shadow: 0 0 10px rgba(255, 207, 92, 0.8);
-}
-/* ダンジョンのカードを並べる部分（PCでは2列） */
-.series-body {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 14px;
-    padding: 14px;
-}
-
-/* ---------- ダンジョン1つ分のカード ---------- */
-.series-group .item {
-    position: relative;
-    padding: 16px 16px 16px 18px;
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    transition: border-color 0.2s;
-}
-/* カード左端の金色ライン */
-.series-group .item::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 14px;
-    bottom: 14px;
-    width: 3px;
-    border-radius: 0 3px 3px 0;
-    background: var(--gold-grad);
-}
-.series-group .item:hover {
-    border-color: var(--border-strong);
-}
-.item-title {
+/* ---------- パンくず（トップ › 報酬リスト › ステージ › ダンジョン） ---------- */
+.breadcrumb {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
+    gap: 4px 6px;
+    margin: -8px 0 14px;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+.breadcrumb a {
+    color: var(--link);
+    font-weight: bold;
+    text-decoration: none;
+}
+.breadcrumb a:hover {
+    text-decoration: underline;
+}
+.crumb-sep {
+    color: var(--border-strong);
+}
+.crumb-current {
+    color: var(--text-sub);
+    font-weight: bold;
+}
+
+/* ---------- ステージ・ダンジョンのカード（背景にモンスター画像） ---------- */
+.arena-tile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 14px;
+}
+.arena-tile,
+.dungeon-hero {
+    position: relative;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    background: var(--header-grad);
+    border: 1px solid rgba(255, 214, 107, 0.35);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    color: #fff;
+    text-decoration: none;
+}
+.arena-tile {
+    min-height: 96px;
+    padding: 16px 44px 16px 18px;
+    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+}
+.arena-tile:hover {
+    color: #fff;
+    transform: translateY(-2px);
+    border-color: rgba(255, 214, 107, 0.8);
+    box-shadow: var(--shadow-strong), var(--glow);
+}
+/* 背景のモンスター画像：右側に大きく敷いて、左（文字側）に向かって消えていくようにする */
+.tile-bg {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 62%;
+    background-image: var(--tile-bg, none);
+    /* 少し拡大して、アイコン画像の外枠（属性色のフチ）が見えないようにする */
+    background-size: 130% auto;
+    background-position: center 30%;
+    opacity: 0.9;
+    -webkit-mask-image: linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.55) 35%, #000 75%);
+    mask-image: linear-gradient(to right, transparent 0%, rgba(0, 0, 0, 0.55) 35%, #000 75%);
+    pointer-events: none;
+}
+.arena-tile:hover .tile-bg {
+    opacity: 1;
+}
+/* images_1 の大きいイラストは拡大せず、広めに見せる */
+.is-art .tile-bg {
+    width: 72%;
+    background-size: cover;
+    background-position: center 30%;
+}
+.tile-body {
+    position: relative; /* 背景画像より手前に出す */
+    display: flex;
+    flex-direction: column;
     gap: 6px;
-    margin-bottom: 4px;
+    min-width: 0;
+    max-width: 78%;
+}
+.tile-title {
+    font-family: var(--font-display);
+    font-size: 19px;
+    line-height: 1.3;
+    color: #ffe08a;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+.tile-sub {
+    font-size: 12px;
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.8);
+}
+.tile-arrow {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    color: #ffe08a;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+/* 紫の帯の上に載る経験値などの1行テキストは白系にする */
+.arena-tile .dungeon-stats,
+.dungeon-hero .dungeon-stats {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.72);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+.arena-tile .stat-value,
+.dungeon-hero .stat-value {
+    color: #fff;
+}
+.arena-tile .stat-sep,
+.dungeon-hero .stat-sep {
+    color: rgba(255, 255, 255, 0.35);
+}
+
+/* ---------- ダンジョン1つ分の報酬画面 ---------- */
+.dungeon-detail {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+.dungeon-hero {
+    min-height: 120px;
+    padding: 20px 22px;
+    border: none;
+    border-bottom: 1px solid rgba(255, 214, 107, 0.35);
+    border-radius: calc(var(--radius) - 1px) calc(var(--radius) - 1px) 0 0;
+    box-shadow: none;
+}
+/* アイコン画像（約100px）を横長に引き伸ばすと粗くなるので、横幅に上限を付ける */
+.dungeon-hero .tile-bg {
+    width: min(55%, 340px);
+}
+.dungeon-hero.is-art .tile-bg {
+    width: 75%;
+}
+.dungeon-hero .tile-body {
+    max-width: 80%;
 }
 .dungeon-name {
-    font-weight: bold;
-    color: var(--dungeon-name);
-    font-size: 18px;
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 1.3;
     letter-spacing: 0.02em;
+    color: #ffe08a;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+.dungeon-body {
+    padding: 4px 20px 20px;
+}
+
+/* 同じステージ内の前後のダンジョンへ */
+.dungeon-pager {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 16px;
+}
+.pager-link {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 12px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    text-decoration: none;
+    transition: border-color 0.2s;
+}
+.pager-link:hover {
+    color: var(--text);
+    border-color: var(--gold-bright);
+}
+.pager-next {
+    text-align: right;
+}
+.pager-dir {
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--gold);
+}
+.pager-name {
+    font-size: 14px;
+    font-weight: bold;
 }
 
 /* ---------- ドロップ欄 ---------- */
 .drop-category {
-    margin-top: 14px;
+    margin-top: 16px;
 }
 /* カテゴリー名は小さなラベルにして、ダンジョン名より目立たせない */
 .drop-category h4 {
@@ -279,44 +335,29 @@
 }
 
 /* ====================================================
-   PC：カードを2列に並べる（アイコンが多いダンジョンは1行まるごと使う）
-   ==================================================== */
-@media (min-width: 900px) {
-    .series-body {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 16px;
-        padding: 16px;
-    }
-    .series-group .item-wide {
-        grid-column: 1 / -1;
-    }
-}
-
-/* ====================================================
    スマホ
    ==================================================== */
 @media (max-width: 600px) {
-    .series-group {
-        margin-bottom: 20px;
-    }
-    .series-group h3 {
-        font-size: 17px;
-        padding: 12px 14px 12px 34px;
-    }
-    .series-group h3::before {
-        left: 14px;
-        width: 8px;
-        height: 8px;
-    }
-    .series-body {
+    .arena-tile-grid {
+        grid-template-columns: 1fr;
         gap: 10px;
-        padding: 10px;
     }
-    .series-group .item {
-        padding: 12px 12px 12px 14px;
+    .arena-tile {
+        min-height: 84px;
+        padding: 14px 38px 14px 14px;
+    }
+    .tile-title {
+        font-size: 17px;
+    }
+    .dungeon-hero {
+        min-height: 100px;
+        padding: 16px 14px;
     }
     .dungeon-name {
-        font-size: 16px;
+        font-size: 20px;
+    }
+    .dungeon-body {
+        padding: 2px 12px 14px;
     }
     .material-badge {
         width: 40px;
@@ -328,10 +369,10 @@
     .category-groups {
         gap: 12px 18px;
     }
-    .toc-summary {
-        padding: 12px 14px;
+    .pager-link {
+        padding: 10px 12px;
     }
-    .toc-content {
-        padding: 12px 14px 14px;
+    .pager-name {
+        font-size: 13px;
     }
 }

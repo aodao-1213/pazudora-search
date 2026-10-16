@@ -167,13 +167,15 @@ function parseCategory(text, isRandom) {
 
 function parseExcelData(data, idMap) {
     const result = [];
-    const knownColumns = ['ステージ', 'ステージ名', 'ダンジョン', 'ダンジョン名', '交換可能なレート', 'ボス・部位破壊', 'ボス・乱入・部位破壊', '確定ドロップ', '確率ドロップ', '確定ランダムドロップ', '確率ランダムドロップ', '注意書き'];
+    const knownColumns = ['ステージ', 'ステージ名', 'ダンジョン', 'ダンジョン名', '交換可能なレート', 'ボス・部位破壊', 'ボス・乱入・部位破壊', '確定ドロップ', '確率ドロップ', '確定ランダムドロップ', '確率ランダムドロップ', '注意書き', '背景モンスター'];
 
     data.forEach(row => {
         const series = row['ステージ'] || row['ステージ名'] || 'その他';
         const name = row['ダンジョン'] || row['ダンジョン名'] || '不明';
         const exchangeRate = row['交換可能なレート'] ? String(row['交換可能なレート']).trim() : '';
         const warning = row['注意書き'] ? String(row['注意書き']).trim() : '';
+        // ダンジョン一覧のカード背景に使うモンスター名（または画像ファイル名）
+        const bgMonster = row['背景モンスター'] ? String(row['背景モンスター']).trim() : '';
 
         const remarks = [];
         for (const key in row) {
@@ -221,7 +223,7 @@ function parseExcelData(data, idMap) {
             });
         });
 
-        result.push({ series, name, remarks, exchangeRate, drops, allRewards, warning });
+        result.push({ series, name, remarks, exchangeRate, drops, allRewards, warning, bgMonster });
     });
     return result;
 }
