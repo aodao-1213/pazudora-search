@@ -39,9 +39,10 @@ window.onload = async function() {
         return; 
     }
 
-    if (typeof displayAnnouncements === 'function') displayAnnouncements(); 
-    if (typeof displayArenaList === 'function') displayArenaList();
-    if (typeof displayNoteExample === 'function') displayNoteExample(); 
+    if (typeof displayAnnouncements === 'function') displayAnnouncements();
+    if (typeof displayNoteExample === 'function') displayNoteExample();
+    // データが揃ったので、今開いている画面（報酬リスト・お知らせなど）を描き直す
+    if (typeof updateScreenFromHash === 'function') updateScreenFromHash();
 };
 
 document.addEventListener('DOMContentLoaded', () => {

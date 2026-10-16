@@ -202,7 +202,8 @@ function parseExcelData(data, idMap) {
         const bossCategoryData = row['ボス・乱入・部位破壊'] || row['ボス・部位破壊'];
 
         const drops = [
-            { category: bossCategoryName, groups: parseCategory(bossCategoryData, false) },
+            // ボス欄は「A,B,C(ボス本体(5体からランダム1つ))」のように複数をまとめて1つの注記を付けることがあるので、ランダム扱いでまとめる
+            { category: bossCategoryName, groups: parseCategory(bossCategoryData, true) },
             { category: "確定ドロップ", groups: parseCategory(row['確定ドロップ'], false) },
             { category: "確率ドロップ", groups: parseCategory(row['確率ドロップ'], false) },
             { category: "確定ランダムドロップ", groups: parseCategory(row['確定ランダムドロップ'], true) },

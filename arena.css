@@ -37,6 +37,19 @@
     font-weight: bold;
 }
 
+/* 古いURLなどで、ステージ・ダンジョンが見つからなかった時のお知らせ */
+.arena-not-found {
+    margin-bottom: 16px;
+    padding: 12px 16px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text);
+    background: var(--danger-soft);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--danger);
+    border-radius: var(--radius-sm);
+}
+
 /* ---------- ステージ・ダンジョンのカード（背景にモンスター画像） ---------- */
 .arena-tile-grid {
     display: grid;

@@ -109,16 +109,35 @@ function showNoticeList(page = 1) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+// お知らせを開く（URLを #notice/番号 にして、直接開いたり再読み込みしても表示できるようにする）
 function showNoticeDetail(id) {
-    const notice = announcementData.find(n => n.id === id);
+    showScreen(`notice/${id}`);
+}
+
+// URLの番号に合わせてお知らせの中身を表示する（URLが変わった時と、データ読み込み後に呼ばれる）
+function renderNoticeDetail() {
+    const titleEl = document.getElementById('noticeTitle');
+    const dateEl = document.getElementById('noticeDate');
+    const bodyEl = document.getElementById('noticeBody');
+
+    const idText = window.location.hash.replace('#', '').split('/')[1];
+    const notice = announcementData.find(n => String(n.id) === idText);
+
     if (notice) {
-        document.getElementById('noticeTitle').textContent = notice.title;
-        document.getElementById('noticeDate').textContent = notice.date;
-        const formattedBody = notice.body.replace(/\n/g, '<br>');
-        document.getElementById('noticeBody').innerHTML = formattedBody;
-        
-        showScreen('notice');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        titleEl.textContent = notice.title;
+        dateEl.textContent = notice.date;
+        bodyEl.innerHTML = notice.body.replace(/\n/g, '<br>');
+        setPageTitle(notice.title);
+    } else if (announcementData.length === 0 && dungeonData.length === 0) {
+        // まだExcelを読み込み中
+        titleEl.textContent = '読み込み中…';
+        dateEl.textContent = '';
+        bodyEl.innerHTML = '';
+    } else {
+        titleEl.textContent = 'お知らせが見つかりませんでした';
+        dateEl.textContent = '';
+        bodyEl.innerHTML = '削除されたか、URLが間違っている可能性があります。<br><a href="#noticeList">お知らせ一覧を見る</a>';
+        setPageTitle('お知らせ');
     }
 }
 
@@ -226,6 +245,10 @@ function updateArenaHeader(route) {
         backButton.textContent = route.dungeon ? '← ダンジョン一覧に戻る'
             : route.series ? '← ステージ一覧に戻る'
             : '← トップに戻る';
+        // 戻り先（表示中の画面の1つ上）。ボタンの文字と必ず一致させる
+        backButton.dataset.target = route.dungeon ? arenaHash(route.series)
+            : route.series ? arenaHash()
+            : 'top';
     }
 
     const title = document.getElementById('arenaTitle');
@@ -234,19 +257,18 @@ function updateArenaHeader(route) {
 
 // 戻るボタン：1つ上の階層へ
 function arenaBack() {
-    const route = getArenaRoute();
-    if (route.dungeon) showScreen(arenaHash(route.series));
-    else if (route.series) showScreen(arenaHash());
-    else showScreen('top');
+    const backButton = document.getElementById('arenaBackButton');
+    showScreen((backButton && backButton.dataset.target) || 'top');
 }
 
 // URLに合わせて報酬リスト画面を描画する（データ読み込み後と、URLが変わった時に呼ばれる）
 function displayArenaList() {
     const listDiv = document.getElementById('arenaList');
     const route = getArenaRoute();
-    updateArenaHeader(route);
 
     if (dungeonData.length === 0) {
+        updateArenaHeader({ series: '', dungeon: '' });
+        setPageTitle('報酬リスト');
         listDiv.innerHTML = `<p class="search-message">データを読み込み中か、データが存在しません。</p>`;
         return;
     }
@@ -255,12 +277,22 @@ function displayArenaList() {
     const dungeons = route.series ? grouped[route.series] : null;
     const arena = dungeons && route.dungeon ? dungeons.find(d => d.name === route.dungeon) : null;
 
+    // Excel側でステージ名・ダンジョン名が変わると、古いブックマークのURLが存在しない名前になる。
+    // その時は「見つかりませんでした」と出して、1つ上の一覧を表示する
+    const notFoundHtml = (name) => `<div class="arena-not-found">「${name}」は見つかりませんでした。名前が変わったか、削除された可能性があります。下の一覧から選び直してください。</div>`;
+
     if (route.dungeon && arena) {
+        updateArenaHeader(route);
+        setPageTitle(`${arena.name}（${arena.series}）の報酬`);
         listDiv.innerHTML = dungeonDetailHtml(arena, dungeons);
     } else if (route.series && dungeons) {
-        listDiv.innerHTML = dungeonListHtml(dungeons);
+        updateArenaHeader({ series: route.series, dungeon: '' });
+        setPageTitle(`${route.series}のダンジョン一覧`);
+        listDiv.innerHTML = (route.dungeon ? notFoundHtml(route.dungeon) : '') + dungeonListHtml(dungeons);
     } else {
-        listDiv.innerHTML = stageListHtml(grouped);
+        updateArenaHeader({ series: '', dungeon: '' });
+        setPageTitle('報酬リスト');
+        listDiv.innerHTML = (route.series ? notFoundHtml(route.series) : '') + stageListHtml(grouped);
     }
 }
 
@@ -427,98 +459,4 @@ function displayNoteExample() {
         }
     });
     container.innerHTML = html;
-}
-
-function parseCategory(text, isRandom) {
-    if (!text) return [];
-    let items = text.toString().split(',');
-    let groups = [];
-    let currentGroup = { items: [], note: "" };
-
-    for (let item of items) {
-        item = item.trim();
-        if (!item) continue;
-        
-        let match = item.match(/^(.*?)(?:\((.*)\))?$/);
-        let name = match[1].trim();
-        let note = match[2] ? match[2].trim() : "";
-
-        if (isRandom) {
-            currentGroup.items.push(name);
-            if (note) {
-                currentGroup.note = note;
-                groups.push(currentGroup);
-                currentGroup = { items: [], note: "" };
-            }
-        } else {
-            groups.push({ items: [name], note: note });
-        }
-    }
-    if (isRandom && currentGroup.items.length > 0) {
-        groups.push(currentGroup);
-    }
-    return groups;
-}
-
-function parseExcelData(data, idMap) {
-    const result = [];
-    const knownColumns = ['ステージ', 'ステージ名', 'ダンジョン', 'ダンジョン名', '交換可能なレート', 'ボス・部位破壊', 'ボス・乱入・部位破壊', '確定ドロップ', '確率ドロップ', '確定ランダムドロップ', '確率ランダムドロップ', '注意書き', '背景モンスター'];
-
-    data.forEach(row => {
-        const series = row['ステージ'] || row['ステージ名'] || 'その他';
-        const name = row['ダンジョン'] || row['ダンジョン名'] || '不明';
-        const exchangeRate = row['交換可能なレート'] ? String(row['交換可能なレート']).trim() : '';
-        const warning = row['注意書き'] ? String(row['注意書き']).trim() : '';
-        // ダンジョン一覧のカード背景に使うモンスター名（または画像ファイル名）
-        const bgMonster = row['背景モンスター'] ? String(row['背景モンスター']).trim() : '';
-
-        const remarks = [];
-        for (const key in row) {
-            if (!knownColumns.includes(key)) {
-                let val = String(row[key]).trim();
-                if (!val) continue;
-
-                val = val.replace(/,/g, ''); 
-                val = val.replace(/\d+/g, match => Number(match).toLocaleString());
-
-                if (key.includes('ポイント') || key.includes('プラス限界突破')) {
-                    if (!val.startsWith('+')) val = '+' + val;
-                }
-                
-                let displayLabel = key;
-                if (key === 'ポイント') displayLabel = '+ポイント';
-                if (key === 'プラス限界突破') displayLabel = '+限界突破';
-                
-                remarks.push({ label: displayLabel, value: val });
-            }
-        }
-
-        const bossCategoryName = row['ボス・乱入・部位破壊'] ? 'ボス・乱入・部位破壊' : 'ボス・部位破壊';
-        const bossCategoryData = row['ボス・乱入・部位破壊'] || row['ボス・部位破壊'];
-
-        const drops = [
-            { category: bossCategoryName, groups: parseCategory(bossCategoryData, true) },
-            { category: "確定ドロップ", groups: parseCategory(row['確定ドロップ'], false) },
-            { category: "確率ドロップ", groups: parseCategory(row['確率ドロップ'], false) },
-            { category: "確定ランダムドロップ", groups: parseCategory(row['確定ランダムドロップ'], true) },
-            { category: "確率ランダムドロップ", groups: parseCategory(row['確率ランダムドロップ'], true) }
-        ];
-
-        const allRewards = [];
-        drops.forEach(d => {
-            d.groups.forEach(g => {
-                g.items.forEach(item => {
-                    allRewards.push({ 
-                        name: item, 
-                        category: d.category, 
-                        note: g.note,
-                        id: idMap[item] || "" 
-                    });
-                });
-            });
-        });
-
-        result.push({ series, name, remarks, exchangeRate, drops, allRewards, warning, bgMonster });
-    });
-    return result;
 }
