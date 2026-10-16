@@ -363,32 +363,51 @@ function dungeonDetailHtml(arena, dungeons) {
     return html;
 }
 
-// ドロップ・交換目安・注意書き
-function dungeonBodyHtml(arena) {
-    let html = '';
+// 補足（「(ボス本体)」「×3」など）の表示用。※ の前で改行する
+function formatGroupNote(note) {
+    let displayNote = note;
+    if (!displayNote.match(/^[×xX～~]/)) displayNote = `(${displayNote})`;
+    return displayNote.replace(/※/g, '<br>※').replace(/\(<br>※/g, '(※').replace(/^<br>※/g, '※');
+}
 
-    arena.drops.forEach(dropCategory => {
+// ランダムドロップ1グループ分：どのアイコンが同じグループかわかるよう細い枠で囲む（余白は最小限）。
+// 個数「×7」は従来どおりアイコンの後ろに置く
+function randomGroupHtml(group) {
+    const note = group.note ? `<div class="group-note">${formatGroupNote(group.note)}</div>` : '';
+    return `<div class="random-group">${group.items.map(name => materialBadgeHtml(name)).join('')}${note}</div>`;
+}
+
+// ドロップ欄（ボス・確定・確率・ランダム）。報酬画面と、注意書き画面の例で共通
+function dropCategoriesHtml(drops) {
+    let html = '';
+    drops.forEach(dropCategory => {
         if (dropCategory.groups.length === 0) return;
+        const isRandom = dropCategory.category.includes('ランダム');
         html += `<div class="drop-category">
                     <h4>${dropCategory.category}</h4>
-                    <div class="category-groups">`;
+                    <div class="category-groups${isRandom ? ' is-random' : ''}">`;
 
         dropCategory.groups.forEach(group => {
+            if (isRandom) {
+                html += randomGroupHtml(group);
+                return;
+            }
             html += `<div class="drop-group">`;
             group.items.forEach(itemName => {
                 html += materialBadgeHtml(itemName);
             });
-            if (group.note) {
-                let displayNote = group.note;
-                if (!displayNote.match(/^[×xX～~]/)) displayNote = `(${displayNote})`;
-                displayNote = displayNote.replace(/※/g, '<br>※').replace(/\(<br>※/g, '(※').replace(/^<br>※/g, '※');
-                html += `<div class="group-note">${displayNote}</div>`;
-            }
+            if (group.note) html += `<div class="group-note">${formatGroupNote(group.note)}</div>`;
             html += `</div>`;
         });
 
         html += `</div></div>`;
     });
+    return html;
+}
+
+// ドロップ・交換目安・注意書き
+function dungeonBodyHtml(arena) {
+    let html = dropCategoriesHtml(arena.drops);
 
     if (arena.exchanges && arena.exchanges.length > 0) {
         // 「交換」シートにデータがあるダンジョンは、ゲームの交換画面のような表示にする
@@ -449,33 +468,6 @@ function displayNoteExample() {
         return;
     }
 
-    let html = `<h4 class="note-example-title">【例】大樹の霊王のドロップ</h4>`;
-
-    targetDungeon.drops.forEach(dropCategory => {
-        if (dropCategory.groups.length > 0) {
-            html += `<div class="drop-category">
-                        <h4>${dropCategory.category}</h4>
-                        <div class="category-groups">`;
-            
-            dropCategory.groups.forEach(group => {
-                html += `<div class="drop-group">`;
-                
-                group.items.forEach(itemName => {
-                    html += materialBadgeHtml(itemName);
-                });
-
-                if (group.note) {
-                    let displayNote = group.note;
-                    if (!displayNote.match(/^[×xX～~]/)) displayNote = `(${displayNote})`;
-                    displayNote = displayNote.replace(/※/g, '<br>※').replace(/\(<br>※/g, '(※').replace(/^<br>※/g, '※');
-                    html += `<div class="group-note">${displayNote}</div>`;
-                }
-                
-                html += `</div>`;
-            });
-            
-            html += `</div></div>`; 
-        }
-    });
+    const html = `<h4 class="note-example-title">【例】大樹の霊王のドロップ</h4>` + dropCategoriesHtml(targetDungeon.drops);
     container.innerHTML = html;
 }

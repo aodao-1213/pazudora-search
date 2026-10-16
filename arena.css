@@ -256,6 +256,23 @@
     align-items: center; /* アイコンを上下中央に */
     gap: 4px; /* アイコンと文字の隙間 */
 }
+/* ---------- ランダムドロップ：グループごとに細い枠で囲む（どのアイコンが同じグループかわかるように）。
+   余白は最小限にして、枠が無い時とほぼ同じ詰まり具合にする ---------- */
+.category-groups.is-random {
+    gap: 6px;
+    align-items: flex-start;
+}
+.random-group {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    max-width: 100%;
+    padding: 4px 6px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+}
+
 .group-note {
     font-size: 13px;
     font-weight: bold;
