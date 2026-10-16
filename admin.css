@@ -306,6 +306,155 @@ body.dark-theme .admin-status.is-ok {
     color: var(--text-muted);
 }
 
+/* 画像の一覧・削除 */
+.admin-subheading-gap {
+    margin-top: 28px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+}
+.admin-row-center {
+    align-items: center;
+}
+.admin-btn-small {
+    padding: 5px 12px;
+    font-size: 12px;
+}
+label.admin-btn {
+    display: inline-block;
+}
+.admin-input-small {
+    padding: 6px 10px;
+    font-size: 13px;
+    min-width: 180px;
+}
+.admin-btn-danger-solid {
+    color: #fff;
+    background: var(--danger);
+    border-color: transparent;
+}
+.admin-btn-danger-solid:hover:not(:disabled) {
+    color: #fff;
+    border-color: transparent;
+    filter: brightness(1.08);
+}
+.admin-file-count {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+.admin-file-grid {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.admin-file-grid.is-bg {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+}
+.admin-file-grid.is-icon {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+}
+.admin-file-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px;
+    font-size: 12px;
+    background: var(--surface-2);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+}
+.admin-file-card.is-unused {
+    border-style: dashed;
+}
+.admin-file-card.is-checked {
+    border-color: var(--danger);
+    border-style: solid;
+    background: var(--danger-soft);
+}
+.admin-file-card input[type="checkbox"] {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 18px;
+    height: 18px;
+    accent-color: var(--danger);
+}
+.admin-file-grid.is-bg img {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    border-radius: 6px;
+}
+.admin-file-grid.is-icon img {
+    width: 46px;
+    height: 46px;
+    object-fit: contain;
+    border-radius: 6px;
+    background: var(--icon-bg);
+}
+.admin-file-name {
+    font-weight: bold;
+    color: var(--text);
+    word-break: break-all;
+}
+.admin-file-name small {
+    display: block;
+    font-weight: normal;
+    color: var(--text-sub);
+}
+.admin-file-meta {
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+/* 画像が無い素材の一覧 */
+.admin-missing-list {
+    margin: 0 0 12px;
+    padding: 0;
+    list-style: none;
+    max-height: 320px;
+    overflow-y: auto;
+}
+.admin-missing-item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px 10px;
+    padding: 8px 4px;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+}
+.admin-missing-item.is-ready {
+    color: var(--text-muted);
+}
+.admin-missing-item.is-noid {
+    flex-direction: column;
+    align-items: flex-start;
+}
+.admin-icon-thumb {
+    width: 46px;
+    height: 46px;
+    object-fit: contain;
+    flex-shrink: 0;
+    border-radius: 6px;
+    background: var(--icon-bg);
+}
+.admin-upload-item.is-pending {
+    border-color: var(--gold-bright);
+}
+.admin-upload-item > .admin-btn-small {
+    margin-left: auto;
+    flex-shrink: 0;
+}
+.admin-need-id {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--gold);
+    font-weight: bold;
+}
+
 /* 背景の表示位置 */
 .admin-bg-shared {
     font-size: 13px;
@@ -385,6 +534,11 @@ body.dark-theme .admin-status.is-ok {
 }
 
 @media (max-width: 600px) {
+    /* スマホでも画像の一覧は2列にして、縦に長くなりすぎないようにする */
+    .admin-file-grid.is-bg,
+    .admin-file-grid.is-icon {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
     .admin-period {
         padding: 10px;
     }

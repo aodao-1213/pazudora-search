@@ -97,6 +97,14 @@ function refreshUploadButtons() {
     if (excelSave) excelSave.disabled = !(typeof excelUpload !== 'undefined' && excelUpload.compiled);
     const bgSave = document.getElementById('adminBgUploadSave');
     if (bgSave) bgSave.disabled = !(typeof bgUploads !== 'undefined' && bgUploads.some(u => !u.error));
+    const iconSave = document.getElementById('adminIconUploadSave');
+    if (iconSave) iconSave.disabled = !(typeof iconUploads !== 'undefined' && iconUploads.some(u => !u.error && u.id));
+    if (typeof imageSelection !== 'undefined') {
+        const bgDel = document.getElementById('adminBgDelete');
+        if (bgDel) bgDel.disabled = imageSelection.bg.size === 0;
+        const iconDel = document.getElementById('adminIconDelete');
+        if (iconDel) iconDel.disabled = imageSelection.icon.size === 0;
+    }
 }
 
 // ---------- GitHub API ----------
@@ -161,7 +169,15 @@ async function renderAdmin() {
     renderAnnouncementEditor();
     renderBgEditor();
     renderBgUploadList();
+    renderIconUploadList();
     refreshUploadButtons();
+    // 登録済みの画像の一覧（GitHub から読む。トークンがある時だけ）
+    if (getAdminToken()) {
+        await Promise.all([loadImageList('bg'), loadImageList('icon')]);
+    } else {
+        renderImageList('bg');
+        renderImageList('icon');
+    }
 }
 
 // 編集するデータを読み込む。トークンがあれば GitHub から最新を、無ければ今サイトに出ている内容を使う
@@ -598,8 +614,9 @@ async function saveBgFocus() {
     }
 }
 
-// ---------- 複数のファイルを1回の更新（1コミット）でまとめて保存する ----------
-// files: [{ path: 'images_bg/xxx.jpg', base64: '...' }]
+// ---------- 複数のファイルを1回の更新（1コミット）でまとめて保存・削除する ----------
+// files: [{ path: 'images_bg/xxx.jpg', base64: '...' }]  … 追加・上書き
+//        [{ path: 'images_bg/yyy.jpg', delete: true }]   … 削除
 
 function arrayBufferToBase64(buffer) {
     const bytes = new Uint8Array(buffer);
@@ -622,9 +639,13 @@ async function commitFilesToGitHub(files, message) {
     const parent = await githubRequest('GET', `/git/commits/${parentSha}`);
     if (!parent.ok) fail(parent);
 
-    // ファイルの中身を1つずつ送る
+    // ファイルの中身を1つずつ送る（削除するファイルは sha: null で「消す」と指定する）
     const tree = [];
     for (const file of files) {
+        if (file.delete) {
+            tree.push({ path: file.path, mode: '100644', type: 'blob', sha: null });
+            continue;
+        }
         const blob = await githubRequest('POST', '/git/blobs', { content: file.base64, encoding: 'base64' });
         if (!blob.ok) fail(blob);
         tree.push({ path: file.path, mode: '100644', type: 'blob', sha: blob.data.sha });
@@ -740,6 +761,9 @@ async function saveExcelFile() {
         if (typeof displayNoteExample === 'function') displayNoteExample();
         renderBgEditor();
         renderBgUploadList();
+        renderImageList('bg');
+        renderImageList('icon');
+        renderMissingIcons();
 
         excelUpload.file = null; excelUpload.buffer = null; excelUpload.compiled = null;
         document.getElementById('adminExcelInput').value = '';
@@ -864,11 +888,344 @@ async function saveBgUploads() {
         bgUploads = [];
         document.getElementById('adminBgUploadInput').value = '';
         renderBgUploadList();
+        await loadImageList('bg', true);
         showAdminMessage('adminBgUploadMessage', `${ready.length} 枚保存しました。公開サイトへの反映には 1〜2 分かかります。`, 'ok');
     } catch (e) {
         showAdminMessage('adminBgUploadMessage', e.message, 'error');
     } finally {
         setAdminBusy(false);
+    }
+}
+
+// ---------- 登録済みの画像の一覧と削除（背景画像・素材アイコン共通） ----------
+
+const IMAGE_KINDS = {
+    bg:   { dir: BG_IMAGE_DIR, ext: '.jpg', label: '背景画像', listId: 'adminBgFiles',   msgId: 'adminBgFilesMessage',   deleteId: 'adminBgDelete',   showAllId: 'adminBgShowAll',   filterId: null },
+    icon: { dir: 'images',     ext: '.png', label: '素材アイコン', listId: 'adminIconFiles', msgId: 'adminIconFilesMessage', deleteId: 'adminIconDelete', showAllId: 'adminIconShowAll', filterId: 'adminIconFilter' }
+};
+// サイトの部品として使っている画像（削除できないようにする）
+const PROTECTED_IMAGES = /^(question|howto_\d+)\.png$/;
+
+const adminImages = { bg: null, icon: null };   // GitHub 上のファイル一覧 [{ name, sha, size }]
+const imageSelection = { bg: new Set(), icon: new Set() };
+
+// GitHub 上の画像フォルダの一覧を読む
+async function loadImageList(kind, force = false) {
+    const conf = IMAGE_KINDS[kind];
+    if (!getAdminToken()) return;
+    if (adminImages[kind] && !force) { renderImageList(kind); return; }
+    showAdminMessage(conf.msgId, '一覧を読み込んでいます…', 'info');
+    const res = await githubRequest('GET', `/contents/${conf.dir}?ref=${GITHUB_REPO.branch}`);
+    if (!res.ok && res.status !== 404) {
+        showAdminMessage(conf.msgId, githubErrorText(res.status), 'error');
+        return;
+    }
+    adminImages[kind] = (Array.isArray(res.data) ? res.data : [])
+        .filter(f => f.type === 'file' && /\.(png|jpe?g|webp|gif)$/i.test(f.name))
+        .map(f => ({ name: f.name, sha: f.sha, size: f.size }));
+    imageSelection[kind].clear();
+    showAdminMessage(conf.msgId, '', 'info');
+    renderImageList(kind);
+    if (kind === 'icon') renderMissingIcons();
+}
+
+// 画像がどこで使われているか（使われていなければ空の配列）
+function imageUsage(kind, fileName) {
+    const key = fileName.replace(/\.\w+$/, '');
+    if (kind === 'bg') {
+        return dungeonData.filter(d => dungeonBg(d).key === key).map(d => d.name);
+    }
+    // 素材アイコン：この図鑑Noを持つ素材名のうち、報酬・交換で使われているもの
+    const used = usedMaterialNames();
+    return Object.keys(globalIdMap).filter(name => String(globalIdMap[name]) === key && used.has(name));
+}
+
+// 報酬リスト・交換で使われている素材名（モンスター名）すべて
+function usedMaterialNames() {
+    const names = new Set();
+    dungeonData.forEach(d => {
+        d.allRewards.forEach(r => names.add(r.name));
+        (d.exchanges || []).forEach(ex => {
+            names.add(ex.target);
+            ex.materials.forEach(m => names.add(m.name));
+        });
+    });
+    return names;
+}
+
+function renderImageList(kind) {
+    const conf = IMAGE_KINDS[kind];
+    const list = document.getElementById(conf.listId);
+    if (!list) return;
+    const files = adminImages[kind];
+    if (!files) {
+        list.innerHTML = `<p class="admin-empty">（トークンを登録すると一覧が表示されます）</p>`;
+        return;
+    }
+    const showAll = document.getElementById(conf.showAllId)?.checked;
+    const filter = conf.filterId ? (document.getElementById(conf.filterId)?.value || '').trim() : '';
+
+    const rows = files
+        .filter(f => !PROTECTED_IMAGES.test(f.name))
+        .map(f => {
+            const usage = imageUsage(kind, f.name);
+            const names = kind === 'icon' ? Object.keys(globalIdMap).filter(n => String(globalIdMap[n]) === f.name.replace(/\.\w+$/, '')) : [];
+            return { ...f, usage, names };
+        })
+        .filter(f => showAll || f.usage.length === 0 || imageSelection[kind].has(f.name))
+        .filter(f => !filter || f.name.includes(filter) || f.names.some(n => n.includes(filter)) || f.usage.some(n => n.includes(filter)));
+
+    const unusedCount = files.filter(f => !PROTECTED_IMAGES.test(f.name) && imageUsage(kind, f.name).length === 0).length;
+    const head = `<p class="admin-file-count">全 ${files.filter(f => !PROTECTED_IMAGES.test(f.name)).length} 件 ／ 使われていない ${unusedCount} 件${showAll ? '' : '（使われていないものだけ表示中）'}</p>`;
+
+    if (rows.length === 0) {
+        list.innerHTML = head + `<p class="admin-empty">${showAll || filter ? '該当する画像はありません。' : '使われていない画像はありません。'}</p>`;
+    } else {
+        list.innerHTML = head + `<div class="admin-file-grid is-${kind}">` + rows.map(f => {
+            const checked = imageSelection[kind].has(f.name);
+            const usageText = f.usage.length
+                ? `使用中：${f.usage.slice(0, 3).map(escapeHtml).join('、')}${f.usage.length > 3 ? ` ほか${f.usage.length - 3}` : ''}`
+                : (kind === 'icon' && f.names.length ? `未使用（Excel では「${escapeHtml(f.names[0])}」）` : '未使用');
+            return `<label class="admin-file-card${checked ? ' is-checked' : ''}${f.usage.length ? '' : ' is-unused'}">
+                        <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleImageSelection('${kind}', '${escapeHtml(f.name).replace(/'/g, '&#39;')}', this.checked)">
+                        <img src="${conf.dir}/${encodeURIComponent(f.name)}?v=${f.sha.slice(0, 7)}" alt="" loading="lazy">
+                        <span class="admin-file-name">${escapeHtml(f.name.replace(/\.\w+$/, ''))}${kind === 'icon' && f.names.length ? `<small>${escapeHtml(f.names[0])}</small>` : ''}</span>
+                        <span class="admin-file-meta">${Math.round(f.size / 1024)}KB ・ ${usageText}</span>
+                    </label>`;
+        }).join('') + `</div>`;
+    }
+    const delBtn = document.getElementById(conf.deleteId);
+    if (delBtn) {
+        delBtn.disabled = imageSelection[kind].size === 0;
+        delBtn.textContent = imageSelection[kind].size ? `選んだ ${imageSelection[kind].size} 件を削除` : '選んだ画像を削除';
+    }
+}
+
+function toggleImageSelection(kind, name, checked) {
+    if (checked) imageSelection[kind].add(name); else imageSelection[kind].delete(name);
+    renderImageList(kind);
+}
+
+async function deleteSelectedImages(kind) {
+    const conf = IMAGE_KINDS[kind];
+    if (!requireToken(conf.msgId)) return;
+    const names = [...imageSelection[kind]].filter(n => !PROTECTED_IMAGES.test(n));
+    if (names.length === 0) return;
+
+    const inUse = names.filter(n => imageUsage(kind, n).length > 0);
+    const warn = inUse.length
+        ? `\n\nうち ${inUse.length} 件は使用中です（${kind === 'bg' ? '背景が表示されなくなります' : '画像が「？」になります'}）：\n${inUse.map(n => n.replace(/\.\w+$/, '')).join('、')}`
+        : '';
+    if (!confirm(`${conf.label}を ${names.length} 件削除します。よろしいですか？${warn}\n\n（GitHub の履歴には残るので、必要なら後から戻せます）`)) return;
+
+    setAdminBusy(true);
+    showAdminMessage(conf.msgId, 'GitHub から削除しています…', 'info');
+    try {
+        const files = names.map(n => ({ path: `${conf.dir}/${n}`, delete: true }));
+        // 背景画像を消す時は、その画像の「表示位置」の設定も backgrounds.json から消す
+        let newFocus = null;
+        if (kind === 'bg') {
+            const keys = names.map(n => n.replace(/\.\w+$/, ''));
+            if (keys.some(k => adminState.bgFocus[k])) {
+                newFocus = { ...adminState.bgFocus };
+                keys.forEach(k => delete newFocus[k]);
+                const images = {};
+                Object.keys(newFocus).sort().forEach(k => { images[k] = newFocus[k]; });
+                files.push({ path: SETTINGS_FILES.backgrounds, base64: utf8ToBase64(JSON.stringify({ images }, null, 2) + '\n') });
+            }
+        }
+        await commitFilesToGitHub(files, `${conf.label}を削除（管理画面から）：${names.map(n => n.replace(/\.\w+$/, '')).join(', ')}`);
+        if (newFocus) {
+            adminState.bgFocus = newFocus;
+            bgFocusData = JSON.parse(JSON.stringify(newFocus));
+            renderBgEditor();
+        }
+        adminImages[kind] = adminImages[kind].filter(f => !names.includes(f.name));
+        imageSelection[kind].clear();
+        renderImageList(kind);
+        if (kind === 'icon') renderMissingIcons();
+        showAdminMessage(conf.msgId, `${names.length} 件削除しました。公開サイトへの反映には 1〜2 分かかります。`, 'ok');
+    } catch (e) {
+        showAdminMessage(conf.msgId, e.message, 'error');
+    } finally {
+        setAdminBusy(false);
+        renderImageList(kind);
+    }
+}
+
+// ---------- 素材アイコンの追加 ----------
+// ・「画像が無い素材」の一覧から、それぞれ画像を選ぶ
+// ・まとめて選ぶ（ファイル名が図鑑No か素材名なら自動で割り当て。わからなければ素材名を入力して指定）
+// 大きい画像は横100pxに縮小して PNG で保存（透明部分はそのまま）
+
+const ICON_MAX = 100;
+let iconUploads = [];   // [{ id, file, blob, width, height, previewUrl, label, error }]
+
+async function processIconImage(file) {
+    const img = await createImageBitmap(file);
+    let width = img.width, height = img.height;
+    // 100px 以下の PNG はそのまま使う（作り直すと画質が落ちる・容量が増えることがあるため）
+    if (width <= ICON_MAX && height <= ICON_MAX && file.type === 'image/png') {
+        img.close();
+        return { blob: file, width, height };
+    }
+    const scale = Math.min(1, ICON_MAX / Math.max(width, height));
+    width = Math.round(width * scale); height = Math.round(height * scale);
+    const canvas = document.createElement('canvas');
+    canvas.width = width; canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(img, 0, 0, width, height);
+    img.close();
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+    return { blob, width, height };
+}
+
+// ファイル名 → 図鑑No（「11556.png」→11556、「素材名.png」→ Excel の図鑑No）
+function iconIdFromFileName(name) {
+    const base = name.replace(/\.[^.]+$/, '').trim();
+    if (/^\d+$/.test(base)) return base;
+    return globalIdMap[base] ? String(globalIdMap[base]) : '';
+}
+
+function iconLabel(id) {
+    if (!id) return '';
+    const names = Object.keys(globalIdMap).filter(n => String(globalIdMap[n]) === String(id));
+    return names[0] || '（Excel に未登録の図鑑No）';
+}
+
+async function addIconFiles(files, forcedId = '') {
+    for (const file of files) {
+        const id = forcedId || iconIdFromFileName(file.name);
+        try {
+            const processed = await processIconImage(file);
+            iconUploads = iconUploads.filter(u => !(id && u.id === id));   // 同じ図鑑Noは新しい方だけ
+            iconUploads.push({ id, file, ...processed, previewUrl: URL.createObjectURL(processed.blob), label: iconLabel(id) });
+        } catch (e) {
+            iconUploads.push({ id, file, error: '画像を読み込めませんでした' });
+        }
+    }
+    renderIconUploadList();
+}
+
+async function selectIconFiles(input) {
+    await addIconFiles([...(input.files || [])]);
+    input.value = '';
+}
+
+// 「画像が無い素材」の行から1枚選んだ時
+async function pickMissingIcon(input, id) {
+    const file = input.files && input.files[0];
+    if (file) await addIconFiles([file], id);
+    input.value = '';
+}
+
+function setIconUploadName(index, value) {
+    const u = iconUploads[index];
+    if (!u) return;
+    const v = value.trim();
+    u.id = /^\d+$/.test(v) ? v : (globalIdMap[v] ? String(globalIdMap[v]) : '');
+    u.label = iconLabel(u.id);
+    renderIconUploadList();
+}
+
+function removeIconUpload(index) {
+    const u = iconUploads[index];
+    if (u && u.previewUrl) URL.revokeObjectURL(u.previewUrl);
+    iconUploads.splice(index, 1);
+    renderIconUploadList();
+}
+
+function renderIconUploadList() {
+    const list = document.getElementById('adminIconUploadList');
+    if (!list) return;
+    const existing = new Set((adminImages.icon || []).map(f => f.name.replace(/\.\w+$/, '')));
+    list.innerHTML = iconUploads.map((u, i) => {
+        if (u.error) {
+            return `<li class="admin-upload-item is-error"><strong>${escapeHtml(u.file.name)}</strong>：${escapeHtml(u.error)}
+                        <button type="button" class="admin-btn admin-btn-small" onclick="removeIconUpload(${i})">外す</button></li>`;
+        }
+        const idPart = u.id
+            ? `<strong>No.${escapeHtml(u.id)}</strong> ${escapeHtml(u.label)}${existing.has(u.id) ? '・<em>今の画像を上書きします</em>' : ''}`
+            : `<span class="admin-need-id">どの素材の画像か指定してください：</span>
+               <input type="text" class="admin-input admin-input-small" list="adminMaterialNames" placeholder="素材名 または 図鑑No" onchange="setIconUploadName(${i}, this.value)">`;
+        return `<li class="admin-upload-item${u.id ? '' : ' is-pending'}">
+                    <img src="${u.previewUrl}" alt="" class="admin-icon-thumb">
+                    <div class="admin-upload-info">
+                        <span>${idPart}</span>
+                        <span class="admin-upload-usage">${escapeHtml(u.file.name)} → ${u.width}×${u.height}・${Math.round(u.blob.size / 1024)}KB</span>
+                    </div>
+                    <button type="button" class="admin-btn admin-btn-small" onclick="removeIconUpload(${i})">外す</button>
+                </li>`;
+    }).join('');
+
+    // 素材名の入力候補
+    const datalist = document.getElementById('adminMaterialNames');
+    if (datalist && !datalist.dataset.filled && Object.keys(globalIdMap).length) {
+        datalist.innerHTML = Object.keys(globalIdMap).sort().map(n => `<option value="${escapeHtml(n)}">`).join('');
+        datalist.dataset.filled = '1';
+    }
+    const saveBtn = document.getElementById('adminIconUploadSave');
+    const ready = iconUploads.filter(u => !u.error && u.id).length;
+    if (saveBtn) {
+        saveBtn.disabled = ready === 0;
+        saveBtn.textContent = ready ? `${ready} 件を保存` : '保存';
+    }
+}
+
+// 報酬リスト・交換で使われているのに、画像が無い素材（図鑑No 未登録も含む）
+function renderMissingIcons() {
+    const list = document.getElementById('adminIconMissing');
+    if (!list) return;
+    if (!adminImages.icon) { list.innerHTML = ''; return; }
+    const existing = new Set(adminImages.icon.map(f => f.name.replace(/\.\w+$/, '')));
+    const pending = new Set(iconUploads.filter(u => u.id).map(u => u.id));
+    const seen = new Set();
+    const missing = [];
+    [...usedMaterialNames()].sort().forEach(name => {
+        const id = globalIdMap[name] ? String(globalIdMap[name]) : '';
+        if (id && (existing.has(id) || seen.has(id))) return;
+        if (id) seen.add(id);
+        missing.push({ name, id });
+    });
+
+    if (missing.length === 0) {
+        list.innerHTML = `<li class="admin-empty">画像が無い素材はありません 🎉</li>`;
+        return;
+    }
+    list.innerHTML = missing.map(m => m.id
+        ? `<li class="admin-missing-item${pending.has(m.id) ? ' is-ready' : ''}">
+               <span><strong>No.${escapeHtml(m.id)}</strong> ${escapeHtml(m.name)}${pending.has(m.id) ? '（追加待ち）' : ''}</span>
+               <label class="admin-btn admin-btn-small">画像を選ぶ<input type="file" accept="image/*" hidden onchange="pickMissingIcon(this, '${escapeHtml(m.id)}')"></label>
+           </li>`
+        : `<li class="admin-missing-item is-noid">
+               <span>${escapeHtml(m.name)}</span>
+               <span class="admin-upload-usage">図鑑No が Excel に未登録（先に Excel の「素材名と図鑑番号の対応」に登録してください）</span>
+           </li>`).join('');
+}
+
+async function saveIconUploads() {
+    if (!requireToken('adminIconUploadMessage')) return;
+    const ready = iconUploads.filter(u => !u.error && u.id);
+    if (ready.length === 0) return;
+    setAdminBusy(true);
+    showAdminMessage('adminIconUploadMessage', `GitHub に ${ready.length} 件保存しています…`, 'info');
+    try {
+        const files = [];
+        for (const u of ready) {
+            files.push({ path: `images/${u.id}.png`, base64: arrayBufferToBase64(await u.blob.arrayBuffer()) });
+        }
+        await commitFilesToGitHub(files, `素材アイコンを追加（管理画面から）：${ready.map(u => u.id).join(', ')}`);
+        ready.forEach(u => URL.revokeObjectURL(u.previewUrl));
+        iconUploads = iconUploads.filter(u => !ready.includes(u));
+        renderIconUploadList();
+        await loadImageList('icon', true);
+        showAdminMessage('adminIconUploadMessage', `${ready.length} 件保存しました。公開サイトへの反映には 1〜2 分かかります。`, 'ok');
+    } catch (e) {
+        showAdminMessage('adminIconUploadMessage', e.message, 'error');
+    } finally {
+        setAdminBusy(false);
+        renderIconUploadList();
     }
 }
 

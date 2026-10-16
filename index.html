@@ -9,11 +9,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap" rel="stylesheet">
     <!-- ?v= はバージョン番号。css/js を更新した時に番号を変えると、ブラウザに残った古いファイルではなく新しいファイルが読まれる -->
-    <link rel="stylesheet" href="base.css?v=20261018a">
-    <link rel="stylesheet" href="search.css?v=20261018a">
-    <link rel="stylesheet" href="arena.css?v=20261018a">
-    <link rel="stylesheet" href="components.css?v=20261018a">
-    <link rel="stylesheet" href="admin.css?v=20261018a">
+    <link rel="stylesheet" href="base.css?v=20261018c">
+    <link rel="stylesheet" href="search.css?v=20261018c">
+    <link rel="stylesheet" href="arena.css?v=20261018c">
+    <link rel="stylesheet" href="components.css?v=20261018c">
+    <link rel="stylesheet" href="admin.css?v=20261018c">
 </head>
 <body>
 
@@ -405,9 +405,10 @@
             <p id="adminExcelMessage" class="admin-message" hidden></p>
         </section>
 
-        <!-- 背景画像の追加（トークン登録済みのブラウザだけ表示） -->
+        <!-- 背景画像の追加・削除（トークン登録済みのブラウザだけ表示） -->
         <section class="result-box admin-panel admin-editor" hidden>
-            <h3 class="note-heading">背景画像の追加</h3>
+            <h3 class="note-heading">背景画像</h3>
+            <h4 class="admin-subheading">追加する</h4>
             <p class="muted-text">背景にしたい画像（元の大きい画像のままでOK）を選ぶと、このブラウザの中で軽量化（横1280px・400KB以内）してから保存します。複数枚まとめて選べます。ファイル名がそのまま名前になるので、Excel の「背景モンスター」列にはその名前（例：13585_1）を書いてください。</p>
             <label class="admin-file">
                 <input type="file" id="adminBgUploadInput" accept="image/*" multiple onchange="selectBgFiles(this)">
@@ -417,6 +418,49 @@
                 <button type="button" id="adminBgUploadSave" class="admin-btn admin-btn-primary" onclick="saveBgUploads()" disabled>保存</button>
             </div>
             <p id="adminBgUploadMessage" class="admin-message" hidden></p>
+
+            <h4 class="admin-subheading admin-subheading-gap">登録済みの背景画像（削除）</h4>
+            <div class="admin-row admin-row-center">
+                <label class="admin-check"><input type="checkbox" id="adminBgShowAll" onchange="renderImageList('bg')"> 使用中の画像も表示する</label>
+                <button type="button" class="admin-btn admin-btn-small" onclick="loadImageList('bg', true)">一覧を読み直す</button>
+            </div>
+            <div id="adminBgFiles"></div>
+            <div class="admin-row">
+                <button type="button" id="adminBgDelete" class="admin-btn admin-btn-danger-solid" onclick="deleteSelectedImages('bg')" disabled>選んだ画像を削除</button>
+            </div>
+            <p id="adminBgFilesMessage" class="admin-message" hidden></p>
+        </section>
+
+        <!-- 素材アイコンの追加・削除（トークン登録済みのブラウザだけ表示） -->
+        <section class="result-box admin-panel admin-editor" hidden>
+            <h3 class="note-heading">素材アイコン</h3>
+            <h4 class="admin-subheading">画像が無い素材</h4>
+            <p class="muted-text">報酬リストや交換で使われているのに、画像が無い（「？」で表示されている）素材です。「画像を選ぶ」で追加できます。</p>
+            <ul id="adminIconMissing" class="admin-missing-list"></ul>
+
+            <h4 class="admin-subheading admin-subheading-gap">まとめて追加する</h4>
+            <p class="muted-text">ファイル名が図鑑No（例：11556.png）か素材名なら、自動で割り当てます。わからない時は素材名を入力して指定してください。大きい画像は横100pxに縮小します。</p>
+            <label class="admin-file">
+                <input type="file" id="adminIconUploadInput" accept="image/*" multiple onchange="selectIconFiles(this)">
+            </label>
+            <datalist id="adminMaterialNames"></datalist>
+            <ul id="adminIconUploadList" class="admin-upload-list"></ul>
+            <div class="admin-row">
+                <button type="button" id="adminIconUploadSave" class="admin-btn admin-btn-primary" onclick="saveIconUploads()" disabled>保存</button>
+            </div>
+            <p id="adminIconUploadMessage" class="admin-message" hidden></p>
+
+            <h4 class="admin-subheading admin-subheading-gap">登録済みのアイコン（削除）</h4>
+            <div class="admin-row admin-row-center">
+                <label class="admin-check"><input type="checkbox" id="adminIconShowAll" onchange="renderImageList('icon')"> 使用中のアイコンも表示する</label>
+                <input type="text" id="adminIconFilter" class="admin-input admin-input-small" placeholder="図鑑No・素材名で絞り込み" oninput="renderImageList('icon')">
+                <button type="button" class="admin-btn admin-btn-small" onclick="loadImageList('icon', true)">一覧を読み直す</button>
+            </div>
+            <div id="adminIconFiles"></div>
+            <div class="admin-row">
+                <button type="button" id="adminIconDelete" class="admin-btn admin-btn-danger-solid" onclick="deleteSelectedImages('icon')" disabled>選んだ画像を削除</button>
+            </div>
+            <p id="adminIconFilesMessage" class="admin-message" hidden></p>
         </section>
 
         <!-- 背景の表示位置（トークン登録済みのブラウザだけ表示） -->
@@ -463,12 +507,12 @@
 
 <!-- Excel 読み込み用の部品（SheetJS）は、data.json が無い時と管理画面で Excel を選んだ時だけ data.js が読み込む -->
 <!-- ?v= はバージョン番号（上の css と同じ。更新したら番号を変える） -->
-<script src="data.js?v=20261018a"></script>
-<script src="history.js?v=20261018a"></script>
-<script src="search.js?v=20261018a"></script>
-<script src="nav.js?v=20261018a"></script>
-<script src="render.js?v=20261018a"></script>
-<script src="admin.js?v=20261018a"></script>
-<script src="main.js?v=20261018a"></script>
+<script src="data.js?v=20261018c"></script>
+<script src="history.js?v=20261018c"></script>
+<script src="search.js?v=20261018c"></script>
+<script src="nav.js?v=20261018c"></script>
+<script src="render.js?v=20261018c"></script>
+<script src="admin.js?v=20261018c"></script>
+<script src="main.js?v=20261018c"></script>
 </body>
 </html>
