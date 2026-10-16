@@ -88,6 +88,15 @@ function showAdminMessage(id, text, type = 'info') {
 
 function setAdminBusy(busy) {
     document.querySelectorAll('#sectionAdmin button').forEach(btn => { btn.disabled = busy; });
+    if (!busy) refreshUploadButtons();
+}
+
+// アップロードの「保存」ボタンは、ファイルを選んでいる時だけ押せるようにする
+function refreshUploadButtons() {
+    const excelSave = document.getElementById('adminExcelSave');
+    if (excelSave) excelSave.disabled = !(typeof excelUpload !== 'undefined' && excelUpload.compiled);
+    const bgSave = document.getElementById('adminBgUploadSave');
+    if (bgSave) bgSave.disabled = !(typeof bgUploads !== 'undefined' && bgUploads.some(u => !u.error));
 }
 
 // ---------- GitHub API ----------
@@ -151,6 +160,8 @@ async function renderAdmin() {
     renderMaintenanceEditor();
     renderAnnouncementEditor();
     renderBgEditor();
+    renderBgUploadList();
+    refreshUploadButtons();
 }
 
 // 編集するデータを読み込む。トークンがあれば GitHub から最新を、無ければ今サイトに出ている内容を使う
@@ -582,6 +593,280 @@ async function saveBgFocus() {
         showAdminMessage('adminBgMessage', '保存しました。公開サイトへの反映には 1〜2 分かかります。', 'ok');
     } catch (e) {
         showAdminMessage('adminBgMessage', e.message, 'error');
+    } finally {
+        setAdminBusy(false);
+    }
+}
+
+// ---------- 複数のファイルを1回の更新（1コミット）でまとめて保存する ----------
+// files: [{ path: 'images_bg/xxx.jpg', base64: '...' }]
+
+function arrayBufferToBase64(buffer) {
+    const bytes = new Uint8Array(buffer);
+    let binary = '';
+    const chunk = 0x8000;
+    for (let i = 0; i < bytes.length; i += chunk) {
+        binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+    }
+    return btoa(binary);
+}
+
+async function commitFilesToGitHub(files, message) {
+    const fail = (res) => { throw new Error(githubErrorText(res.status)); };
+    const branch = GITHUB_REPO.branch;
+
+    // 今の最新の状態（コミットとファイル一覧）を取る
+    const ref = await githubRequest('GET', `/git/ref/heads/${branch}`);
+    if (!ref.ok) fail(ref);
+    const parentSha = ref.data.object.sha;
+    const parent = await githubRequest('GET', `/git/commits/${parentSha}`);
+    if (!parent.ok) fail(parent);
+
+    // ファイルの中身を1つずつ送る
+    const tree = [];
+    for (const file of files) {
+        const blob = await githubRequest('POST', '/git/blobs', { content: file.base64, encoding: 'base64' });
+        if (!blob.ok) fail(blob);
+        tree.push({ path: file.path, mode: '100644', type: 'blob', sha: blob.data.sha });
+    }
+
+    // 「前の状態＋今回のファイル」で新しいコミットを作り、main をそこへ進める
+    const newTree = await githubRequest('POST', '/git/trees', { base_tree: parent.data.tree.sha, tree });
+    if (!newTree.ok) fail(newTree);
+    const commit = await githubRequest('POST', '/git/commits', { message, tree: newTree.data.sha, parents: [parentSha] });
+    if (!commit.ok) fail(commit);
+    const update = await githubRequest('PATCH', `/git/refs/heads/${branch}`, { sha: commit.data.sha });
+    if (!update.ok) {
+        if (update.status === 422) throw new Error(githubErrorText(409));
+        fail(update);
+    }
+    return commit.data.sha;
+}
+
+// ---------- データ（Excel）の更新 ----------
+// Excel を選ぶ → 中身をチェックしてまとめを表示 → 「保存」で dangeon.xlsx と data.json をまとめて GitHub に保存
+
+const excelUpload = { file: null, buffer: null, compiled: null };
+
+async function selectExcelFile(input) {
+    const file = input.files && input.files[0];
+    excelUpload.file = null; excelUpload.buffer = null; excelUpload.compiled = null;
+    document.getElementById('adminExcelSave').disabled = true;
+    document.getElementById('adminExcelSummary').innerHTML = '';
+    if (!file) return;
+
+    showAdminMessage('adminExcelMessage', 'Excel を読み込んでいます…', 'info');
+    try {
+        await loadScriptOnce(SHEETJS_URL);
+        const buffer = await file.arrayBuffer();
+        const workbook = XLSX.read(buffer, { type: 'array' });
+        const compiled = compileWorkbook(workbook);
+        const report = checkCompiledData(compiled, workbook);
+        excelUpload.file = file; excelUpload.buffer = buffer; excelUpload.compiled = compiled;
+
+        document.getElementById('adminExcelSummary').innerHTML = report.html;
+        document.getElementById('adminExcelSave').disabled = report.fatal;
+        showAdminMessage('adminExcelMessage',
+            report.fatal ? 'このファイルは保存できません（上の赤い項目を確認してください）。'
+                         : '内容を確認して、よければ「保存」を押してください。',
+            report.fatal ? 'error' : 'info');
+    } catch (e) {
+        showAdminMessage('adminExcelMessage', `Excel を読み込めませんでした：${e.message}`, 'error');
+    }
+}
+
+// 読み込んだ Excel の中身をチェックして、まとめ（HTML）を作る
+function checkCompiledData(compiled, workbook) {
+    const items = [];
+    const add = (type, text) => items.push(`<li class="is-${type}">${text}</li>`);
+    let fatal = false;
+
+    const dungeons = parseExcelData(compiled.dungeons, compiled.idMap);
+    const names = dungeons.map(d => d.name);
+    const series = [...new Set(dungeons.map(d => d.series))];
+
+    if (dungeons.length === 0 || dungeons.every(d => d.name === '不明')) {
+        add('error', '1枚目のシートにダンジョンがありません（「ステージ」「ダンジョン」列を確認してください）。');
+        fatal = true;
+    } else {
+        add('ok', `シート：${workbook.SheetNames.map(escapeHtml).join('、')}`);
+        add('ok', `ステージ ${series.length} 件 ／ ダンジョン ${dungeons.length} 件 ／ 交換 ${compiled.exchanges.length} 件 ／ 素材の図鑑No ${Object.keys(compiled.idMap).length} 件`);
+        const before = dungeonData.length;
+        if (before && before !== dungeons.length) add('info', `ダンジョンの数が ${before} 件 → ${dungeons.length} 件に変わります。`);
+    }
+
+    const dupNames = names.filter((n, i) => names.indexOf(n) !== i);
+    if (dupNames.length) add('warn', `同じ名前のダンジョンがあります：${[...new Set(dupNames)].map(escapeHtml).join('、')}`);
+
+    const exchangeDungeons = [...new Set(compiled.exchanges.map(r => String(r['ダンジョン'] || '').trim()).filter(Boolean))];
+    const unknownEx = exchangeDungeons.filter(n => !names.includes(n));
+    if (unknownEx.length) add('warn', `「交換」シートに、1枚目に無いダンジョン名があります：${unknownEx.map(escapeHtml).join('、')}`);
+
+    // 図鑑Noが無い素材名（画像が「？」になる）
+    const allNames = new Set();
+    dungeons.forEach(d => d.allRewards.forEach(r => allNames.add(r.name)));
+    compiled.exchanges.forEach(r => {
+        if (r['交換先']) allNames.add(String(r['交換先']).trim());
+        parseCategory(r['必要モンスター'], false).forEach(g => allNames.add(g.items[0]));
+    });
+    const noId = [...allNames].filter(n => n && !compiled.idMap[n]);
+    if (noId.length) add('warn', `図鑑No が未登録の名前（画像が「？」になります）：${noId.slice(0, 15).map(escapeHtml).join('、')}${noId.length > 15 ? ` ほか ${noId.length - 15} 件` : ''}`);
+
+    // 背景モンスター列が空のダンジョン
+    const noBg = dungeons.filter(d => !d.bgMonster).map(d => d.name);
+    if (noBg.length) add('info', `背景モンスターが空欄のダンジョン：${noBg.slice(0, 10).map(escapeHtml).join('、')}${noBg.length > 10 ? ` ほか ${noBg.length - 10} 件` : ''}`);
+
+    if (!fatal && items.filter(i => i.includes('is-warn')).length === 0) add('ok', '気になる点は見つかりませんでした。');
+    return { fatal, html: `<ul class="admin-check-list">${items.join('')}</ul>` };
+}
+
+async function saveExcelFile() {
+    if (!requireToken('adminExcelMessage')) return;
+    if (!excelUpload.compiled) {
+        showAdminMessage('adminExcelMessage', '先に Excel ファイルを選んでください。', 'error');
+        return;
+    }
+    setAdminBusy(true);
+    showAdminMessage('adminExcelMessage', 'GitHub に保存しています…', 'info');
+    try {
+        const compiled = { ...excelUpload.compiled, generatedAt: new Date().toISOString() };
+        await commitFilesToGitHub([
+            { path: 'dangeon.xlsx', base64: arrayBufferToBase64(excelUpload.buffer) },
+            { path: DATA_FILE, base64: utf8ToBase64(JSON.stringify(compiled)) }
+        ], 'データ（Excel）を更新（管理画面から）');
+
+        // このページの表示もすぐ新しいデータに切り替える
+        applyCompiledData(compiled);
+        if (typeof displayNoteExample === 'function') displayNoteExample();
+        renderBgEditor();
+        renderBgUploadList();
+
+        excelUpload.file = null; excelUpload.buffer = null; excelUpload.compiled = null;
+        document.getElementById('adminExcelInput').value = '';
+        document.getElementById('adminExcelSave').disabled = true;
+        showAdminMessage('adminExcelMessage', '保存しました。公開サイトへの反映には 1〜2 分かかります。', 'ok');
+    } catch (e) {
+        showAdminMessage('adminExcelMessage', e.message, 'error');
+    } finally {
+        setAdminBusy(false);
+    }
+}
+
+// ---------- 背景画像の追加 ----------
+// 選んだ画像をブラウザの中で軽量化（横1280px・400KB以内のJPEG。ドット絵は拡大）して images_bg に保存する。
+// 元の大きい画像はアップロードしない（パソコンに残るだけ）
+
+const BG_UPLOAD = { width: 1280, maxKB: 400, startQuality: 0.88, minQuality: 0.6 };
+let bgUploads = [];   // [{ file, key, blob, width, height, quality, isPixelArt, previewUrl }]
+
+function canvasToBlob(canvas, quality) {
+    return new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', quality));
+}
+
+async function convertBgImage(file) {
+    const img = await createImageBitmap(file);
+    const isPixelArt = img.width < 200;
+    let width, height;
+    if (isPixelArt) {
+        // ドット絵：ぼやけないよう、整数倍で横480px以上に拡大
+        const scale = Math.ceil(480 / img.width);
+        width = img.width * scale; height = img.height * scale;
+    } else {
+        width = Math.min(BG_UPLOAD.width, img.width);
+        height = Math.round(img.height * width / img.width);
+    }
+    const canvas = document.createElement('canvas');
+    canvas.width = width; canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    // 透過部分がある画像でも黒くならないよう、サイトの紫で塗っておく
+    ctx.fillStyle = '#1a1240';
+    ctx.fillRect(0, 0, width, height);
+    ctx.imageSmoothingEnabled = !isPixelArt;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(img, 0, 0, width, height);
+    img.close();
+
+    // 400KB に収まるまで画質を少しずつ下げる（ドット絵は輪郭がにじまないよう高画質のまま）
+    let quality = isPixelArt ? 0.95 : BG_UPLOAD.startQuality;
+    let blob = await canvasToBlob(canvas, quality);
+    while (!isPixelArt && blob.size / 1024 > BG_UPLOAD.maxKB && quality > BG_UPLOAD.minQuality) {
+        quality = Math.round((quality - 0.05) * 100) / 100;
+        blob = await canvasToBlob(canvas, quality);
+    }
+    return { blob, width, height, quality, isPixelArt };
+}
+
+// ファイル名 → 保存名（拡張子を外し、使えない文字を _ に）。Excel の「背景モンスター」列に書く名前になる
+function bgKeyFromFileName(name) {
+    return name.replace(/\.[^.]+$/, '').trim().replace(/[\\/:*?"<>|\s]+/g, '_');
+}
+
+async function selectBgFiles(input) {
+    const files = [...(input.files || [])];
+    bgUploads.forEach(u => URL.revokeObjectURL(u.previewUrl));
+    bgUploads = [];
+    renderBgUploadList();
+    if (files.length === 0) return;
+
+    showAdminMessage('adminBgUploadMessage', `${files.length} 枚を軽量化しています…`, 'info');
+    for (const file of files) {
+        try {
+            const converted = await convertBgImage(file);
+            bgUploads.push({ file, key: bgKeyFromFileName(file.name), ...converted, previewUrl: URL.createObjectURL(converted.blob) });
+        } catch (e) {
+            bgUploads.push({ file, key: bgKeyFromFileName(file.name), error: e.message || '画像を読み込めませんでした' });
+        }
+        renderBgUploadList();
+    }
+    const ok = bgUploads.filter(u => !u.error).length;
+    showAdminMessage('adminBgUploadMessage', ok ? `${ok} 枚の準備ができました。名前と使われ方を確認して「保存」を押してください。` : '保存できる画像がありません。', ok ? 'info' : 'error');
+}
+
+function renderBgUploadList() {
+    const list = document.getElementById('adminBgUploadList');
+    if (!list) return;
+    const usedKeys = new Set(dungeonData.map(d => dungeonBg(d).key));
+    list.innerHTML = bgUploads.map(u => {
+        if (u.error) return `<li class="admin-upload-item is-error"><strong>${escapeHtml(u.file.name)}</strong>：${escapeHtml(u.error)}</li>`;
+        const usedBy = dungeonData.filter(d => dungeonBg(d).key === u.key).map(d => d.name);
+        const usage = usedBy.length
+            ? `使われる場所：${usedBy.map(escapeHtml).join('、')}`
+            : `Excel の「背景モンスター」列にはまだ使われていません（使う時は <code>${escapeHtml(u.key)}</code> と書いてください）`;
+        return `<li class="admin-upload-item">
+                    <img src="${u.previewUrl}" alt="" class="admin-upload-thumb">
+                    <div class="admin-upload-info">
+                        <strong>${escapeHtml(u.key)}</strong>
+                        <span>${u.width}×${u.height}・${Math.round(u.blob.size / 1024)}KB（元 ${Math.round(u.file.size / 1024)}KB）${u.isPixelArt ? '・ドット絵として拡大' : ''}${usedKeys.has(u.key) ? '・<em>同じ名前の画像を上書きします</em>' : ''}</span>
+                        <span class="admin-upload-usage">${usage}</span>
+                    </div>
+                </li>`;
+    }).join('');
+    const saveBtn = document.getElementById('adminBgUploadSave');
+    if (saveBtn) saveBtn.disabled = !bgUploads.some(u => !u.error);
+}
+
+async function saveBgUploads() {
+    if (!requireToken('adminBgUploadMessage')) return;
+    const ready = bgUploads.filter(u => !u.error);
+    if (ready.length === 0) {
+        showAdminMessage('adminBgUploadMessage', '先に画像を選んでください。', 'error');
+        return;
+    }
+    setAdminBusy(true);
+    showAdminMessage('adminBgUploadMessage', `GitHub に ${ready.length} 枚保存しています…`, 'info');
+    try {
+        const files = [];
+        for (const u of ready) {
+            files.push({ path: `${BG_IMAGE_DIR}/${u.key}.jpg`, base64: arrayBufferToBase64(await u.blob.arrayBuffer()) });
+        }
+        await commitFilesToGitHub(files, `背景画像を追加（管理画面から）：${ready.map(u => u.key).join(', ')}`);
+        bgUploads.forEach(u => URL.revokeObjectURL(u.previewUrl));
+        bgUploads = [];
+        document.getElementById('adminBgUploadInput').value = '';
+        renderBgUploadList();
+        showAdminMessage('adminBgUploadMessage', `${ready.length} 枚保存しました。公開サイトへの反映には 1〜2 分かかります。`, 'ok');
+    } catch (e) {
+        showAdminMessage('adminBgUploadMessage', e.message, 'error');
     } finally {
         setAdminBusy(false);
     }

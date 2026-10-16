@@ -9,11 +9,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap" rel="stylesheet">
     <!-- ?v= はバージョン番号。css/js を更新した時に番号を変えると、ブラウザに残った古いファイルではなく新しいファイルが読まれる -->
-    <link rel="stylesheet" href="base.css?v=20261017g">
-    <link rel="stylesheet" href="search.css?v=20261017g">
-    <link rel="stylesheet" href="arena.css?v=20261017g">
-    <link rel="stylesheet" href="components.css?v=20261017g">
-    <link rel="stylesheet" href="admin.css?v=20261017g">
+    <link rel="stylesheet" href="base.css?v=20261018a">
+    <link rel="stylesheet" href="search.css?v=20261018a">
+    <link rel="stylesheet" href="arena.css?v=20261018a">
+    <link rel="stylesheet" href="components.css?v=20261018a">
+    <link rel="stylesheet" href="admin.css?v=20261018a">
 </head>
 <body>
 
@@ -391,6 +391,34 @@
             <ul id="adminNoticeList" class="admin-notice-list"></ul>
         </section>
 
+        <!-- データ（Excel）の更新（トークン登録済みのブラウザだけ表示） -->
+        <section class="result-box admin-panel admin-editor" hidden>
+            <h3 class="note-heading">データ（Excel）の更新</h3>
+            <p class="muted-text">編集した dangeon.xlsx を選ぶと、中身をチェックしてまとめを表示します。「保存」を押すと、Excel と、サイトが読む軽いデータ（data.json）をまとめて GitHub に保存します。</p>
+            <label class="admin-file">
+                <input type="file" id="adminExcelInput" accept=".xlsx" onchange="selectExcelFile(this)">
+            </label>
+            <div id="adminExcelSummary"></div>
+            <div class="admin-row">
+                <button type="button" id="adminExcelSave" class="admin-btn admin-btn-primary" onclick="saveExcelFile()" disabled>保存</button>
+            </div>
+            <p id="adminExcelMessage" class="admin-message" hidden></p>
+        </section>
+
+        <!-- 背景画像の追加（トークン登録済みのブラウザだけ表示） -->
+        <section class="result-box admin-panel admin-editor" hidden>
+            <h3 class="note-heading">背景画像の追加</h3>
+            <p class="muted-text">背景にしたい画像（元の大きい画像のままでOK）を選ぶと、このブラウザの中で軽量化（横1280px・400KB以内）してから保存します。複数枚まとめて選べます。ファイル名がそのまま名前になるので、Excel の「背景モンスター」列にはその名前（例：13585_1）を書いてください。</p>
+            <label class="admin-file">
+                <input type="file" id="adminBgUploadInput" accept="image/*" multiple onchange="selectBgFiles(this)">
+            </label>
+            <ul id="adminBgUploadList" class="admin-upload-list"></ul>
+            <div class="admin-row">
+                <button type="button" id="adminBgUploadSave" class="admin-btn admin-btn-primary" onclick="saveBgUploads()" disabled>保存</button>
+            </div>
+            <p id="adminBgUploadMessage" class="admin-message" hidden></p>
+        </section>
+
         <!-- 背景の表示位置（トークン登録済みのブラウザだけ表示） -->
         <section class="result-box admin-panel admin-editor" hidden>
             <h3 class="note-heading">背景の表示位置</h3>
@@ -433,14 +461,14 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<!-- Excel 読み込み用の部品（SheetJS）は、data.json が無い時と管理画面で Excel を選んだ時だけ data.js が読み込む -->
 <!-- ?v= はバージョン番号（上の css と同じ。更新したら番号を変える） -->
-<script src="data.js?v=20261017g"></script>
-<script src="history.js?v=20261017g"></script>
-<script src="search.js?v=20261017g"></script>
-<script src="nav.js?v=20261017g"></script>
-<script src="render.js?v=20261017g"></script>
-<script src="admin.js?v=20261017g"></script>
-<script src="main.js?v=20261017g"></script>
+<script src="data.js?v=20261018a"></script>
+<script src="history.js?v=20261018a"></script>
+<script src="search.js?v=20261018a"></script>
+<script src="nav.js?v=20261018a"></script>
+<script src="render.js?v=20261018a"></script>
+<script src="admin.js?v=20261018a"></script>
+<script src="main.js?v=20261018a"></script>
 </body>
 </html>

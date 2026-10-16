@@ -211,6 +211,101 @@ body.dark-theme .admin-status.is-ok {
     font-size: 12px;
 }
 
+/* ファイルのアップロード（Excel・背景画像） */
+.admin-file {
+    display: block;
+    margin-bottom: 12px;
+}
+.admin-file input[type="file"] {
+    max-width: 100%;
+    font-size: 14px;
+    color: var(--text-sub);
+}
+.admin-file input[type="file"]::file-selector-button {
+    margin-right: 10px;
+    padding: 8px 14px;
+    font-weight: bold;
+    color: var(--text);
+    background: var(--surface-2);
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    cursor: pointer;
+}
+/* Excel のチェック結果 */
+.admin-check-list {
+    margin: 0 0 12px;
+    padding: 0;
+    list-style: none;
+    font-size: 13px;
+    line-height: 1.6;
+}
+.admin-check-list li {
+    position: relative;
+    padding: 6px 10px 6px 28px;
+    margin-bottom: 4px;
+    border-radius: 6px;
+    background: var(--surface-2);
+    color: var(--text-sub);
+}
+.admin-check-list li::before {
+    position: absolute;
+    left: 9px;
+    top: 6px;
+}
+.admin-check-list li.is-ok::before { content: "✓"; color: #1f8f5f; }
+.admin-check-list li.is-info::before { content: "i"; color: var(--purple); font-weight: bold; }
+.admin-check-list li.is-warn { background: rgba(242, 177, 52, 0.12); }
+.admin-check-list li.is-warn::before { content: "!"; color: var(--gold); font-weight: bold; }
+.admin-check-list li.is-error { background: var(--danger-soft); color: var(--danger); }
+.admin-check-list li.is-error::before { content: "×"; color: var(--danger); font-weight: bold; }
+/* 追加する背景画像の一覧 */
+.admin-upload-list {
+    margin: 0 0 12px;
+    padding: 0;
+    list-style: none;
+}
+.admin-upload-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px;
+    margin-bottom: 6px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
+    font-size: 13px;
+}
+.admin-upload-item.is-error {
+    color: var(--danger);
+    background: var(--danger-soft);
+}
+.admin-upload-thumb {
+    width: 96px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+    flex-shrink: 0;
+}
+.admin-upload-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    color: var(--text-sub);
+}
+.admin-upload-info strong {
+    color: var(--text);
+}
+.admin-upload-info em {
+    font-style: normal;
+    color: var(--gold);
+    font-weight: bold;
+}
+.admin-upload-usage {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
 /* 背景の表示位置 */
 .admin-bg-shared {
     font-size: 13px;

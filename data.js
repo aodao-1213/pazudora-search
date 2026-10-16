@@ -72,92 +72,91 @@ async function loadSiteSettings() {
     }
 }
 
-function formatExcelDate(dateVal) {
-    if (!dateVal) return '';
-    if (!isNaN(dateVal) && typeof dateVal === 'number') {
-        const date = new Date(Math.round((dateVal - 25569) * 86400 * 1000));
-        return `${date.getFullYear()}/${String(date.getMonth()+1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
+// ====================================================
+// ダンジョンのデータ読み込み
+//
+// 普段は data.json（dangeon.xlsx の中身をサイト用に書き出した軽いファイル）だけを読む。
+// data.json は管理画面で Excel をアップロードした時に自動で作られる。
+// data.json が無い時だけ、Excel 読み込み用の部品（SheetJS・約900KB）を読み込んで dangeon.xlsx を直接読む。
+// ====================================================
+
+const DATA_FILE = 'data.json';
+const SHEETJS_URL = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+let dataGeneratedAt = '';   // data.json を作った日時（データの最終更新日）
+
+// 外部の部品（script）を必要になった時に1回だけ読み込む
+const loadedScripts = {};
+function loadScriptOnce(url) {
+    if (!loadedScripts[url]) {
+        loadedScripts[url] = new Promise((resolve, reject) => {
+            const s = document.createElement('script');
+            s.src = url;
+            s.onload = resolve;
+            s.onerror = () => reject(new Error(`${url} を読み込めませんでした`));
+            document.head.appendChild(s);
+        });
     }
-    const str = String(dateVal).trim();
-    const dateObj = new Date(str.replace(/-/g, '/'));
-    if (!isNaN(dateObj.getTime())) {
-        return `${dateObj.getFullYear()}/${String(dateObj.getMonth()+1).padStart(2, '0')}/${String(dateObj.getDate()).padStart(2, '0')}`;
-    }
-    return str; 
+    return loadedScripts[url];
 }
 
+// Excel のブック → サイトで使う形（data.json の中身）
+// ・dungeons：1枚目のシートの各行
+// ・idMap：「素材名と図鑑番号の対応」シート（素材名 → 図鑑No）
+// ・exchanges：「交換」シートの各行
+function compileWorkbook(workbook) {
+    const getSheet = (name) => workbook.Sheets[name] || null;
+
+    const dungeons = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
+
+    const idMap = {};
+    const idSheet = getSheet('素材名と図鑑番号の対応');
+    if (idSheet) {
+        XLSX.utils.sheet_to_json(idSheet, { header: "A", defval: "" }).forEach(row => {
+            const colA = String(row.A || '').trim();
+            const colB = String(row.B || '').trim();
+            if (colA && colB && !colA.includes('図鑑番号') && !colB.includes('素材名')) {
+                idMap[colB] = colA;
+            }
+        });
+    }
+
+    const exchangeSheet = getSheet('交換');
+    const exchanges = exchangeSheet ? XLSX.utils.sheet_to_json(exchangeSheet) : [];
+
+    return { generatedAt: new Date().toISOString(), dungeons, idMap, exchanges };
+}
+
+// data.json の中身をサイトのデータとして使う
+function applyCompiledData(compiled) {
+    globalIdMap = compiled.idMap || {};
+    dungeonData = parseExcelData(compiled.dungeons || [], globalIdMap);
+
+    // 「交換」シートの内容を、対応するダンジョンにくっつける
+    const exchangeMap = parseExchangeData(compiled.exchanges || []);
+    dungeonData.forEach(d => {
+        d.exchanges = exchangeMap[d.name] || [];
+    });
+    dataGeneratedAt = compiled.generatedAt || '';
+}
+
+// サイトのデータを読み込む（data.json → 無ければ dangeon.xlsx）
+async function loadSiteData() {
+    const compiled = await fetchJsonFile(DATA_FILE);
+    if (compiled && Array.isArray(compiled.dungeons)) {
+        applyCompiledData(compiled);
+        return;
+    }
+    await loadExcel();
+}
+
+// dangeon.xlsx を直接読む（data.json がまだ無い時の予備）
 async function loadExcel() {
     try {
-        // ★修正: ブラウザのキャッシュ（古い記憶）を無視して常に最新のエクセルを読み込むようにする
+        await loadScriptOnce(SHEETJS_URL);
+        // ブラウザのキャッシュ（古い記憶）を無視して常に最新のエクセルを読み込む
         const response = await fetch('dangeon.xlsx?t=' + new Date().getTime());
-        const arrayBuffer = await response.arrayBuffer();
-        
-        const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-
-        // シートは「名前」で探す（Excel側でシートの並び順を変えても読み込みがずれないように）
-        // ダンジョン一覧だけは従来どおり1枚目のシートを使う
-        const getSheet = (name) => workbook.Sheets[name] || null;
-
-        const sheet1 = workbook.Sheets[workbook.SheetNames[0]];
-        const jsonData = XLSX.utils.sheet_to_json(sheet1);
-
-        let idMap = {};
-        const sheet2 = getSheet('素材名と図鑑番号の対応');
-        if (sheet2) {
-            const idData = XLSX.utils.sheet_to_json(sheet2, { header: "A", defval: "" });
-            
-            idData.forEach(row => {
-                const colA = String(row.A || '').trim(); 
-                const colB = String(row.B || '').trim(); 
-                
-                if (colA && colB && !colA.includes('図鑑番号') && !colB.includes('素材名')) {
-                    idMap[colB] = colA;
-                }
-            });
-        }
-        globalIdMap = idMap;
-
-        // お知らせ：announcements.json が無い時だけ Excel のシートを使う
-        const noticeSheet = settingsLoaded.announcements ? null : getSheet('お知らせ');
-        if (noticeSheet) {
-            announcementData = [];
-            const noticeData = XLSX.utils.sheet_to_json(noticeSheet, { raw: true });
-            
-            noticeData.forEach((row, index) => {
-                const date = formatExcelDate(row['日付']);
-                const title = row['アナウンス(タイトル)'] ? String(row['アナウンス(タイトル)']).trim() : '';
-                const body = row['アナウンス(本文)'] ? String(row['アナウンス(本文)']).trim() : '';
-                
-                if (title) {
-                    announcementData.push({ id: index, date, title, body });
-                }
-            });
-            announcementData.reverse(); 
-        }
-
-        // メンテ期間：maintenance.json が無い時だけ Excel のシートを使う
-        const mainteSheet = settingsLoaded.maintenance ? null : getSheet('メンテ期間');
-        if (mainteSheet) {
-            maintenanceData = [];
-            const mainteData = XLSX.utils.sheet_to_json(mainteSheet, { raw: false, header: "A", defval: "" });
-
-            for (let i = 1; i < mainteData.length; i++) {
-                const row = mainteData[i];
-                if (row.B || row.C) {
-                    const period = toMaintenancePeriod(row.B, row.C);
-                    if (period) maintenanceData.push(period);
-                }
-            }
-        }
-        
-        dungeonData = parseExcelData(jsonData, idMap);
-
-        // 「交換」シートの内容を、対応するダンジョンにくっつける
-        const exchangeSheet = getSheet('交換');
-        const exchangeMap = exchangeSheet ? parseExchangeData(XLSX.utils.sheet_to_json(exchangeSheet)) : {};
-        dungeonData.forEach(d => {
-            d.exchanges = exchangeMap[d.name] || [];
-        });
+        const workbook = XLSX.read(await response.arrayBuffer(), { type: 'array' });
+        applyCompiledData(compileWorkbook(workbook));
     } catch (error) {
         console.error('Excelの読み込みに失敗:', error);
         document.getElementById('arenaList').innerHTML = "データの読み込みに失敗しました。";

@@ -32,13 +32,12 @@ function showMaintenanceIfNeeded() {
 }
 
 window.onload = async function() {
-    // メンテ期間・お知らせ（JSON）を先に読む。メンテ中なら重いExcelは読み込まずにメンテ画面を出す
+    // メンテ期間・お知らせ（JSON）を先に読む。メンテ中ならダンジョンのデータは読み込まずにメンテ画面を出す
     await loadSiteSettings();
-    if (settingsLoaded.maintenance && showMaintenanceIfNeeded()) return;
+    if (showMaintenanceIfNeeded()) return;
 
-    await loadExcel();
-    // maintenance.json が無い時は、Excelの「メンテ期間」シートで判定する
-    if (!settingsLoaded.maintenance && showMaintenanceIfNeeded()) return;
+    // ダンジョンのデータ（data.json。無ければ dangeon.xlsx）
+    await loadSiteData();
 
     if (typeof displayAnnouncements === 'function') displayAnnouncements();
     if (typeof displayNoteExample === 'function') displayNoteExample();
