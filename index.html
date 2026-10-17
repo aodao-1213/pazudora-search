@@ -9,11 +9,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap" rel="stylesheet">
     <!-- ?v= はバージョン番号。css/js を更新した時に番号を変えると、ブラウザに残った古いファイルではなく新しいファイルが読まれる -->
-    <link rel="stylesheet" href="base.css?v=20261018d">
-    <link rel="stylesheet" href="search.css?v=20261018d">
-    <link rel="stylesheet" href="arena.css?v=20261018d">
-    <link rel="stylesheet" href="components.css?v=20261018d">
-    <link rel="stylesheet" href="admin.css?v=20261018d">
+    <link rel="stylesheet" href="base.css?v=20261018e">
+    <link rel="stylesheet" href="search.css?v=20261018e">
+    <link rel="stylesheet" href="arena.css?v=20261018e">
+    <link rel="stylesheet" href="components.css?v=20261018e">
+    <link rel="stylesheet" href="admin.css?v=20261018e">
 </head>
 <body>
 
@@ -506,16 +506,19 @@
         <span class="credit-separator">|</span>
         <span class="credit-person">special thanks ゆうにうむ様(<a href="https://x.com/yuunium" target="_blank" rel="noopener noreferrer">@yuunium</a>)</span>
     </div>
+
+    <!-- 下にスクロールすると右下に出る「ページ上部へ戻る」ボタン（main.js） -->
+    <button id="backToTop" class="back-to-top" type="button" aria-label="ページ上部へ戻る" onclick="window.scrollTo({ top: 0, behavior: 'smooth' })">↑</button>
 </div>
 
 <!-- Excel 読み込み用の部品（SheetJS）は、data.json が無い時と管理画面で Excel を選んだ時だけ data.js が読み込む -->
 <!-- ?v= はバージョン番号（上の css と同じ。更新したら番号を変える） -->
-<script src="data.js?v=20261018d"></script>
-<script src="history.js?v=20261018d"></script>
-<script src="search.js?v=20261018d"></script>
-<script src="nav.js?v=20261018d"></script>
-<script src="render.js?v=20261018d"></script>
-<script src="admin.js?v=20261018d"></script>
-<script src="main.js?v=20261018d"></script>
+<script src="data.js?v=20261018e"></script>
+<script src="history.js?v=20261018e"></script>
+<script src="search.js?v=20261018e"></script>
+<script src="nav.js?v=20261018e"></script>
+<script src="render.js?v=20261018e"></script>
+<script src="admin.js?v=20261018e"></script>
+<script src="main.js?v=20261018e"></script>
 </body>
 </html>

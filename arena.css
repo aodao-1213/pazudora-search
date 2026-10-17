@@ -229,6 +229,70 @@
     font-weight: bold;
 }
 
+/* このページを共有（URLコピー・Xでポスト） */
+.share-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 8px 10px;
+    margin-top: 16px;
+}
+.share-label {
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--text-muted);
+}
+.share-btn {
+    padding: 7px 14px;
+    font-size: 13px;
+    font-weight: bold;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+}
+.share-btn:hover {
+    border-color: var(--gold-bright);
+}
+.share-btn.is-done {
+    color: var(--gold);
+    border-color: var(--gold-bright);
+}
+.share-btn-x {
+    color: #fff;
+    background: #000;
+    border-color: #000;
+}
+.share-btn-x:hover {
+    color: #fff;
+    border-color: var(--gold-bright);
+}
+/* 黒メインでは背景に溶けないよう枠を薄く出す */
+body.dark-theme .share-btn-x {
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* 追加されたばかりのダンジョンに付ける「NEW」 */
+.new-badge {
+    display: inline-block;
+    margin-right: 8px;
+    padding: 2px 7px;
+    font-family: system-ui, sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1.4;
+    letter-spacing: 0.06em;
+    vertical-align: 0.25em;
+    color: #fff;
+    text-shadow: none;
+    background: linear-gradient(135deg, #ff5a7a, #e0245e);
+    border-radius: 4px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+}
+
 /* ---------- ドロップ欄 ---------- */
 .drop-category {
     margin-top: 16px;

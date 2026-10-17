@@ -225,9 +225,20 @@ function parseCategory(text, isRandom) {
     return groups;
 }
 
+// 「追加日」列の値 → その日の0時の日時（ミリ秒）。読めない時は 0
+// ・Excelの日付セル（数値。1900/1/0 からの日数）と、「2026/10/17」「2026-10-17」のような文字の両方に対応
+function parseExcelDate(value) {
+    if (typeof value === 'number' && value > 0) {
+        const d = new Date(Math.round((value - 25569) * 86400000));
+        return new Date(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()).getTime();
+    }
+    const m = String(value || '').match(/(\d{4})\D+(\d{1,2})\D+(\d{1,2})/);
+    return m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])).getTime() : 0;
+}
+
 function parseExcelData(data, idMap) {
     const result = [];
-    const knownColumns = ['ステージ', 'ステージ名', 'ダンジョン', 'ダンジョン名', '交換可能なレート', 'ボス・部位破壊', 'ボス・乱入・部位破壊', '確定ドロップ', '確率ドロップ', '確定ランダムドロップ', '確率ランダムドロップ', '注意書き', '背景モンスター'];
+    const knownColumns = ['ステージ', 'ステージ名', 'ダンジョン', 'ダンジョン名', '交換可能なレート', 'ボス・部位破壊', 'ボス・乱入・部位破壊', '確定ドロップ', '確率ドロップ', '確定ランダムドロップ', '確率ランダムドロップ', '注意書き', '背景モンスター', '追加日'];
 
     data.forEach(row => {
         const series = row['ステージ'] || row['ステージ名'] || 'その他';
@@ -236,6 +247,8 @@ function parseExcelData(data, idMap) {
         const warning = row['注意書き'] ? String(row['注意書き']).trim() : '';
         // ダンジョン一覧のカード背景に使うモンスター名（または画像ファイル名）
         const bgMonster = row['背景モンスター'] ? String(row['背景モンスター']).trim() : '';
+        // ダンジョンを追加した日（一定期間「NEW」を付ける）
+        const addedAt = parseExcelDate(row['追加日']);
 
         const remarks = [];
         for (const key in row) {
@@ -284,7 +297,7 @@ function parseExcelData(data, idMap) {
             });
         });
 
-        result.push({ series, name, remarks, exchangeRate, drops, allRewards, warning, bgMonster });
+        result.push({ series, name, remarks, exchangeRate, drops, allRewards, warning, bgMonster, addedAt });
     });
     return result;
 }

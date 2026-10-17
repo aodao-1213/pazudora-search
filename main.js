@@ -43,6 +43,14 @@ function displayDataUpdated() {
     });
 }
 
+// ある程度下にスクロールしたら「ページ上部へ戻る」ボタンを出す
+function updateBackToTop() {
+    const button = document.getElementById('backToTop');
+    if (button) button.classList.toggle('is-visible', window.scrollY > 500);
+}
+window.addEventListener('scroll', updateBackToTop, { passive: true });
+window.addEventListener('hashchange', () => setTimeout(updateBackToTop, 50));
+
 window.onload = async function() {
     // メンテ期間・お知らせ（JSON）を先に読む。メンテ中ならダンジョンのデータは読み込まずにメンテ画面を出す
     await loadSiteSettings();

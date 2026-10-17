@@ -233,12 +233,23 @@ function dungeonStatsHtml(arena) {
     return `<div class="dungeon-stats">${stats.join('<span class="stat-sep">／</span>')}</div>`;
 }
 
+// 「追加日」からこの日数のあいだは「NEW」を付ける
+const NEW_DAYS = 14;
+
+function isNewDungeon(arena) {
+    return !!arena.addedAt && Date.now() - arena.addedAt < NEW_DAYS * 86400000;
+}
+
+function newBadgeHtml(show) {
+    return show ? '<span class="new-badge">NEW</span>' : '';
+}
+
 // ステージ・ダンジョン一覧の1枚分（背景にモンスター画像を敷いたカード）
-function arenaTileHtml(href, title, subHtml, bg) {
+function arenaTileHtml(href, title, subHtml, bg, isNew = false) {
     return `<a class="arena-tile${tileBgClass(bg)}" href="#${href}">
                 ${tileBgHtml(bg)}
                 <span class="tile-body">
-                    <span class="tile-title">${title}</span>
+                    <span class="tile-title">${newBadgeHtml(isNew)}${title}</span>
                     ${subHtml}
                 </span>
                 <span class="tile-arrow" aria-hidden="true">➤</span>
@@ -321,7 +332,8 @@ function stageListHtml(grouped) {
         // ステージの背景は、背景モンスターが設定されている最初のダンジョンのものを使う
         const bgArena = dungeons.find(d => d.bgMonster);
         const sub = `<span class="tile-sub">${dungeons.length} ダンジョン</span>`;
-        return arenaTileHtml(arenaHash(seriesName), seriesName, sub, dungeonBg(bgArena));
+        // 中に新しいダンジョンが1つでもあれば、ステージにも NEW を付ける
+        return arenaTileHtml(arenaHash(seriesName), seriesName, sub, dungeonBg(bgArena), dungeons.some(isNewDungeon));
     });
     return `<div class="arena-tile-grid">${tiles.join('')}</div>`;
 }
@@ -329,7 +341,7 @@ function stageListHtml(grouped) {
 // [2] ダンジョン一覧（1つのステージ内）
 function dungeonListHtml(dungeons) {
     const tiles = dungeons.map(arena =>
-        arenaTileHtml(arenaHash(arena.series, arena.name), arena.name, dungeonStatsHtml(arena), dungeonBg(arena))
+        arenaTileHtml(arenaHash(arena.series, arena.name), arena.name, dungeonStatsHtml(arena), dungeonBg(arena), isNewDungeon(arena))
     );
     return `<div class="arena-tile-grid">${tiles.join('')}</div>`;
 }
@@ -343,7 +355,7 @@ function dungeonDetailHtml(arena, dungeons) {
                     <div class="dungeon-hero${tileBgClass(bg)}">
                         ${tileBgHtml(bg)}
                         <div class="tile-body">
-                            <h3 class="dungeon-name">${arena.name}</h3>
+                            <h3 class="dungeon-name">${newBadgeHtml(isNewDungeon(arena))}${arena.name}</h3>
                             ${dungeonStatsHtml(arena)}
                         </div>
                     </div>
@@ -360,7 +372,51 @@ function dungeonDetailHtml(arena, dungeons) {
                 ${prev ? `<a class="pager-link pager-prev" href="#${arenaHash(prev.series, prev.name)}"><span class="pager-dir">← 前</span><span class="pager-name">${prev.name}</span></a>` : '<span></span>'}
                 ${next ? `<a class="pager-link pager-next" href="#${arenaHash(next.series, next.name)}"><span class="pager-dir">次 →</span><span class="pager-name">${next.name}</span></a>` : '<span></span>'}
              </nav>`;
+
+    // このダンジョンのページを共有する
+    html += `<div class="share-bar">
+                <span class="share-label">このページを共有</span>
+                <button type="button" class="share-btn" onclick="copyShareUrl(this)">🔗 URLをコピー</button>
+                <button type="button" class="share-btn share-btn-x" onclick="shareToX()">𝕏 でポスト</button>
+             </div>`;
     return html;
+}
+
+// 共有用のURL（今の画面）。?admin=… などは付けない（テスター用のURLが広まらないように）
+function shareUrl() {
+    return `${location.origin}${location.pathname}${location.hash}`;
+}
+
+async function copyShareUrl(button) {
+    const url = shareUrl();
+    let ok = false;
+    try {
+        await navigator.clipboard.writeText(url);
+        ok = true;
+    } catch (e) {
+        // 古いブラウザなど clipboard が使えない時の予備
+        const area = document.createElement('textarea');
+        area.value = url;
+        area.style.position = 'fixed';
+        area.style.opacity = '0';
+        document.body.appendChild(area);
+        area.select();
+        try { ok = document.execCommand('copy'); } catch (e2) { ok = false; }
+        area.remove();
+    }
+    const label = button.textContent;
+    button.textContent = ok ? '✓ コピーしました' : 'コピーできませんでした';
+    button.classList.toggle('is-done', ok);
+    setTimeout(() => {
+        button.textContent = label;
+        button.classList.remove('is-done');
+    }, 2000);
+}
+
+function shareToX() {
+    const text = document.title;
+    const intent = `https://x.com/intent/post?text=${encodeURIComponent(text)}&url=${encodeURIComponent(shareUrl())}`;
+    window.open(intent, '_blank', 'noopener,noreferrer');
 }
 
 // 補足（「(ボス本体)」「×3」など）の表示用。※ の前で改行する
