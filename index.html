@@ -4,16 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>パズドラ 闘技場報酬＆素材検索ツール</title>
+    <meta name="description" content="パズドラの闘技場シリーズのドロップ報酬一覧と、素材がどのダンジョンで手に入るかを探せるツールです。">
+
+    <!-- X などでURLを共有した時に出るカード（画像は ogp.jpg。URLは公開サイトのものを書く） -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="パズドラ 闘技場報酬＆素材検索ツール">
+    <meta property="og:title" content="パズドラ 闘技場報酬＆素材検索ツール">
+    <meta property="og:description" content="その素材、どこで手に入る？がすぐ分かる。闘技場シリーズの報酬リストと素材検索。">
+    <meta property="og:url" content="https://aodao-1213.github.io/pazudora-search/">
+    <meta property="og:image" content="https://aodao-1213.github.io/pazudora-search/ogp.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:locale" content="ja_JP">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <!-- タブのアイコンと、スマホの「ホーム画面に追加」用の設定 -->
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#3f238a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="闘技場ツール">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <!-- 見出し用のゲーム風フォント（読み込めない環境では通常のゴシック体で表示される） -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap" rel="stylesheet">
     <!-- ?v= はバージョン番号。css/js を更新した時に番号を変えると、ブラウザに残った古いファイルではなく新しいファイルが読まれる -->
-    <link rel="stylesheet" href="base.css?v=20261018e">
-    <link rel="stylesheet" href="search.css?v=20261018e">
-    <link rel="stylesheet" href="arena.css?v=20261018e">
-    <link rel="stylesheet" href="components.css?v=20261018e">
-    <link rel="stylesheet" href="admin.css?v=20261018e">
+    <link rel="stylesheet" href="base.css?v=20261018f">
+    <link rel="stylesheet" href="search.css?v=20261018f">
+    <link rel="stylesheet" href="arena.css?v=20261018f">
+    <link rel="stylesheet" href="components.css?v=20261018f">
+    <link rel="stylesheet" href="admin.css?v=20261018f">
 </head>
 <body>
 
@@ -502,6 +526,10 @@
     </div>
 
     <div class="footer-credit">
+        <!-- 不具合報告・要望フォームへのリンク（main.js の FEEDBACK_URL を入れると表示される） -->
+        <div id="feedbackRow" class="feedback-row" hidden>
+            <a id="feedbackLink" class="feedback-link" href="#" target="_blank" rel="noopener noreferrer">📮 不具合の報告・ご要望はこちら</a>
+        </div>
         <span class="credit-person">created by 蒼(<a href="https://x.com/aodao__" target="_blank" rel="noopener noreferrer">@aodao__</a>)</span>
         <span class="credit-separator">|</span>
         <span class="credit-person">special thanks ゆうにうむ様(<a href="https://x.com/yuunium" target="_blank" rel="noopener noreferrer">@yuunium</a>)</span>
@@ -513,12 +541,12 @@
 
 <!-- Excel 読み込み用の部品（SheetJS）は、data.json が無い時と管理画面で Excel を選んだ時だけ data.js が読み込む -->
 <!-- ?v= はバージョン番号（上の css と同じ。更新したら番号を変える） -->
-<script src="data.js?v=20261018e"></script>
-<script src="history.js?v=20261018e"></script>
-<script src="search.js?v=20261018e"></script>
-<script src="nav.js?v=20261018e"></script>
-<script src="render.js?v=20261018e"></script>
-<script src="admin.js?v=20261018e"></script>
-<script src="main.js?v=20261018e"></script>
+<script src="data.js?v=20261018f"></script>
+<script src="history.js?v=20261018f"></script>
+<script src="search.js?v=20261018f"></script>
+<script src="nav.js?v=20261018f"></script>
+<script src="render.js?v=20261018f"></script>
+<script src="admin.js?v=20261018f"></script>
+<script src="main.js?v=20261018f"></script>
 </body>
 </html>

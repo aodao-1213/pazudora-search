@@ -522,6 +522,27 @@ h2::after {
     margin: 0 10px;
     color: var(--border-strong);
 }
+/* 不具合報告・要望フォームへのリンク（クレジットの上） */
+.feedback-row {
+    margin-bottom: 14px;
+}
+.feedback-row[hidden] {
+    display: none;
+}
+.footer-credit .feedback-link {
+    display: inline-block;
+    padding: 8px 18px;
+    font-size: 13px;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    transition: border-color 0.2s;
+}
+.footer-credit .feedback-link:hover {
+    text-decoration: none;
+    border-color: var(--gold-bright);
+}
 
 /* ====================================================
    使い方・注意書き画面

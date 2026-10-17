@@ -43,6 +43,18 @@ function displayDataUpdated() {
     });
 }
 
+// 不具合報告・要望フォームのURL（Googleフォームなど）。空の間はリンクを出さない
+const FEEDBACK_URL = '';
+
+function setupFeedbackLink() {
+    const row = document.getElementById('feedbackRow');
+    const link = document.getElementById('feedbackLink');
+    if (!row || !link || !FEEDBACK_URL) return;
+    link.href = FEEDBACK_URL;
+    row.hidden = false;
+}
+document.addEventListener('DOMContentLoaded', setupFeedbackLink);
+
 // ある程度下にスクロールしたら「ページ上部へ戻る」ボタンを出す
 function updateBackToTop() {
     const button = document.getElementById('backToTop');
