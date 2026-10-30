@@ -202,9 +202,10 @@ function stageBg(dungeons) {
 
 // 画像ごとの「見せたい場所」{ x, y, zoom }（x, y は画像の中の位置を %、zoom は拡大率）
 // backgrounds.json に無い画像は「横中央・上から40%」、アイコン画像は外枠が見えないよう少し拡大
-// ステージのカードは、ステージ用の位置が無ければダンジョン用の位置を使う
+// ステージのカードはステージ用の位置、それ以外はダンジョン用の位置だけを使う（片方を変えても、もう片方は変わらない）
 function bgFocus(bg) {
-    const saved = (bg.forStage && bgStageFocusData && bgStageFocusData[bg.key]) || (bgFocusData && bgFocusData[bg.key]) || {};
+    const store = bg.forStage ? bgStageFocusData : bgFocusData;
+    const saved = (store && store[bg.key]) || {};
     return {
         x: Number.isFinite(saved.x) ? saved.x : 50,
         y: Number.isFinite(saved.y) ? saved.y : 40,

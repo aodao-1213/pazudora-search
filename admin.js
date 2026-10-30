@@ -484,7 +484,8 @@ async function deleteAnnouncement(id) {
 // ---------- 背景の表示位置 ----------
 // ダンジョン（またはステージ）を選んで、画像の「見せたい場所（顔など）」をクリックすると、そこを中心に切り抜いて表示する。
 // ・ダンジョン用：ダンジョン一覧のカードと報酬画面の帯。設定は画像ファイルごとなので、同じ画像を使うダンジョンにもまとめて反映される
-// ・ステージ用：ステージ一覧のカードだけ。設定していないステージは、ダンジョン用の位置で表示する
+// ・ステージ用：ステージ一覧のカードだけ
+// ダンジョン用とステージ用は別々に保存し、片方を変えてももう片方には影響しない
 
 // 背景の位置の保存先（ステージ用か、ダンジョン用か）
 function bgFocusStore(bg) {
@@ -492,8 +493,7 @@ function bgFocusStore(bg) {
 }
 
 function bgFocusFor(bg) {
-    // ステージ用の位置が無い時は、ダンジョン用の位置（それも無ければ初期位置）
-    const saved = (bg.forStage && adminState.bgStageFocus[bg.key]) || adminState.bgFocus[bg.key];
+    const saved = bgFocusStore(bg)[bg.key];
     const base = bgFocus({ ...bg, key: '__default__' });
     return saved ? { ...base, ...saved } : base;
 }
@@ -523,7 +523,6 @@ function renderBgEditor() {
     if (!select) return;
     const isStage = adminState.bgTarget === 'stage';
     document.getElementById('adminBgSelectLabel').textContent = `${isStage ? 'ステージ' : 'ダンジョン'}（✓ は調整済み）`;
-    document.getElementById('adminBgReset').textContent = isStage ? 'ダンジョンと同じ位置に戻す' : 'この画像を初期位置に戻す';
 
     const grouped = groupDungeonsBySeries();
     if (isStage) {
@@ -577,9 +576,12 @@ function renderBgPicker() {
 
     const shared = document.getElementById('adminBgShared');
     if (target.dungeons) {
-        shared.textContent = adminState.bgStageFocus[bg.key]
-            ? `画像：${bg.key}（ステージ一覧のカードだけに使われます）`
-            : `画像：${bg.key}（ステージ用の位置は未設定のため、今はダンジョン用の位置で表示しています）`;
+        // 同じ画像を背景にしている別のステージ（位置は画像ごとなので一緒に変わる）
+        const sharedStages = Object.entries(groupDungeonsBySeries())
+            .filter(([s, ds]) => s !== target.name && stageBg(ds).key === bg.key).map(([s]) => s);
+        shared.textContent = sharedStages.length
+            ? `この画像（${bg.key}）はステージ「${sharedStages.join('」「')}」のカードでも使われていて、まとめて変わります（ダンジョンのカードは変わりません）。`
+            : `画像：${bg.key}（ステージ一覧のカードだけが変わります。ダンジョンのカードは変わりません）`;
         document.getElementById('adminBgPreview').innerHTML = `
             <p class="admin-label">ステージ一覧のカード（スマホの幅）</p>
             <div class="admin-bg-preview-tile">
@@ -592,18 +594,12 @@ function renderBgPicker() {
         return;
     }
 
-    // 同じ画像を使っている場所（ステージ用の位置が無いステージのカードにも使われる）
+    // 同じ画像を使っている別のダンジョン（位置は画像ごとなので一緒に変わる）
     const arena = target.arena;
     const sharedNames = dungeonData.filter(d => d !== arena && dungeonBg(d).key === bg.key).map(d => d.name);
-    const usedAsStage = Object.entries(groupDungeonsBySeries())
-        .filter(([, ds]) => { const sbg = stageBg(ds); return sbg.key === bg.key && !adminState.bgStageFocus[sbg.key]; })
-        .map(([s]) => s);
-    const notes = [];
-    if (usedAsStage.length) notes.push(`ステージ「${usedAsStage.join('」「')}」のカード（ステージ用の位置が未設定のため）`);
-    if (sharedNames.length) notes.push(`ダンジョン「${sharedNames.join('」「')}」`);
-    shared.textContent = notes.length
-        ? `この画像（${bg.key}）は ${notes.join('、')} でも使われていて、まとめて変わります。`
-        : `画像：${bg.key}`;
+    shared.textContent = sharedNames.length
+        ? `この画像（${bg.key}）はダンジョン「${sharedNames.join('」「')}」でも使われていて、まとめて変わります（ステージ一覧のカードは変わりません）。`
+        : `画像：${bg.key}（ステージ一覧のカードは変わりません）`;
 
     // プレビュー（実際のカードと同じ見た目で表示）
     const stats = dungeonStatsHtml(arena);
@@ -666,7 +662,7 @@ function resetBgFocus() {
     delete bgFocusStore(target.bg)[target.bg.key];
     adminState.bgDirty = true;
     renderBgEditor();
-    showAdminMessage('adminBgMessage', `${target.bg.forStage ? 'ダンジョンと同じ位置' : '初期位置'}に戻しました（まだ保存していません）。`, 'info');
+    showAdminMessage('adminBgMessage', '初期位置に戻しました（まだ保存していません）。', 'info');
 }
 
 async function saveBgFocus() {
