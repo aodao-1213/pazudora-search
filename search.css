@@ -359,3 +359,7 @@ input[type="text"]:focus {
     color: var(--text-muted);
     padding: 20px 0;
 }
+/* 実装前のダンジョン（並びの間隔は .search-link の gap に任せる） */
+.search-link .upcoming-badge {
+    margin-right: 0;
+}

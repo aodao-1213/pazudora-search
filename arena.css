@@ -275,8 +275,9 @@ body.dark-theme .share-btn-x {
     border-color: rgba(255, 255, 255, 0.3);
 }
 
-/* 追加されたばかりのダンジョンに付ける「NEW」 */
-.new-badge {
+/* 追加されたばかりのダンジョンに付ける「NEW」と、まだ実装されていないダンジョンに付ける「実装前」 */
+.new-badge,
+.upcoming-badge {
     display: inline-block;
     margin-right: 8px;
     padding: 2px 7px;
@@ -291,6 +292,10 @@ body.dark-theme .share-btn-x {
     background: linear-gradient(135deg, #ff5a7a, #e0245e);
     border-radius: 4px;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+}
+
+.upcoming-badge {
+    background: linear-gradient(135deg, #8a94a8, #5c667a);
 }
 
 /* ---------- ドロップ欄 ---------- */

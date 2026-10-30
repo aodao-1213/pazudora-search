@@ -247,8 +247,9 @@ function parseExcelData(data, idMap) {
         const warning = row['注意書き'] ? String(row['注意書き']).trim() : '';
         // ダンジョン一覧のカード背景に使うモンスター名（または画像ファイル名）
         const bgMonster = row['背景モンスター'] ? String(row['背景モンスター']).trim() : '';
-        // ダンジョンを追加した日（一定期間「NEW」を付ける）
-        const addedAt = parseExcelDate(row['追加日']);
+        // ダンジョンを追加した日（一定期間「NEW」を付ける。未来の日付なら「実装前」）
+        // 「実装前」「未定」と文字で書いた時は、実装日が決まっていない実装前のダンジョンとして扱う
+        const addedAt = /実装前|未定/.test(String(row['追加日'] || '')) ? Infinity : parseExcelDate(row['追加日']);
 
         const remarks = [];
         for (const key in row) {

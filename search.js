@@ -25,15 +25,16 @@ const lastSearch = { input: '', dungeonHits: [], materialHits: [], filter: 'all'
 function collectSearchEntries() {
     const entries = [];
     dungeonData.forEach(arena => {
+        const upcoming = isUpcomingDungeon(arena);
         arena.allRewards.forEach(reward => {
-            entries.push({ name: reward.name, series: arena.series, dungeon: arena.name, category: reward.category, note: reward.note, id: reward.id, isExchange: false });
+            entries.push({ name: reward.name, series: arena.series, dungeon: arena.name, upcoming, category: reward.category, note: reward.note, id: reward.id, isExchange: false });
         });
         (arena.exchanges || []).forEach(ex => {
             const isEvolve = ex.condition === '進化';
-            entries.push({ name: ex.target, series: arena.series, dungeon: arena.name, category: isEvolve ? '進化で入手' : '交換で入手', note: ex.rate, isExchange: true });
+            entries.push({ name: ex.target, series: arena.series, dungeon: arena.name, upcoming, category: isEvolve ? '進化で入手' : '交換で入手', note: ex.rate, isExchange: true });
             ex.materials.forEach(m => {
                 // 同じ素材を複数の交換で使うことがあるので、何の交換（進化）に使うかも出す
-                entries.push({ name: m.name, series: arena.series, dungeon: arena.name, category: isEvolve ? '進化に使う' : '交換に使う', note: m.count, forTarget: ex.target, isExchange: true });
+                entries.push({ name: m.name, series: arena.series, dungeon: arena.name, upcoming, category: isEvolve ? '進化に使う' : '交換に使う', note: m.count, forTarget: ex.target, isExchange: true });
             });
         });
     });
@@ -108,7 +109,7 @@ function renderSearchResults() {
             const safeDungeon = arena.name.replace(/'/g, "\\'");
             html += `<li>
                         <a href="javascript:void(0);" class="search-link" onclick="jumpToDungeon('${safeDungeon}')">
-                            <span class="search-link-main"><span class="search-link-series">${arena.series} /</span> ${arena.name}</span>
+                            <span class="search-link-main"><span class="search-link-series">${arena.series} /</span> ${arena.name}</span>${isUpcomingDungeon(arena) ? UPCOMING_BADGE_HTML : ''}
                         </a>
                      </li>`;
         });
@@ -156,7 +157,7 @@ function renderSearchResults() {
                 const jumpOpts = res.isExchange ? ', { openExchange: true }' : '';
                 html += `<li>
                             <a href="javascript:void(0);" class="search-link dungeon-link" onclick="jumpToDungeon('${safeDungeon}'${jumpOpts})">
-                                <span class="search-link-main"><span class="search-link-series">${res.series} /</span> ${res.dungeon}</span>
+                                <span class="search-link-main"><span class="search-link-series">${res.series} /</span> ${res.dungeon}</span>${res.upcoming ? UPCOMING_BADGE_HTML : ''}
                                 <span class="search-category${res.isExchange ? ' is-exchange' : ''}">${res.category}</span>${noteHtml}${forHtml}
                             </a>
                          </li>`;
