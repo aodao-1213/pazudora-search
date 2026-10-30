@@ -12,7 +12,10 @@ const SETTINGS_FILES = {
 };
 
 // 背景画像ごとの表示位置 { 画像ファイル名: { x, y, zoom } }（backgrounds.json。無ければ既定の位置で表示）
+// ・bgFocusData（images）：ダンジョンのカードと報酬画面の帯
+// ・bgStageFocusData（stageImages）：ステージ一覧のカード。無い画像はダンジョン用の位置を使う
 let bgFocusData = {};
+let bgStageFocusData = {};
 const settingsLoaded = { maintenance: false, announcements: false };
 
 // 「2026/10/20 10:00」「2026-10-20T10:00」「未定」などの文字列 → メンテ期間1件分
@@ -55,6 +58,9 @@ async function loadSiteSettings() {
 
     if (backgrounds && backgrounds.images && typeof backgrounds.images === 'object') {
         bgFocusData = backgrounds.images;
+    }
+    if (backgrounds && backgrounds.stageImages && typeof backgrounds.stageImages === 'object') {
+        bgStageFocusData = backgrounds.stageImages;
     }
 
     if (maintenance && Array.isArray(maintenance.periods)) {

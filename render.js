@@ -195,10 +195,16 @@ function dungeonBg(arena) {
     return { url, isArt, key };
 }
 
+// ステージのカードの背景（背景モンスターが設定されている最初のダンジョンのもの）。表示位置はステージ用の設定を使う
+function stageBg(dungeons) {
+    return { ...dungeonBg(dungeons.find(d => d.bgMonster)), forStage: true };
+}
+
 // 画像ごとの「見せたい場所」{ x, y, zoom }（x, y は画像の中の位置を %、zoom は拡大率）
 // backgrounds.json に無い画像は「横中央・上から40%」、アイコン画像は外枠が見えないよう少し拡大
+// ステージのカードは、ステージ用の位置が無ければダンジョン用の位置を使う
 function bgFocus(bg) {
-    const saved = (bgFocusData && bgFocusData[bg.key]) || {};
+    const saved = (bg.forStage && bgStageFocusData && bgStageFocusData[bg.key]) || (bgFocusData && bgFocusData[bg.key]) || {};
     return {
         x: Number.isFinite(saved.x) ? saved.x : 50,
         y: Number.isFinite(saved.y) ? saved.y : 40,
@@ -341,11 +347,9 @@ function displayArenaList() {
 // [1] ステージ一覧
 function stageListHtml(grouped) {
     const tiles = Object.entries(grouped).map(([seriesName, dungeons]) => {
-        // ステージの背景は、背景モンスターが設定されている最初のダンジョンのものを使う
-        const bgArena = dungeons.find(d => d.bgMonster);
         const sub = `<span class="tile-sub">${dungeons.length} ダンジョン</span>`;
         // 中に新しいダンジョンが1つでもあれば、ステージにも NEW を付ける
-        return arenaTileHtml(arenaHash(seriesName), seriesName, sub, dungeonBg(bgArena), dungeons.some(isNewDungeon) ? NEW_BADGE_HTML : '');
+        return arenaTileHtml(arenaHash(seriesName), seriesName, sub, stageBg(dungeons), dungeons.some(isNewDungeon) ? NEW_BADGE_HTML : '');
     });
     return `<div class="arena-tile-grid">${tiles.join('')}</div>`;
 }

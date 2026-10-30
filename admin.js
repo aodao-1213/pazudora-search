@@ -14,8 +14,11 @@ const adminState = {
     periods: [],        // [{ start: '2026/10/20 10:00' or '未定', end: ... }]
     announcements: [],  // [{ id, date: '2026/10/20', title, body }]
     editingId: null,    // お知らせを編集中ならその id
-    bgFocus: {},        // 背景の表示位置 { 画像ファイル名: { x, y, zoom } }
+    bgFocus: {},        // 背景の表示位置 { 画像ファイル名: { x, y, zoom } }（ダンジョン用）
+    bgStageFocus: {},   // 同じ形のステージ一覧のカード用
+    bgTarget: 'dungeon', // 背景の位置を調整中なのは 'dungeon' か 'stage' か
     bgDungeon: '',      // 背景の位置を調整中のダンジョン名
+    bgStage: '',        // 背景の位置を調整中のステージ名
     bgDirty: false,     // 背景の位置に保存していない変更があるか
     loaded: false
 };
@@ -186,6 +189,7 @@ async function loadAdminData() {
         adminState.periods = maintenanceData.map(m => ({ start: m.startStr, end: m.endStr }));
         adminState.announcements = announcementData.map(n => ({ ...n }));
         adminState.bgFocus = JSON.parse(JSON.stringify(bgFocusData || {}));
+        adminState.bgStageFocus = JSON.parse(JSON.stringify(bgStageFocusData || {}));
         adminState.bgDirty = false;
     };
 
@@ -206,6 +210,7 @@ async function loadAdminData() {
         if (mainte.data && Array.isArray(mainte.data.periods)) adminState.periods = mainte.data.periods.map(p => ({ start: p.start, end: p.end }));
         if (notices.data && Array.isArray(notices.data.items)) adminState.announcements = notices.data.items.map(n => ({ ...n }));
         if (backgrounds.data && backgrounds.data.images) adminState.bgFocus = backgrounds.data.images;
+        if (backgrounds.data && backgrounds.data.stageImages) adminState.bgStageFocus = backgrounds.data.stageImages;
         adminState.loaded = true;
     } catch (e) {
         fromSite();
@@ -477,42 +482,86 @@ async function deleteAnnouncement(id) {
 }
 
 // ---------- 背景の表示位置 ----------
-// ダンジョンを選んで、画像の「見せたい場所（顔など）」をクリックすると、そこを中心に切り抜いて表示する。
-// 設定は画像ファイルごとなので、同じ画像を使うステージ一覧のカードなどにもまとめて反映される。
+// ダンジョン（またはステージ）を選んで、画像の「見せたい場所（顔など）」をクリックすると、そこを中心に切り抜いて表示する。
+// ・ダンジョン用：ダンジョン一覧のカードと報酬画面の帯。設定は画像ファイルごとなので、同じ画像を使うダンジョンにもまとめて反映される
+// ・ステージ用：ステージ一覧のカードだけ。設定していないステージは、ダンジョン用の位置で表示する
+
+// 背景の位置の保存先（ステージ用か、ダンジョン用か）
+function bgFocusStore(bg) {
+    return bg.forStage ? adminState.bgStageFocus : adminState.bgFocus;
+}
 
 function bgFocusFor(bg) {
-    const saved = adminState.bgFocus[bg.key];
-    return saved ? { ...bgFocus(bg), ...saved } : bgFocus({ ...bg, key: '__default__' });
+    // ステージ用の位置が無い時は、ダンジョン用の位置（それも無ければ初期位置）
+    const saved = (bg.forStage && adminState.bgStageFocus[bg.key]) || adminState.bgFocus[bg.key];
+    const base = bgFocus({ ...bg, key: '__default__' });
+    return saved ? { ...base, ...saved } : base;
+}
+
+// backgrounds.json の中身（キー順をそろえて、差分を見やすくする）
+function backgroundsJson(focus, stageFocus) {
+    const sorted = (obj) => {
+        const out = {};
+        Object.keys(obj).sort().forEach(k => { out[k] = obj[k]; });
+        return out;
+    };
+    return { images: sorted(focus), stageImages: sorted(stageFocus) };
+}
+
+// 調整中の対象 { name, bg, arena（ダンジョンの時）, dungeons（ステージの時） }
+function currentBgTarget() {
+    if (adminState.bgTarget === 'stage') {
+        const dungeons = groupDungeonsBySeries()[adminState.bgStage];
+        return dungeons ? { name: adminState.bgStage, bg: stageBg(dungeons), dungeons } : null;
+    }
+    const arena = dungeonData.find(d => d.name === adminState.bgDungeon);
+    return arena ? { name: arena.name, bg: dungeonBg(arena), arena } : null;
 }
 
 function renderBgEditor() {
     const select = document.getElementById('adminBgSelect');
     if (!select) return;
+    const isStage = adminState.bgTarget === 'stage';
+    document.getElementById('adminBgSelectLabel').textContent = `${isStage ? 'ステージ' : 'ダンジョン'}（✓ は調整済み）`;
+    document.getElementById('adminBgReset').textContent = isStage ? 'ダンジョンと同じ位置に戻す' : 'この画像を初期位置に戻す';
 
     const grouped = groupDungeonsBySeries();
-    const withBg = Object.values(grouped).flat().filter(d => dungeonBg(d).url);
-    if (withBg.length === 0) {
-        select.innerHTML = '<option>（背景が設定されたダンジョンがありません）</option>';
-        return;
-    }
-    if (!withBg.some(d => d.name === adminState.bgDungeon)) adminState.bgDungeon = withBg[0].name;
-
-    select.innerHTML = Object.entries(grouped).map(([series, dungeons]) => {
-        const options = dungeons.filter(d => dungeonBg(d).url).map(d => {
-            const mark = adminState.bgFocus[dungeonBg(d).key] ? ' ✓' : '';
-            return `<option value="${escapeHtml(d.name)}"${d.name === adminState.bgDungeon ? ' selected' : ''}>${escapeHtml(d.name)}${mark}</option>`;
+    if (isStage) {
+        const stages = Object.keys(grouped).filter(s => stageBg(grouped[s]).url);
+        if (stages.length === 0) {
+            select.innerHTML = '<option>（背景が設定されたステージがありません）</option>';
+            return;
+        }
+        if (!stages.includes(adminState.bgStage)) adminState.bgStage = stages[0];
+        select.innerHTML = stages.map(s => {
+            const mark = adminState.bgStageFocus[stageBg(grouped[s]).key] ? ' ✓' : '';
+            return `<option value="${escapeHtml(s)}"${s === adminState.bgStage ? ' selected' : ''}>${escapeHtml(s)}${mark}</option>`;
         }).join('');
-        return options ? `<optgroup label="${escapeHtml(series)}">${options}</optgroup>` : '';
-    }).join('');
+    } else {
+        const withBg = Object.values(grouped).flat().filter(d => dungeonBg(d).url);
+        if (withBg.length === 0) {
+            select.innerHTML = '<option>（背景が設定されたダンジョンがありません）</option>';
+            return;
+        }
+        if (!withBg.some(d => d.name === adminState.bgDungeon)) adminState.bgDungeon = withBg[0].name;
+
+        select.innerHTML = Object.entries(grouped).map(([series, dungeons]) => {
+            const options = dungeons.filter(d => dungeonBg(d).url).map(d => {
+                const mark = adminState.bgFocus[dungeonBg(d).key] ? ' ✓' : '';
+                return `<option value="${escapeHtml(d.name)}"${d.name === adminState.bgDungeon ? ' selected' : ''}>${escapeHtml(d.name)}${mark}</option>`;
+            }).join('');
+            return options ? `<optgroup label="${escapeHtml(series)}">${options}</optgroup>` : '';
+        }).join('');
+    }
 
     renderBgPicker();
 }
 
-// 選んだダンジョンの画像・目印・拡大率・プレビューを描き直す
+// 選んだダンジョン（ステージ）の画像・目印・拡大率・プレビューを描き直す
 function renderBgPicker() {
-    const arena = dungeonData.find(d => d.name === adminState.bgDungeon);
-    if (!arena) return;
-    const bg = dungeonBg(arena);
+    const target = currentBgTarget();
+    if (!target) return;
+    const bg = target.bg;
     const focus = bgFocusFor(bg);
 
     const img = document.getElementById('adminBgImage');
@@ -526,15 +575,33 @@ function renderBgPicker() {
     document.getElementById('adminBgZoomValue').textContent = `${zoomPercent}%`;
     document.getElementById('adminBgPosValue').textContent = `横 ${focus.x}% ／ 縦 ${focus.y}%`;
 
-    // 同じ画像を使っている場所（ステージ一覧のカードにも使われるか）
+    const shared = document.getElementById('adminBgShared');
+    if (target.dungeons) {
+        shared.textContent = adminState.bgStageFocus[bg.key]
+            ? `画像：${bg.key}（ステージ一覧のカードだけに使われます）`
+            : `画像：${bg.key}（ステージ用の位置は未設定のため、今はダンジョン用の位置で表示しています）`;
+        document.getElementById('adminBgPreview').innerHTML = `
+            <p class="admin-label">ステージ一覧のカード（スマホの幅）</p>
+            <div class="admin-bg-preview-tile">
+                <div class="arena-tile${tileBgClass(bg)}">
+                    ${tileBgHtml(bg, focus)}
+                    <span class="tile-body"><span class="tile-title">${escapeHtml(target.name)}</span><span class="tile-sub">${target.dungeons.length} ダンジョン</span></span>
+                    <span class="tile-arrow" aria-hidden="true">➤</span>
+                </div>
+            </div>`;
+        return;
+    }
+
+    // 同じ画像を使っている場所（ステージ用の位置が無いステージのカードにも使われる）
+    const arena = target.arena;
     const sharedNames = dungeonData.filter(d => d !== arena && dungeonBg(d).key === bg.key).map(d => d.name);
     const usedAsStage = Object.entries(groupDungeonsBySeries())
-        .filter(([, ds]) => { const first = ds.find(d => d.bgMonster); return first && dungeonBg(first).key === bg.key; })
+        .filter(([, ds]) => { const sbg = stageBg(ds); return sbg.key === bg.key && !adminState.bgStageFocus[sbg.key]; })
         .map(([s]) => s);
     const notes = [];
-    if (usedAsStage.length) notes.push(`ステージ「${usedAsStage.join('」「')}」のカード`);
+    if (usedAsStage.length) notes.push(`ステージ「${usedAsStage.join('」「')}」のカード（ステージ用の位置が未設定のため）`);
     if (sharedNames.length) notes.push(`ダンジョン「${sharedNames.join('」「')}」`);
-    document.getElementById('adminBgShared').textContent = notes.length
+    shared.textContent = notes.length
         ? `この画像（${bg.key}）は ${notes.join('、')} でも使われていて、まとめて変わります。`
         : `画像：${bg.key}`;
 
@@ -556,16 +623,24 @@ function renderBgPicker() {
         </div>`;
 }
 
+// 「ダンジョン」「ステージ」の切り替え
+function selectBgTarget(target) {
+    adminState.bgTarget = target;
+    renderBgEditor();
+}
+
 function selectBgDungeon() {
-    adminState.bgDungeon = document.getElementById('adminBgSelect').value;
+    const value = document.getElementById('adminBgSelect').value;
+    if (adminState.bgTarget === 'stage') adminState.bgStage = value;
+    else adminState.bgDungeon = value;
     renderBgPicker();
 }
 
 function updateCurrentBgFocus(changes) {
-    const arena = dungeonData.find(d => d.name === adminState.bgDungeon);
-    if (!arena) return;
-    const bg = dungeonBg(arena);
-    adminState.bgFocus[bg.key] = { ...bgFocusFor(bg), ...changes };
+    const target = currentBgTarget();
+    if (!target) return;
+    const bg = target.bg;
+    bgFocusStore(bg)[bg.key] = { ...bgFocusFor(bg), ...changes };
     adminState.bgDirty = true;
     renderBgPicker();
     showAdminMessage('adminBgMessage', 'まだ保存していません。調整が終わったら「保存」を押してください。', 'info');
@@ -586,12 +661,12 @@ function changeBgZoom() {
 }
 
 function resetBgFocus() {
-    const arena = dungeonData.find(d => d.name === adminState.bgDungeon);
-    if (!arena) return;
-    delete adminState.bgFocus[dungeonBg(arena).key];
+    const target = currentBgTarget();
+    if (!target) return;
+    delete bgFocusStore(target.bg)[target.bg.key];
     adminState.bgDirty = true;
     renderBgEditor();
-    showAdminMessage('adminBgMessage', '初期位置に戻しました（まだ保存していません）。', 'info');
+    showAdminMessage('adminBgMessage', `${target.bg.forStage ? 'ダンジョンと同じ位置' : '初期位置'}に戻しました（まだ保存していません）。`, 'info');
 }
 
 async function saveBgFocus() {
@@ -599,11 +674,10 @@ async function saveBgFocus() {
     setAdminBusy(true);
     showAdminMessage('adminBgMessage', 'GitHub に保存しています…', 'info');
     try {
-        // キー順をそろえて保存（差分が見やすいように）
-        const images = {};
-        Object.keys(adminState.bgFocus).sort().forEach(k => { images[k] = adminState.bgFocus[k]; });
-        await writeJsonToGitHub(SETTINGS_FILES.backgrounds, { images }, '背景の表示位置を更新（管理画面から）');
-        bgFocusData = JSON.parse(JSON.stringify(images));
+        const json = backgroundsJson(adminState.bgFocus, adminState.bgStageFocus);
+        await writeJsonToGitHub(SETTINGS_FILES.backgrounds, json, '背景の表示位置を更新（管理画面から）');
+        bgFocusData = JSON.parse(JSON.stringify(json.images));
+        bgStageFocusData = JSON.parse(JSON.stringify(json.stageImages));
         adminState.bgDirty = false;
         renderBgEditor();
         showAdminMessage('adminBgMessage', '保存しました。公開サイトへの反映には 1〜2 分かかります。', 'ok');
@@ -1023,22 +1097,24 @@ async function deleteSelectedImages(kind) {
     showAdminMessage(conf.msgId, 'GitHub から削除しています…', 'info');
     try {
         const files = names.map(n => ({ path: `${conf.dir}/${n}`, delete: true }));
-        // 背景画像を消す時は、その画像の「表示位置」の設定も backgrounds.json から消す
-        let newFocus = null;
+        // 背景画像を消す時は、その画像の「表示位置」の設定（ダンジョン用・ステージ用）も backgrounds.json から消す
+        let newBackgrounds = null;
         if (kind === 'bg') {
             const keys = names.map(n => n.replace(/\.\w+$/, ''));
-            if (keys.some(k => adminState.bgFocus[k])) {
-                newFocus = { ...adminState.bgFocus };
-                keys.forEach(k => delete newFocus[k]);
-                const images = {};
-                Object.keys(newFocus).sort().forEach(k => { images[k] = newFocus[k]; });
-                files.push({ path: SETTINGS_FILES.backgrounds, base64: utf8ToBase64(JSON.stringify({ images }, null, 2) + '\n') });
+            if (keys.some(k => adminState.bgFocus[k] || adminState.bgStageFocus[k])) {
+                const focus = { ...adminState.bgFocus };
+                const stageFocus = { ...adminState.bgStageFocus };
+                keys.forEach(k => { delete focus[k]; delete stageFocus[k]; });
+                newBackgrounds = backgroundsJson(focus, stageFocus);
+                files.push({ path: SETTINGS_FILES.backgrounds, base64: utf8ToBase64(JSON.stringify(newBackgrounds, null, 2) + '\n') });
             }
         }
         await commitFilesToGitHub(files, `${conf.label}を削除（管理画面から）：${names.map(n => n.replace(/\.\w+$/, '')).join(', ')}`);
-        if (newFocus) {
-            adminState.bgFocus = newFocus;
-            bgFocusData = JSON.parse(JSON.stringify(newFocus));
+        if (newBackgrounds) {
+            adminState.bgFocus = newBackgrounds.images;
+            adminState.bgStageFocus = newBackgrounds.stageImages;
+            bgFocusData = JSON.parse(JSON.stringify(newBackgrounds.images));
+            bgStageFocusData = JSON.parse(JSON.stringify(newBackgrounds.stageImages));
             renderBgEditor();
         }
         adminImages[kind] = adminImages[kind].filter(f => !names.includes(f.name));
