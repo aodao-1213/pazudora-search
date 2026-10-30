@@ -246,12 +246,13 @@ function isUpcomingDungeon(arena) {
     return arena.addedAt > Date.now();
 }
 
+const NEW_BADGE_HTML = '<span class="new-badge">NEW</span>';
 const UPCOMING_BADGE_HTML = '<span class="upcoming-badge">実装前</span>';
 
-// ダンジョン（またはステージ内のダンジョンのどれか）に付けるバッジ。NEW を優先する
-function dungeonBadgeHtml(dungeons) {
-    if (dungeons.some(isNewDungeon)) return '<span class="new-badge">NEW</span>';
-    if (dungeons.some(isUpcomingDungeon)) return UPCOMING_BADGE_HTML;
+// ダンジョンに付けるバッジ（「実装前」はダンジョンにだけ付け、ステージには付けない）
+function dungeonBadgeHtml(arena) {
+    if (isNewDungeon(arena)) return NEW_BADGE_HTML;
+    if (isUpcomingDungeon(arena)) return UPCOMING_BADGE_HTML;
     return '';
 }
 
@@ -343,8 +344,8 @@ function stageListHtml(grouped) {
         // ステージの背景は、背景モンスターが設定されている最初のダンジョンのものを使う
         const bgArena = dungeons.find(d => d.bgMonster);
         const sub = `<span class="tile-sub">${dungeons.length} ダンジョン</span>`;
-        // 中に新しい（実装前の）ダンジョンが1つでもあれば、ステージにも NEW（実装前）を付ける
-        return arenaTileHtml(arenaHash(seriesName), seriesName, sub, dungeonBg(bgArena), dungeonBadgeHtml(dungeons));
+        // 中に新しいダンジョンが1つでもあれば、ステージにも NEW を付ける
+        return arenaTileHtml(arenaHash(seriesName), seriesName, sub, dungeonBg(bgArena), dungeons.some(isNewDungeon) ? NEW_BADGE_HTML : '');
     });
     return `<div class="arena-tile-grid">${tiles.join('')}</div>`;
 }
@@ -352,7 +353,7 @@ function stageListHtml(grouped) {
 // [2] ダンジョン一覧（1つのステージ内）
 function dungeonListHtml(dungeons) {
     const tiles = dungeons.map(arena =>
-        arenaTileHtml(arenaHash(arena.series, arena.name), arena.name, dungeonStatsHtml(arena), dungeonBg(arena), dungeonBadgeHtml([arena]))
+        arenaTileHtml(arenaHash(arena.series, arena.name), arena.name, dungeonStatsHtml(arena), dungeonBg(arena), dungeonBadgeHtml(arena))
     );
     return `<div class="arena-tile-grid">${tiles.join('')}</div>`;
 }
@@ -366,7 +367,7 @@ function dungeonDetailHtml(arena, dungeons) {
                     <div class="dungeon-hero${tileBgClass(bg)}">
                         ${tileBgHtml(bg)}
                         <div class="tile-body">
-                            <h3 class="dungeon-name">${dungeonBadgeHtml([arena])}${arena.name}</h3>
+                            <h3 class="dungeon-name">${dungeonBadgeHtml(arena)}${arena.name}</h3>
                             ${dungeonStatsHtml(arena)}
                         </div>
                     </div>
