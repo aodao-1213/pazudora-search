@@ -195,16 +195,21 @@ function dungeonBg(arena) {
     return { url, isArt, key };
 }
 
-// ステージのカードの背景（背景モンスターが設定されている最初のダンジョンのもの）。表示位置はステージ用の設定を使う
+// ステージのカードの背景（背景モンスターが設定されている最初のダンジョンのもの）
 function stageBg(dungeons) {
-    return { ...dungeonBg(dungeons.find(d => d.bgMonster)), forStage: true };
+    return dungeonBg(dungeons.find(d => d.bgMonster));
+}
+
+// 報酬画面の上の帯の背景。表示位置はカードとは別の設定（heroImages）を使う
+function heroBg(arena) {
+    return { ...dungeonBg(arena), forHero: true };
 }
 
 // 画像ごとの「見せたい場所」{ x, y, zoom }（x, y は画像の中の位置を %、zoom は拡大率）
 // backgrounds.json に無い画像は「横中央・上から40%」、アイコン画像は外枠が見えないよう少し拡大
-// ステージのカードはステージ用の位置、それ以外はダンジョン用の位置だけを使う（片方を変えても、もう片方は変わらない）
+// 報酬画面の帯は帯用の位置、カード（ステージ・ダンジョン一覧）はカード用の位置だけを使う（片方を変えても、もう片方は変わらない）
 function bgFocus(bg) {
-    const store = bg.forStage ? bgStageFocusData : bgFocusData;
+    const store = bg.forHero ? bgHeroFocusData : bgFocusData;
     const saved = (store && store[bg.key]) || {};
     return {
         x: Number.isFinite(saved.x) ? saved.x : 50,
@@ -366,7 +371,7 @@ function dungeonListHtml(dungeons) {
 // [3] ダンジョン1つ分の報酬
 function dungeonDetailHtml(arena, dungeons) {
     const safeId = encodeURIComponent(arena.name);
-    const bg = dungeonBg(arena);
+    const bg = heroBg(arena);
 
     let html = `<div class="dungeon-detail" id="dungeon-${safeId}">
                     <div class="dungeon-hero${tileBgClass(bg)}">
