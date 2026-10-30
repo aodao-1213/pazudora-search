@@ -4,7 +4,7 @@ let globalIdMap = {};
 let maintenanceData = [];
 
 // メンテ期間・お知らせは管理画面から書き換える JSON ファイルで管理する
-// （JSONが無い時だけ、従来どおり dangeon.xlsx の「メンテ期間」「お知らせ」シートを使う）
+// （Excel の「お知らせ」「メンテ期間」シートはもう読んでいない。管理画面で保存しても Excel には書き込まれない）
 const SETTINGS_FILES = {
     maintenance: 'maintenance.json',
     announcements: 'announcements.json',
